@@ -37,14 +37,14 @@ void TagDetectorCamWorker::Run() {
             if (!success){
                 std::cerr << "ERROR Camera " << _camera_id << ": error acquiring lock to add tags to processing queue" << std::endl;
             }
-            cv::Mat tags_img = DrawTagBoxesOnImage(raw_tags, img);
-
-            ImShow("Camera " + std::to_string(_camera_id) + " img", 1, tags_img);
+//            cv::Mat tags_img = DrawTagBoxesOnImage(raw_tags, img);
+//
+//            ImShow("Camera " + std::to_string(_camera_id) + " img", 1, tags_img);
 
             runtimes.push_back(CurrentTime() - start_ns);
             if (runtimes.size() == 50){
-//                std::cout << "Average camera " << _camera_id << " worker execution time: " << (std::accumulate(runtimes.begin(), runtimes.end(), 0.0) / (1.0e6 * runtimes.size())) << "ms" << std::endl;
-//                std::cout << "\t Max: " << *std::max_element(runtimes.begin(), runtimes.end()) / 1.0e6 << "ms" << std::endl;
+                std::cout << "Average camera " << _camera_id << " worker execution time: " << (std::accumulate(runtimes.begin(), runtimes.end(), 0.0) / (1.0e6 * runtimes.size())) << "ms" << std::endl;
+                std::cout << "\t Max: " << *std::max_element(runtimes.begin(), runtimes.end()) / 1.0e6 << "ms" << std::endl;
                 runtimes.clear();
             }
         }

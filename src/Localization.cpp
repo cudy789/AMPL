@@ -75,15 +75,15 @@ std::vector<TagPose> DisambiguateTags(TagArray& fresh_tag_poses){
         computed_tag_poses[i].pitch = tag_stats[2][1];
         computed_tag_poses[i].yaw = tag_stats[2][2];
 
-        std::cout << "Tag " << computed_tag_poses[i].tag_id
-            << "\n\tmean"
-            << "\n\t\txyz: " << tag_stats[0][0] << ", " << tag_stats[0][1] << ", " << tag_stats[0][2]
-            << "\n\t\trpy: " << tag_stats[2][0] << ", " << tag_stats[2][1] << ", " << tag_stats[2][2]
-            << std::endl
-            << "\n\tstandard deviation"
-            << "\n\t\txyz: " << tag_stats[1][0] << ", " << tag_stats[1][1] << ", " << tag_stats[1][2]
-            << "\n\t\trpy: " << tag_stats[3][0] << ", " << tag_stats[3][1] << ", " << tag_stats[3][2]
-            << std::endl;
+//        std::cout << "Tag " << computed_tag_poses[i].tag_id
+//            << "\n\tmean"
+//            << "\n\t\txyz: " << tag_stats[0][0] << ", " << tag_stats[0][1] << ", " << tag_stats[0][2]
+//            << "\n\t\trpy: " << tag_stats[2][0] << ", " << tag_stats[2][1] << ", " << tag_stats[2][2]
+//            << std::endl
+//            << "\n\tstandard deviation"
+//            << "\n\t\txyz: " << tag_stats[1][0] << ", " << tag_stats[1][1] << ", " << tag_stats[1][2]
+//            << "\n\t\trpy: " << tag_stats[3][0] << ", " << tag_stats[3][1] << ", " << tag_stats[3][2]
+//            << std::endl;
 
 
     }

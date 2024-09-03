@@ -3,14 +3,6 @@
 
 #include "LocalizationWorker.h"
 
-void LocalizationWorker::Start() {
-    std::cout << "Starting localization thread" << std::endl;
-    _t_worker = std::thread([this]() {this->Run();});
-}
-
-void LocalizationWorker::join() {
-    _t_worker.join();
-}
 
 bool LocalizationWorker::QueueTag(TagPose raw_pose) {
     if(_raw_tag_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(50))){
@@ -34,7 +26,7 @@ bool LocalizationWorker::QueueTags(TagArray& raw_tagarray){
     return false;
 }
 
-void LocalizationWorker::Run() {
+void LocalizationWorker::RunOnce() {
     std::vector<ulong> runtimes;
     ulong missed_lock = 0;
     ulong last_processed_t = CurrentTime();
@@ -90,9 +82,9 @@ void LocalizationWorker::Run() {
 
                 runtimes.push_back(CurrentTime() - last_processed_t);
                 last_processed_t = CurrentTime();
-                if (runtimes.size() == 100){
-//                    std::cout << "Average localization worker execution time: " << (std::accumulate(runtimes.begin(), runtimes.end(), 0.0) / (1.0e6 * runtimes.size())) << "ms" << std::endl;
-//                    std::cout << "\t Max: " << *std::max_element(runtimes.begin(), runtimes.end()) / 1.0e6 << "ms" << std::endl;
+                if (runtimes.size() == 500){
+                    std::cout << "Average localization worker execution time: " << (std::accumulate(runtimes.begin(), runtimes.end(), 0.0) / (1.0e6 * runtimes.size())) << "ms" << std::endl;
+                    std::cout << "\t Max: " << *std::max_element(runtimes.begin(), runtimes.end()) / 1.0e6 << "ms" << std::endl;
                     runtimes.clear();
                 }
 

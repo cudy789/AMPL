@@ -278,7 +278,7 @@ int main(int argc, char *argv[])
 //    Eigen::Matrix3d R_camera_robot = CreateRotationMatrix({90, 0, 0});
 //    Eigen::Vector3d t_camera_robot(0, 0, 0.55);
 
-    vector<int> cam_ids = {4, 6};
+    vector<int> cam_ids = {2};
 //    vector<thread> cam_threads;
     vector<TagDetectorCamWorker> cam_workers;
     LocalizationWorker l_worker;
@@ -289,15 +289,21 @@ int main(int argc, char *argv[])
               0, -1, 0;
                                                                     // roll, -90 is straight ahead
 //    vector<Eigen::Matrix3d> R_camera_robots = {CreateRotationMatrix({-90, 0, 0})};
-    vector<Eigen::Matrix3d> R_camera_robots = {CreateRotationMatrix({-90, 0, 25}), // 25 degrees w.r.t robot Z for right cam
-                                               CreateRotationMatrix({-90, 0, 0})}; // center cam;
+    vector<Eigen::Matrix3d> R_camera_robots = {
+            CreateRotationMatrix({-90, 0, 25}), // 25 degrees w.r.t robot Z for right cam
+            CreateRotationMatrix({-90, 0, 0}), // center cam
+            CreateRotationMatrix({-90, 0, 0}) // center cam
+    };
 
 
 
 //    vector<Eigen::Matrix3d> R_camera_robots = {rotmat, rotmat};
 //    vector<Eigen::Vector3d> t_camera_robots = {{0, 0, 0}}; // center cam
-    vector<Eigen::Vector3d> t_camera_robots = {{0.14, -0.03, 0}, // right cam
-                                               {0, 0, 0}}; // center cam;
+    vector<Eigen::Vector3d> t_camera_robots = {
+            {0.14, -0.03, 0}, // right cam
+            {0, 0, 0}, // center cam
+            {0, 0, 0} // center cam
+    };
 
 
 
@@ -306,10 +312,13 @@ int main(int argc, char *argv[])
         cam_workers.emplace_back( TagDetectorCamWorker(getopt, cam_ids[i], R_camera_robots[i], t_camera_robots[i],
                                                        [&l_worker](TagArray& raw_tags) -> bool {return l_worker.QueueTags(raw_tags);})
                                                        );
+
+        sleep(1);
     }
     // Start tag detection threads
     for (TagDetectorCamWorker& w: cam_workers){
         w.Start();
+        sleep(1);
     }
     // Start localization thread
     l_worker.Start();

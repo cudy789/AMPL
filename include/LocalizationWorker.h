@@ -9,6 +9,7 @@
 
 #include "Pose.h"
 #include "Localization.h"
+#include "Worker.h"
 
 inline int WORK_PERIOD_MS = 10; // Run at 1/x Hz, in this case, 100Hz
 inline int INTER_CAMERA_DELTA_MS = 50; // If the time delta between the same tag being seen by 2+ different cameras is less than
@@ -17,14 +18,10 @@ inline int INTER_CAMERA_DELTA_MS = 50; // If the time delta between the same tag
 using namespace Localization;
 
 
-class LocalizationWorker{
+class LocalizationWorker: public Worker{
 
 public:
-    LocalizationWorker() = default;
-
-    void Start();
-
-    void join();
+    LocalizationWorker(): Worker("Localization worker"){};
 
     bool QueueTags(TagArray& raw_tagarray);
 
@@ -37,8 +34,8 @@ public:
 
 
 private:
-    void Run();
-    std::thread _t_worker;
+    void RunOnce() override;
+//    std::thread _t_worker;
 
     std::binary_semaphore _raw_tag_sem{1};
     TagArray _raw_tag_poses;

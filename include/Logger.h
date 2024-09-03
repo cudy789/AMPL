@@ -30,22 +30,49 @@ namespace AppLogger {
             {ERROR,    "\033[1;31mERROR\033[0m"}, // red
     };
 
-    using clock = std::chrono::steady_clock;
-    using l_ns = std::chrono::duration<ulong, std::nano>;
+
 
     inline ulong CurrentTime() {
+        using clock = std::chrono::high_resolution_clock;
+        using l_ns = std::chrono::duration<ulong, std::nano>;
+
         std::chrono::time_point<clock, l_ns> t = clock::now();
         return t.time_since_epoch().count();
 
     }
 
+    inline std::string datetime() {
+        auto now = std::chrono::high_resolution_clock::now();
+        auto in_time_t = std::chrono::high_resolution_clock::to_time_t(now);
+
+        std::stringstream ss;
+        ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d_%X");
+        return ss.str();
+    }
+
+    // https://stackoverflow.com/questions/24686846/get-current-time-in-milliseconds-or-hhmmssmmm-format
+    inline std::string datetime_ms() {
+
+        auto now = std::chrono::high_resolution_clock::now();
+        auto in_time_t = std::chrono::high_resolution_clock::to_time_t(now);
+
+        auto ms = duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
+
+        std::stringstream ss;
+        ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d_%X");
+        ss << '.' << std::setfill('0') << std::setw(3) << ms.count();
+
+        return ss.str();
+    }
+
 
 /***
- * A thread-safe logger for stdout and file logging.
+ * A singleton thread safe logger for stdout and file logging.
  */
     class Logger {
     public:
         Logger (Logger const&) = delete;
+
         void operator=(Logger const&) = delete;
 
         static bool Log(std::string value, SEVERITY level = SEVERITY::INFO) {
@@ -59,17 +86,27 @@ namespace AppLogger {
         static void SetStdout(bool enabled){
             GetInstance().setStdOut(enabled);
         }
+
         static void SetFileout(bool enabled){
             GetInstance().setFileout(enabled);
         }
+
         static std::string GetFilePath(){
             return GetInstance().getFilepath();
+        }
+
+        static void SetFilepath(std::string filepath){
+            GetInstance().setFilepath(filepath);
         }
 
         static Logger& GetInstance() {
             static Logger instance; // instantiated on first call, guaranteed to be destroyed
             return instance;
-        };
+        }
+
+        static bool Flush(){
+            return GetInstance().flush();
+        }
 
         static bool Close(bool terminate=false) {
             return GetInstance().stop(terminate);
@@ -91,8 +128,10 @@ namespace AppLogger {
         bool log(std::string value, SEVERITY level = SEVERITY::INFO) {
             if (_stop) return false;
             if (level >= _verbosity){
+                std::string date;
                 if (_ostream_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(200))) {
-                    _ostream_queue.push({value, level});
+                    date = "[" + datetime_ms() + "] ";
+                    _ostream_queue.push({value, date, level});
                     _ostream_sem.release();
                     return true;
                 } else{
@@ -113,18 +152,21 @@ namespace AppLogger {
             _verbosity = verbosity;
         }
         std::string getFilepath(){
-            return _filepath;
+            if (_filepath_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(1000))){
+                std::string filepath = _filepath;
+                _filepath_sem.release();
+                return filepath;
+            }
+            return "";
         }
 
-
-        std::string datetime() {
-            auto now = std::chrono::system_clock::now();
-            auto in_time_t = std::chrono::system_clock::to_time_t(now);
-
-            std::stringstream ss;
-            ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d_%X");
-            return ss.str();
-
+        bool setFilepath(std::string& filepath){
+            if (_filepath_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(1000))){
+                _filepath = filepath;
+                _filepath_sem.release();
+                return true;
+            }
+            return false;
         }
 
         bool stop(bool terminate=false) {
@@ -140,9 +182,30 @@ namespace AppLogger {
             }
         }
 
+        bool flush(){
+            if (_flush_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(3000))) {
+                _flush = true;
+                _flush_sem.release();
+                while (true){
+                    if (_flush_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(1000))){
+                        if (!_flush){
+                            _flush_sem.release();
+                            break;
+                        }
+                        _flush_sem.release();
+                    }
+                    std::this_thread::yield();
+                }
+                return true;
+            } else {
+                return false;
+            }
+        }
+
         void Run() {
             ulong start_ns = CurrentTime();
             bool stop = false;
+            bool flush = false;
 
             while (!stop) {
                 // Check to see if we should stop the worker
@@ -156,71 +219,90 @@ namespace AppLogger {
                     }
                     _stop_sem.release();
                 }
+                // Check to see if we should flush all data to the fileout
+                if (_flush_sem.try_acquire()){
+                    flush = _flush;
+                    _flush_sem.release();
+                }
 
                 // Check the queue for new messages to log to stdout
                 while (!_ostream_queue.empty()) {
-                    std::pair<std::string, SEVERITY> item = _ostream_queue.front();
-                    _ostream_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(1000));
-                    _ostream_queue.pop();
-                    _ostream_sem.release();
-                    if (_stdout_enabled){
-                        std::stringstream ss;
-                        ss << "[" << datetime() << "] " << severityToColorString[item.second] << ": " << item.first << std::endl;
-                        std::cout << ss.str();
-                    }
-                    if (_fileout_enabled){
-                        _filestream_queue.push(item);
+                    std::tuple<std::string, std::string, SEVERITY> item = _ostream_queue.front();
+                    if (_ostream_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(1000))){
+                        _ostream_queue.pop();
+                        _ostream_sem.release();
+                        if (_stdout_enabled){
+                            std::stringstream ss;
+                            ss << std::get<1>(item) << severityToColorString[std::get<2>(item)] << ": " << std::get<0>(item) << std::endl;
+                            std::cout << ss.str();
+                        }
+                        if (_fileout_enabled){
+                            _filestream_queue.push(item);
+                        }
                     }
 
                 }
 
-
                 // Check to see if enough time has passed and we should log messages to the logfile, or the thread is stopping
                 // Don't perform this check if fileout is disabled.
-                if ((CurrentTime() - start_ns > _thread_write_period_ns || stop) && _fileout_enabled) {
+                if (((CurrentTime() - start_ns > _thread_write_period_ns) || stop || flush) && _fileout_enabled) {
                     start_ns = CurrentTime();
 
                     std::ofstream *log_file;
 
-                    log_file = new std::ofstream(_filepath, std::ios::app); // try to open and append to file
+                    std::string filepath = "tmp.txt";
+                    if (_filepath_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(1000))){
+                        filepath = _filepath;
+                        _filepath_sem.release();
+                    }
+
+                    log_file = new std::ofstream(filepath, std::ios::app); // try to open and append to file
                     if (!(*log_file)) { // if file DNE, create new file
-                        log_file = new std::ofstream(_filepath);
+                        delete log_file;
+                        log_file = new std::ofstream(filepath);
                     }
 
                     while (!_filestream_queue.empty()) {
-                        std::pair<std::string, SEVERITY> item = _filestream_queue.front();
+                        std::tuple<std::string, std::string, SEVERITY> item = _filestream_queue.front();
                         _filestream_queue.pop();
 
                         std::stringstream ss;
-                        ss << "[" << datetime() << "] " << severityToString[item.second] << ": " << item.first << std::endl;
+                        ss << std::get<1>(item) << severityToString[std::get<2>(item)] << ": " << std::get<0>(item) << std::endl;
                         (*log_file) << ss.str();
                     }
                     log_file->close();
                     delete log_file;
                 }
 
+                if (_filestream_queue.empty()){
+                    if (_flush_sem.try_acquire()){
+                        _flush = false;
+                        _flush_sem.release();
+                        flush = false;
+                    }
+                }
+            std::this_thread::yield();
             }
-
         }
 
-
-
         bool _stop = false;
+        bool _flush = false;
         bool _terminate = false;
         std::binary_semaphore _stop_sem{1};
+        std::binary_semaphore _flush_sem{1};
 
         std::thread *_worker_t;
         std::binary_semaphore _ostream_sem{1};
-        std::queue<std::pair<std::string, SEVERITY>> _ostream_queue;
+        std::queue<std::tuple<std::string, std::string, SEVERITY>> _ostream_queue;
 
-        std::queue<std::pair<std::string, SEVERITY>> _filestream_queue;
+        std::queue<std::tuple<std::string, std::string, SEVERITY>> _filestream_queue;
         ulong _thread_write_period_ns = 5 * 1.0e6; // write to file every 5 seconds
-        std::string _filepath;
-
         SEVERITY _verbosity;
+
         bool _stdout_enabled = true;
         bool _fileout_enabled = true;
 
+        std::binary_semaphore _filepath_sem{1};
+        std::string _filepath;
     };
-
 }

@@ -89,14 +89,18 @@ namespace AppLogger {
         }
 
         bool log(std::string value, SEVERITY level = SEVERITY::INFO) {
+            if (_stop) return false;
             if (level >= _verbosity){
                 if (_ostream_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(200))) {
                     _ostream_queue.push({value, level});
                     _ostream_sem.release();
                     return true;
+                } else{
+                    return false;
                 }
+            } else{
+                return false;
             }
-            return false;
         };
 
         void setStdOut(bool enabled){

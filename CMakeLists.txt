@@ -19,7 +19,7 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 add_subdirectory(lib/apriltag)
 
 # Add the source files
-add_executable(apriltag_localization src/multicam_opencv_demo.cpp src/LocalizationWorker.cpp src/Localization.cpp src/TagDetectorCamera.cpp src/TagDetectorCamWorker.cpp)
+add_executable(apriltag_localization src/LocalizationWorker.cpp src/Localization.cpp src/TDCam.cpp src/TDCamWorker.cpp src/main.cpp)
 
 # Link any libraries if needed (add any libraries here)
 target_link_libraries(apriltag_localization apriltag ${OpenCV_LIBS})
@@ -46,10 +46,10 @@ if(ENABLE_TESTS)
     file(GLOB TEST_SOURCES "test/*.cpp")
 
     # Create the test executable
-    add_executable(runTests ${TEST_SOURCES})
+    add_executable(runTests ${TEST_SOURCES} src/LocalizationWorker.cpp src/Localization.cpp src/TDCam.cpp src/TDCamWorker.cpp)
 
     # Link the test executable against gtest and gtest_main
-    target_link_libraries(runTests gtest_main)
+    target_link_libraries(runTests gtest_main apriltag ${OpenCV_LIBS})
 
     # Enable testing
     enable_testing()

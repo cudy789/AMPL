@@ -15,13 +15,12 @@ inline int WORK_PERIOD_MS = 10; // Run at 1/x Hz, in this case, 100Hz
 inline int INTER_CAMERA_DELTA_MS = 50; // If the time delta between the same tag being seen by 2+ different cameras is less than
 // this value, then lets use these multiple tag poses from the different cameras to compute the single true tag pose
 
-using namespace Localization;
 
 
-class LocalizationWorker: public Worker{
+class LocalizationWorker: public Localization, public Worker{
 
 public:
-    LocalizationWorker(): Worker("Localization worker"){};
+    LocalizationWorker();
 
     bool QueueTags(TagArray& raw_tagarray);
 
@@ -34,8 +33,9 @@ public:
 
 
 private:
-    void RunOnce() override;
-//    std::thread _t_worker;
+    void Init() override;
+    void Execute() override;
+
 
     std::binary_semaphore _raw_tag_sem{1};
     TagArray _raw_tag_poses;

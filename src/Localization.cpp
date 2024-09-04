@@ -3,7 +3,7 @@
 #include "Localization.h"
 
 
-std::vector<std::vector<double>> Stats(std::vector<TagPose>& tag_poses){
+std::vector<std::vector<double>> Localization::Stats(std::vector<TagPose>& tag_poses){
     int count = tag_poses.size();
 
     std::vector<double> mean_xyz = {0,0,0};
@@ -54,7 +54,7 @@ std::vector<std::vector<double>> Stats(std::vector<TagPose>& tag_poses){
 
 }
 
-std::vector<TagPose> DisambiguateTags(TagArray& fresh_tag_poses){
+std::vector<TagPose> Localization::DisambiguateTags(TagArray& fresh_tag_poses){
     std::vector<TagPose> computed_tag_poses{NUM_TAG_IDS};
 
     // Just average out the values of multiple poses. TODO do something smarter!

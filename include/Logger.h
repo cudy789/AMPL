@@ -5,10 +5,9 @@
 #include <map>
 #include <queue>
 #include <utility>
-#include <chrono>
-#include <ctime>
-#include <sstream>
-#include <iomanip>
+#include <thread>
+
+#include "TimeUtils.h"
 
 namespace AppLogger {
 
@@ -29,41 +28,6 @@ namespace AppLogger {
             {WARNING,  "\033[1;33mWARNING\033[0m"}, // yellow
             {ERROR,    "\033[1;31mERROR\033[0m"}, // red
     };
-
-
-
-    inline ulong CurrentTime() {
-        using clock = std::chrono::high_resolution_clock;
-        using l_ns = std::chrono::duration<ulong, std::nano>;
-
-        std::chrono::time_point<clock, l_ns> t = clock::now();
-        return t.time_since_epoch().count();
-
-    }
-
-    inline std::string datetime() {
-        auto now = std::chrono::high_resolution_clock::now();
-        auto in_time_t = std::chrono::high_resolution_clock::to_time_t(now);
-
-        std::stringstream ss;
-        ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d_%X");
-        return ss.str();
-    }
-
-    // https://stackoverflow.com/questions/24686846/get-current-time-in-milliseconds-or-hhmmssmmm-format
-    inline std::string datetime_ms() {
-
-        auto now = std::chrono::high_resolution_clock::now();
-        auto in_time_t = std::chrono::high_resolution_clock::to_time_t(now);
-
-        auto ms = duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
-
-        std::stringstream ss;
-        ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d_%X");
-        ss << '.' << std::setfill('0') << std::setw(3) << ms.count();
-
-        return ss.str();
-    }
 
 
 /***

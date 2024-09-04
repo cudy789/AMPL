@@ -4,6 +4,7 @@
 #include <utility>
 
 #include "Logger.h"
+#include "TimeUtils.h"
 
 void SetupLoggerTests(std::string log_path){
     std::filesystem::remove(log_path);
@@ -62,14 +63,14 @@ TEST(Logger, HighFreqFileout){
     int n_messages = 100000;
 
     std::cout << "going to log!" << std::endl;
-    ulong start_ns = AppLogger::CurrentTime();
+    ulong start_ns = CurrentTime();
     for (int i=0; i<n_messages; i++){
         AppLogger::Logger::Log(std::to_string(i), AppLogger::DEBUG);
         AppLogger::Logger::Log(std::to_string(i), AppLogger::INFO);
         AppLogger::Logger::Log(std::to_string(i), AppLogger::WARNING);
         AppLogger::Logger::Log(std::to_string(i), AppLogger::ERROR);
     }
-    ulong end_ns = AppLogger::CurrentTime();
+    ulong end_ns = CurrentTime();
     ulong duration_ms = (end_ns - start_ns) / 1.0e6;
     double logger_freq = (n_messages * 4.0) / (duration_ms / 1.0e3);
     std::cout << "enqueueing 400,000 log messages took " << duration_ms << " ms, on average " << duration_ms / (n_messages * 4.0) << " ms per message" << std::endl;
@@ -77,7 +78,7 @@ TEST(Logger, HighFreqFileout){
     std::cout << "flushing logger..." << std::endl;
     AppLogger::Logger::Flush(); // make sure stdout and file get flushed before terminating
 
-    ulong end_close_ns = AppLogger::CurrentTime();
+    ulong end_close_ns = CurrentTime();
     ulong full_duration_ms = (end_close_ns - end_ns) / 1.0e6;
 
     std::cout << "Wrote " << n_messages << " x4 messages to the log file in " << full_duration_ms << " ms" << std::endl;

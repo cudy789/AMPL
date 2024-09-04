@@ -1,90 +1,69 @@
-#include "TagDetectorCamera.h"
+#include "TDCam.h"
 
-TagDetectorCamera::TagDetectorCamera(getopt_t *getopt, int camera_id, const Eigen::Matrix3d &R_camera_robot,
-                                     const Eigen::Vector3d &T_camera_robot) {
-    _opts = getopt;
-    _camera_id = camera_id;
-    _R_camera_robot = R_camera_robot;
-    _T_camera_robot = T_camera_robot;
+TDCam::TDCam(CamParams& c_params) {
+    _c_params = c_params;
 
-    std::cout << "Enabling video capture of camera " << _camera_id << std::endl;
+    AppLogger::Logger::Log("Enabling video capture on camera " + std::to_string(_c_params.camera_id));
 
-    ulong start_ns = Localization::CurrentTime();
+    ulong start_ns = CurrentTime();
 
 
     // Initialize camera
-    _cap = cv::VideoCapture (_camera_id);
+    _cap = cv::VideoCapture (_c_params.camera_id);
     if (!_cap.isOpened()) {
-        std::cerr << "Couldn't open video capture device " << _camera_id << std::endl;
-        return;
+        AppLogger::Logger::Log("Enabling video capture on camera " +
+            std::to_string(_c_params.camera_id), AppLogger::SEVERITY::ERROR);
     }
 
     // Initialize tag detector with options
-    apriltag_family_t *tf = NULL;
-    const char *famname = getopt_get_string(getopt, "family");
-    if (!strcmp(famname, "tag36h11")) {
-        tf = tag36h11_create();
-    } else if (!strcmp(famname, "tag25h9")) {
-        tf = tag25h9_create();
-    } else if (!strcmp(famname, "tag16h5")) {
-        tf = tag16h5_create();
-    } else if (!strcmp(famname, "tagCircle21h7")) {
-        tf = tagCircle21h7_create();
-    } else if (!strcmp(famname, "tagCircle49h12")) {
-        tf = tagCircle49h12_create();
-    } else if (!strcmp(famname, "tagStandard41h12")) {
-        tf = tagStandard41h12_create();
-    } else if (!strcmp(famname, "tagStandard52h13")) {
-        tf = tagStandard52h13_create();
-    } else if (!strcmp(famname, "tagCustom48h12")) {
-        tf = tagCustom48h12_create();
-    } else {
-        printf("Unrecognized tag family name. Use e.g. \"tag36h11\".\n");
-        exit(-1);
-    }
-
+    _tf = tag36h11_create();
 
     // Create tag detector for specific tag family
     _tag_detector = apriltag_detector_create();
-    apriltag_detector_add_family(_tag_detector, tf);
+    apriltag_detector_add_family(_tag_detector, _tf);
 
     if (errno == ENOMEM) {
-        std::cout << "Unable to add family to detector due to insufficient memory to allocate the tag-family decoder "
-                     "with the default maximum hamming value of 2. Try choosing an alternative tag family." << std::endl;
+        AppLogger::Logger::Log("Unable to add family to detector due to insufficient memory to allocate the "
+                               "tag-family decoder with the default maximum hamming value of 2. "
+                               "Try choosing an alternative tag family.", AppLogger::SEVERITY::ERROR);
         exit(-1);
     }
 
     // Set detector options
-    _tag_detector->quad_decimate = getopt_get_double(_opts, "decimate");
-    _tag_detector->quad_sigma = getopt_get_double(_opts, "blur");
-    _tag_detector->nthreads = getopt_get_int(_opts, "threads");
-    _tag_detector->debug = getopt_get_bool(_opts, "debug");
-    _tag_detector->refine_edges = getopt_get_bool(_opts, "refine-edges");
+    _tag_detector->quad_decimate = _c_params.tag_detector.quad_decimate;
+    _tag_detector->quad_sigma = _c_params.tag_detector.quad_sigma;
+    _tag_detector->nthreads = _c_params.tag_detector.nthreads;
+    _tag_detector->debug = _c_params.tag_detector.debug;
+    _tag_detector->refine_edges = _c_params.tag_detector.refine_edges;
 
-    ulong end_ns = Localization::CurrentTime();
-    std::cout << "Camera AprilTag detector " << famname << " initialized in "
-         << std::fixed << std::setprecision(3) << (end_ns - start_ns) / 1.0e9 << " seconds" << std::endl;
+    ulong end_ns = CurrentTime();
+    AppLogger::Logger::Log("Camera AprilTag detector " + std::to_string(_c_params.camera_id) +
+        " initialized in " + std::to_string((end_ns - start_ns) / 1.0e9) + " seconds" );
 
-    std::cout << "  " << _cap.get(cv::CAP_PROP_FRAME_WIDTH ) << "x" <<
-         _cap.get(cv::CAP_PROP_FRAME_HEIGHT ) << " @" <<
-         _cap.get(cv::CAP_PROP_FPS) << "FPS" << std::endl;
-
+    AppLogger::Logger::Log(std::to_string(_cap.get(cv::CAP_PROP_FRAME_WIDTH)) + "x" +
+        std::to_string(_cap.get(cv::CAP_PROP_FRAME_HEIGHT)) + " @" +
+        std::to_string(_cap.get(cv::CAP_PROP_FPS)) + "FPS");
 }
 
-cv::Mat TagDetectorCamera::GetImage() {
+TDCam::~TDCam(){
+    delete _tag_detector;
+    delete _tf;
+}
+
+cv::Mat TDCam::GetImage() {
     cv::Mat img;
     _cap >> img;
     if (img.empty()){
-        std::cerr << "error getting img from camera " << _camera_id << ", resetting capture\n";
+        AppLogger::Logger::Log("Error getting img from camera " + std::to_string(_c_params.camera_id) +
+            ", resetting capture.", AppLogger::SEVERITY::WARNING);
         sleep(1);
-        _cap = cv::VideoCapture(_camera_id);
+        _cap = cv::VideoCapture(_c_params.camera_id);
         return cv::Mat();
     }
-
     return img;
 }
 
-TagArray TagDetectorCamera::GetTagsFromImage(const cv::Mat &img) {
+TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
     ulong start_ns = CurrentTime();
 
     TagArray detected_tags;
@@ -99,7 +78,8 @@ TagArray TagDetectorCamera::GetTagsFromImage(const cv::Mat &img) {
     // Detect tags in image
     zarray_t *detections = apriltag_detector_detect(_tag_detector, &im);
     if (errno == EAGAIN) {
-        printf("Unable to create the %d threads requested.\n", _tag_detector->nthreads);
+        AppLogger::Logger::Log("Unable to create the " + std::to_string(_tag_detector->nthreads) +
+            " requested", AppLogger::SEVERITY::ERROR);
         exit(-1);
     }
 
@@ -129,11 +109,11 @@ TagArray TagDetectorCamera::GetTagsFromImage(const cv::Mat &img) {
         Eigen::Vector3d T_tag_camera = Array2EM<double, 3, 1>(pose.t->data);
 
         // Rotate AprilTag from the tag frame into the robot's coordinate frame
-        Eigen::Matrix3d R_tag_robot = _R_camera_robot * R_tag_camera;
+        Eigen::Matrix3d R_tag_robot = _c_params.R_camera_robot * R_tag_camera;
         Eigen::Vector3d R_tag_robot_rpy = RotationMatrixToRPY(R_tag_robot);
 
         // Translate AprilTag from the tag frame into the robot's coordinate frame
-        Eigen::Vector3d T_tag_robot = _R_camera_robot * T_tag_camera + _T_camera_robot;
+        Eigen::Vector3d T_tag_robot = _c_params.R_camera_robot * T_tag_camera + _c_params.T_camera_robot;
 
         // Debug output
 //        std::cout << "Detection on camera " << _camera_id << std::endl;
@@ -144,7 +124,7 @@ TagArray TagDetectorCamera::GetTagsFromImage(const cv::Mat &img) {
         // Add tag to detected TagArray object
         detected_tags.data[det->id-1].push_back(TagPose{Pose{pose.t->data[0], pose.t->data[1], pose.t->data[2],
                                                              R_tag_robot_rpy[0], R_tag_robot_rpy[1], R_tag_robot_rpy[2]},
-                                                        det->id, _camera_id,
+                                                        det->id, _c_params.camera_id,
                                                         det->c[0], det->c[1],
                                                         det->p[0][0], det->p[0][1],
                                                         det->p[1][0], det->p[1][1],
@@ -160,7 +140,7 @@ TagArray TagDetectorCamera::GetTagsFromImage(const cv::Mat &img) {
     return detected_tags;
 }
 
-cv::Mat TagDetectorCamera::DrawTagBoxesOnImage(const TagArray &tags, const cv::Mat &img) {
+cv::Mat TDCam::DrawTagBoxesOnImage(const TagArray &tags, const cv::Mat &img) {
     cv::Mat annotated_img = img;
     for (const std::vector<TagPose>& v: tags.data){
         for (const TagPose& p: v){
@@ -195,7 +175,7 @@ cv::Mat TagDetectorCamera::DrawTagBoxesOnImage(const TagArray &tags, const cv::M
     return annotated_img;
 }
 
-void TagDetectorCamera::ImShow(const std::string& title, int timeout, const cv::Mat& img) {
+void TDCam::ImShow(const std::string& title, int timeout, const cv::Mat& img) {
     imshow(title, img);
     if (cv::waitKey(timeout) >= 0) return;
 }

@@ -1,4 +1,4 @@
-#!/bin/bashHelloWorld
+#!/bin/bash
 
 # Corey Knutson, 12/2/2021
 

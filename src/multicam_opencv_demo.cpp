@@ -33,9 +33,10 @@ either expressed or implied, of the Regents of The University of Michigan.
 
 #include "MatrixHelpers.h"
 #include "LocalizationWorker.h"
-#include "TagDetectorCamWorker.h"
+#include "TDCamWorker.h"
 
 #include "opencv2/opencv.hpp"
+#include "Logger.h"
 
 
 using namespace std;
@@ -55,7 +56,7 @@ using namespace cv;
 
 //TODO move this to tag detector camera class
 void ThreadDetect(getopt_t* getopt, int camera, const Eigen::Matrix3d& R_camera_robot, const Eigen::Vector3d& t_camera_robot){
-    cout << "Enabling video capture of camera " << camera << endl;
+    AppLogger::Logger::Log("Enabling video capture of camera " + std::to_string(camera));
 
     TickMeter meter;
     meter.start();
@@ -280,7 +281,7 @@ int main(int argc, char *argv[])
 
     vector<int> cam_ids = {2};
 //    vector<thread> cam_threads;
-    vector<TagDetectorCamWorker> cam_workers;
+    vector<TDCamWorker> cam_workers;
     LocalizationWorker l_worker;
 
     Eigen::Matrix3d rotmat;
@@ -309,14 +310,14 @@ int main(int argc, char *argv[])
 
     // Create tag detection threads
     for(int i=0; i<(int)cam_ids.size(); i++){
-        cam_workers.emplace_back( TagDetectorCamWorker(getopt, cam_ids[i], R_camera_robots[i], t_camera_robots[i],
-                                                       [&l_worker](TagArray& raw_tags) -> bool {return l_worker.QueueTags(raw_tags);})
+        cam_workers.emplace_back(TDCamWorker(getopt, cam_ids[i], R_camera_robots[i], t_camera_robots[i],
+                                             [&l_worker](TagArray& raw_tags) -> bool {return l_worker.QueueTags(raw_tags);})
                                                        );
 
         sleep(1);
     }
     // Start tag detection threads
-    for (TagDetectorCamWorker& w: cam_workers){
+    for (TDCamWorker& w: cam_workers){
         w.Start();
         sleep(1);
     }
@@ -324,10 +325,10 @@ int main(int argc, char *argv[])
     l_worker.Start();
 
     // Wait until the tag detection threads are finished
-    for (TagDetectorCamWorker& w: cam_workers){
+    for (TDCamWorker& w: cam_workers){
         w.join();
     }
-    std::cout << "All camera workers finished" << std::endl;
+    AppLogger::Logger::Log("All camera workers finished");
 
     // Wait until localization is finished (never)
     l_worker.join();

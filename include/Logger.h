@@ -97,6 +97,7 @@ namespace AppLogger {
                     date = "[" + datetime_ms() + "] ";
                     _ostream_queue.push({value, date, level});
                     _ostream_sem.release();
+                    _ostream_data_present_sem.release(); // Notify thread that data is available
                     return true;
                 } else{
                     return false;
@@ -138,10 +139,13 @@ namespace AppLogger {
                 _stop = true;
                 _terminate=terminate;
                 _stop_sem.release();
+                _ostream_data_present_sem.release();
                 _worker_t->join();
                 return true;
             } else {
-                _stop_sem.release();
+//                _stop_sem.release();
+                _ostream_data_present_sem.release();
+
                 return false;
             }
         }
@@ -150,6 +154,8 @@ namespace AppLogger {
             if (_flush_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(3000))) {
                 _flush = true;
                 _flush_sem.release();
+                _ostream_data_present_sem.release();
+
                 while (true){
                     if (_flush_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(1000))){
                         if (!_flush){
@@ -172,6 +178,8 @@ namespace AppLogger {
             bool flush = false;
 
             while (!stop) {
+                _ostream_data_present_sem.acquire(); // Wait until new data is present
+
                 // Check to see if we should stop the worker
                 if (_stop_sem.try_acquire()) {
                     if (_terminate){
@@ -245,7 +253,6 @@ namespace AppLogger {
                         flush = false;
                     }
                 }
-            std::this_thread::yield();
             }
         }
 
@@ -257,6 +264,8 @@ namespace AppLogger {
 
         std::thread *_worker_t;
         std::binary_semaphore _ostream_sem{1};
+        std::binary_semaphore _ostream_data_present_sem{0};
+
         std::queue<std::tuple<std::string, std::string, SEVERITY>> _ostream_queue;
 
         std::queue<std::tuple<std::string, std::string, SEVERITY>> _filestream_queue;

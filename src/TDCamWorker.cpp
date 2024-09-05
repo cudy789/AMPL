@@ -10,8 +10,8 @@ TDCamWorker::TDCamWorker(CamParams& c_params, std::function<bool(TagArray&)> que
 
 void TDCamWorker::Init() {
     if (!_cap.isOpened()){
-        AppLogger::Logger::Log("Camera " + std::to_string(_c_params.camera_id) + " cannot be opened, will not start detector", AppLogger::SEVERITY::ERROR);
-        Stop();
+        AppLogger::Logger::Log("Camera " + std::to_string(_c_params.camera_id) + " cannot be opened", AppLogger::SEVERITY::ERROR);
+
     } else{
         AppLogger::Logger::Log("Starting tag detector for cam " + std::to_string(_c_params.camera_id));
     }

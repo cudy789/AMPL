@@ -56,7 +56,7 @@ cv::Mat TDCam::GetImage() {
     if (img.empty()){
         AppLogger::Logger::Log("Error getting img from camera " + std::to_string(_c_params.camera_id) +
             ", resetting capture.", AppLogger::SEVERITY::WARNING);
-        sleep(1);
+        sleep(5);
         _cap = cv::VideoCapture(_c_params.camera_id);
         return cv::Mat();
     }

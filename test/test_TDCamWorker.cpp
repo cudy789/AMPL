@@ -20,7 +20,7 @@ TEST(TDCamWorker, HelloWorld){
 
     w.Start();
 
-    sleep(5);
+    sleep(15);
 
     ASSERT_TRUE(w.Stop());
 }

@@ -103,11 +103,14 @@ private:
                 _stop_sem.release();
 
                 current_duration_ns = CurrentTime() - last_loop_ns;
-                if (current_duration_ns > ((1.0/_exec_freq) * 1.0e9)){
+                if (current_duration_ns >= ((1.0/_exec_freq) * 1.0e9)){
                     last_loop_ns = CurrentTime();
                     Execute();
 
                     runtimes.push_back(current_duration_ns);
+                } else {
+                    int sleep_duration_ns = (int) (0.66 * (((1.0 / _exec_freq) * 1.0e9) - current_duration_ns));
+                    std::this_thread::sleep_for(std::chrono::nanoseconds(sleep_duration_ns));
                 }
             }
 
@@ -120,7 +123,7 @@ private:
                 runtimes.clear();
             }
 
-            std::this_thread::yield();
+//            std::this_thread::yield();
 
         }
     };

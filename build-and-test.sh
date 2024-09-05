@@ -2,7 +2,11 @@
 
 # Corey Knutson, 12/2/2021
 
+GTESTFILTER=""
+if [ -n "$1" ]; then
+    GTESTFILTER="--gtest_filter=$1"
+fi
 
-echo "./runTests --gtest_filter=$1"
+echo "./runTests $GTESTFILTER"
 
-bash run-common.sh "mkdir -p build && cd build && cmake -DENABLE_TESTS=ON .. && make && ./runTests --gtest_filter=$1;"
+bash run-common.sh "mkdir -p build && cd build && cmake -DENABLE_TESTS=ON .. && make && ./runTests $GTESTFILTER;"

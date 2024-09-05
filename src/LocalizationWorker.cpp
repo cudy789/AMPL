@@ -63,9 +63,9 @@ void LocalizationWorker::Execute() {
             TagPose &l_t = last_tag_poses[i];
             if (c_t.tag_id != l_t.tag_id) {
                 if (c_t.tag_id > 0) {
-                    std::cout << "Tracking tag " << c_t.tag_id << std::endl;
+                    AppLogger::Logger::Log("Started tracking tag " + std::to_string(c_t.tag_id));
                 } else {
-                    std::cout << "Lost tracking on tag " << l_t.tag_id << std::endl;
+                    AppLogger::Logger::Log("Lost tracking on tag " + std::to_string(c_t.tag_id));
                 }
             }
         }

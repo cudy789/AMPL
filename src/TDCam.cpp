@@ -3,17 +3,21 @@
 TDCam::TDCam(CamParams& c_params) {
     _c_params = c_params;
 
-    AppLogger::Logger::Log("Enabling video capture on camera " + std::to_string(_c_params.camera_id));
+    AppLogger::Logger::Log("Enabling video capture on camera " + _c_params.name);
 
     ulong start_ns = CurrentTime();
 
 
     // Initialize camera
-    _cap = cv::VideoCapture (_c_params.camera_id);
+    _cap = cv::VideoCapture (_c_params.camera_id, cv::CAP_V4L);
     if (!_cap.isOpened()) {
         AppLogger::Logger::Log("Enabling video capture on camera " +
-            std::to_string(_c_params.camera_id), AppLogger::SEVERITY::ERROR);
+            _c_params.name, AppLogger::SEVERITY::ERROR);
     }
+
+    _cap.set(cv::CAP_PROP_FPS, 30); // Frame rate
+    _cap.set(cv::CAP_PROP_FRAME_WIDTH, 480); // Width
+    _cap.set(cv::CAP_PROP_FRAME_HEIGHT, 360); // Height
 
     // Initialize tag detector with options
     _tf = tag36h11_create();
@@ -37,7 +41,7 @@ TDCam::TDCam(CamParams& c_params) {
     _tag_detector->refine_edges = _c_params.tag_detector.refine_edges;
 
     ulong end_ns = CurrentTime();
-    AppLogger::Logger::Log("Camera AprilTag detector " + std::to_string(_c_params.camera_id) +
+    AppLogger::Logger::Log("Camera AprilTag detector " + _c_params.name +
         " initialized in " + std::to_string((end_ns - start_ns) / 1.0e9) + " seconds" );
 
     AppLogger::Logger::Log(std::to_string(_cap.get(cv::CAP_PROP_FRAME_WIDTH)) + "x" +
@@ -54,10 +58,9 @@ cv::Mat TDCam::GetImage() {
     cv::Mat img;
     _cap >> img;
     if (img.empty()){
-        AppLogger::Logger::Log("Error getting img from camera " + std::to_string(_c_params.camera_id) +
-            ", resetting capture.", AppLogger::SEVERITY::WARNING);
-        sleep(5);
-        _cap = cv::VideoCapture(_c_params.camera_id);
+        AppLogger::Logger::Log("Error getting img from camera " + _c_params.name, AppLogger::SEVERITY::WARNING);
+//        _cap = cv::VideoCapture(_c_params.camera_id);
+        sleep(2);
         return cv::Mat();
     }
     return img;

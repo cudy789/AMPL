@@ -21,17 +21,25 @@ add_subdirectory(lib/apriltag)
 # Add the source files
 add_executable(apriltag_localization src/LocalizationWorker.cpp src/Localization.cpp src/TDCam.cpp src/TDCamWorker.cpp src/main.cpp)
 
+# Yaml parser
+include(FetchContent)
+
+FetchContent_Declare(
+        yaml-cpp
+        GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+        GIT_TAG 0.8.0 # Can be a tag (yaml-cpp-x.x.x), a commit hash, or a branch name (master)
+)
+FetchContent_MakeAvailable(yaml-cpp)
+
 # Link any libraries if needed (add any libraries here)
-target_link_libraries(apriltag_localization apriltag ${OpenCV_LIBS})
+target_link_libraries(apriltag_localization PUBLIC yaml-cpp::yaml-cpp apriltag ${OpenCV_LIBS})
 
 # Option to enable or disable tests
-option(ENABLE_TESTS "Enable building tests" ON)
+option(ENABLE_TESTS "Enable building tests" OFF)
 
 # Fetch GoogleTest if tests are enabled
 if(ENABLE_TESTS)
 
-    # Link google test
-    include(FetchContent)
     # Fetch GoogleTest
     FetchContent_Declare(
             googletest
@@ -49,7 +57,7 @@ if(ENABLE_TESTS)
     add_executable(runTests ${TEST_SOURCES} src/LocalizationWorker.cpp src/Localization.cpp src/TDCam.cpp src/TDCamWorker.cpp)
 
     # Link the test executable against gtest and gtest_main
-    target_link_libraries(runTests gtest_main apriltag ${OpenCV_LIBS})
+    target_link_libraries(runTests PUBLIC yaml-cpp::yaml-cpp gtest_main  apriltag ${OpenCV_LIBS})
 
     # Enable testing
     enable_testing()

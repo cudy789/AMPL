@@ -18,6 +18,13 @@ extern "C" {
 #include "common/getopt.h"
 }
 
+template <typename T>
+inline std::string to_string( const T& value )
+{
+    std::ostringstream ss;
+    ss << value;
+    return ss.str();
+}
 
 inline double Deg2Rad(double deg){
     return deg * M_PI / 180.0;

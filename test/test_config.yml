@@ -1,0 +1,5 @@
+Cameras:
+  c0:
+    camera_id: 0
+  c1:
+    camera_id: 1

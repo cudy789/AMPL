@@ -8,8 +8,10 @@
 struct CamParams{
     std::string name;
     int camera_id;
-    Eigen::Matrix3d R_camera_robot;
-    Eigen::Vector3d T_camera_robot;
+    Eigen::Matrix3d R_camera_robot {{1, 0, 0},
+                                    {0, 0, 1},
+                                    {0, -1, 0}}; // 90* rotation, camera is facing same direction as robot
+    Eigen::Vector3d T_camera_robot {0,0,0}; // No displacement relative to robot front
 
     struct {
         float quad_decimate = 2.0; // Decimate input image by this factor
@@ -56,12 +58,13 @@ public:
                     std::string c_name = it->first.as<std::string>();
                     int c_id = it->second["camera_id"].as<int>();
 
-                    cam_p.emplace_back(CamParams{.name = c_name, .camera_id=c_id, .R_camera_robot=base_rot_mat, .T_camera_robot=base_disp_mat});
+                    cam_p.emplace_back(CamParams{.name = c_name, .camera_id=c_id});
 
                 }
             }
         } catch (const std::exception& e) {
             AppLogger::Logger::Log("Error parsing YAML file: " + std::string(e.what()), AppLogger::SEVERITY::ERROR);
+            throw(e);
         }
         return cam_p;
     }

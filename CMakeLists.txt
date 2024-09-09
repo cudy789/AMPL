@@ -31,8 +31,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(yaml-cpp)
 
+# Json parser
+
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+FetchContent_MakeAvailable(json)
+
 # Link any libraries if needed (add any libraries here)
-target_link_libraries(apriltag_localization PUBLIC yaml-cpp::yaml-cpp apriltag ${OpenCV_LIBS})
+target_link_libraries(apriltag_localization PUBLIC yaml-cpp::yaml-cpp apriltag ${OpenCV_LIBS} PRIVATE nlohmann_json::nlohmann_json)
 
 # Option to enable or disable tests
 option(ENABLE_TESTS "Enable building tests" OFF)
@@ -57,7 +62,7 @@ if(ENABLE_TESTS)
     add_executable(runTests ${TEST_SOURCES} src/LocalizationWorker.cpp src/Localization.cpp src/TDCam.cpp src/TDCamWorker.cpp)
 
     # Link the test executable against gtest and gtest_main
-    target_link_libraries(runTests PUBLIC yaml-cpp::yaml-cpp gtest_main  apriltag ${OpenCV_LIBS})
+    target_link_libraries(runTests PUBLIC yaml-cpp::yaml-cpp gtest_main  apriltag ${OpenCV_LIBS} PRIVATE nlohmann_json::nlohmann_json)
 
     # Enable testing
     enable_testing()

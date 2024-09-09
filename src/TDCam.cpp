@@ -111,6 +111,8 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
         Eigen::Matrix3d R_tag_camera = Array2EM<double, 3, 3>(pose.R->data);
         Eigen::Vector3d T_tag_camera = Array2EM<double, 3, 1>(pose.t->data);
 
+
+        // ==================== AT -> Robot ====================
         // Rotate AprilTag from the tag frame into the robot's coordinate frame
         Eigen::Matrix3d R_tag_robot = _c_params.R_camera_robot * R_tag_camera;
         Eigen::Vector3d R_tag_robot_rpy = RotationMatrixToRPY(R_tag_robot);
@@ -118,10 +120,23 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
         // Translate AprilTag from the tag frame into the robot's coordinate frame
         Eigen::Vector3d T_tag_robot = _c_params.R_camera_robot * T_tag_camera + _c_params.T_camera_robot;
 
+
+        // ==================== Robot -> World ====================
+
+        Pose& Pose_AG = TagLayout[det->id];
+
+        AppLogger::Logger::Log("Tag " + std::to_string(det->id) + " global rotation & translation: " + to_string(Pose_AG));
+
+        Eigen::Vector3d T_robot_global = Pose_AG.R * ((-1 * T_tag_robot)) + Pose_AG.T; // TODO this calculation is zeroing out the rotation matrix for some reason
+        Eigen::Matrix3d R_robot_global = Pose_AG.R * R_tag_robot.transpose();
+
+
+
         // Add tag to detected TagArray object
-        detected_tags.data[det->id-1].push_back(TagPose{Pose{T_tag_robot[0], T_tag_robot[1], T_tag_robot[2],
-                                                             R_tag_robot_rpy[0], R_tag_robot_rpy[1], R_tag_robot_rpy[2]},
-                                                        det->id, _c_params.camera_id, err,
+        detected_tags.data[det->id-1].push_back(TagPose{Pose{T_tag_robot, R_tag_robot},
+                                                        det->id, _c_params.camera_id,
+                                                        T_robot_global, R_robot_global,
+                                                        err,
                                                         det->c[0], det->c[1],
                                                         det->p[0][0], det->p[0][1],
                                                         det->p[1][0], det->p[1][1],

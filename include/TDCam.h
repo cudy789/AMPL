@@ -5,6 +5,7 @@
 #include "opencv2/opencv.hpp"
 #include "Logger.h"
 #include "ParamParser.h"
+#include "TagLayoutParser.h"
 
 extern "C" {
 #include "apriltag.h"

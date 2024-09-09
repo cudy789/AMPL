@@ -15,13 +15,14 @@ std::vector<std::vector<double>> Localization::Stats(std::vector<TagPose>& tag_p
 
         // Calculate mean
         for (TagPose& p: tag_poses) {
-            mean_xyz[0] += p.x;
-            mean_xyz[1] += p.y;
-            mean_xyz[2] += p.z;
+            mean_xyz[0] += p.T[0];
+            mean_xyz[1] += p.T[1];
+            mean_xyz[2] += p.T[2];
 
-            mean_rpy[0] += p.roll;
-            mean_rpy[1] += p.pitch;
-            mean_rpy[2] += p.yaw;
+            Eigen::Vector3d rpy = RotationMatrixToRPY(p.R);
+            mean_rpy[0] += rpy[0];
+            mean_rpy[1] += rpy[1];
+            mean_rpy[2] += rpy[2];
         }
         for (double &v: mean_xyz) {
             v /= count;
@@ -33,13 +34,14 @@ std::vector<std::vector<double>> Localization::Stats(std::vector<TagPose>& tag_p
         // Calculate variance = SUM(x - x_mean)^2
 
         for (TagPose p: tag_poses) {
-            std_dev_xyz[0] += (p.x - mean_xyz[0]) * (p.x - mean_xyz[0]);
-            std_dev_xyz[1] += (p.y - mean_xyz[1]) * (p.y - mean_xyz[1]);
-            std_dev_xyz[2] += (p.z - mean_xyz[2]) * (p.z - mean_xyz[2]);
+            std_dev_xyz[0] += (p.T[0] - mean_xyz[0]) * (p.T[0] - mean_xyz[0]);
+            std_dev_xyz[1] += (p.T[1] - mean_xyz[1]) * (p.T[1] - mean_xyz[1]);
+            std_dev_xyz[2] += (p.T[2] - mean_xyz[2]) * (p.T[2] - mean_xyz[2]);
 
-            std_dev_rpy[0] += (p.roll - mean_rpy[0]) * (p.roll - mean_rpy[0]);
-            std_dev_rpy[1] += (p.pitch - mean_rpy[1]) * (p.pitch - mean_rpy[1]);
-            std_dev_rpy[2] += (p.yaw - mean_rpy[2]) * (p.yaw - mean_rpy[2]);
+            Eigen::Vector3d rpy = RotationMatrixToRPY(p.R);
+            std_dev_rpy[0] += (rpy[0] - mean_rpy[0]) * (rpy[0] - mean_rpy[0]);
+            std_dev_rpy[1] += (rpy[1] - mean_rpy[1]) * (rpy[1] - mean_rpy[1]);
+            std_dev_rpy[2] += (rpy[2] - mean_rpy[2]) * (rpy[2] - mean_rpy[2]);
         }
         // Calculate standard devation = sqrt(variance)
         for (double &v: std_dev_rpy) {
@@ -67,13 +69,12 @@ std::vector<TagPose> Localization::DisambiguateTags(TagArray& fresh_tag_poses){
 
         computed_tag_poses[i].tag_id = r_v[0].tag_id;
 
-        computed_tag_poses[i].x = tag_stats[0][0];
-        computed_tag_poses[i].y = tag_stats[0][1];
-        computed_tag_poses[i].z = tag_stats[0][2];
+        computed_tag_poses[i].T[0] = tag_stats[0][0];
+        computed_tag_poses[i].T[1] = tag_stats[0][1];
+        computed_tag_poses[i].T[2] = tag_stats[0][2];
 
-        computed_tag_poses[i].roll = tag_stats[2][0];
-        computed_tag_poses[i].pitch = tag_stats[2][1];
-        computed_tag_poses[i].yaw = tag_stats[2][2];
+        Eigen::Matrix3d new_R = CreateRotationMatrix({tag_stats[2][0], tag_stats[2][1], tag_stats[2][2]});
+        computed_tag_poses[i].R = new_R;
 
 //        std::cout << "Tag " << computed_tag_poses[i].tag_id
 //            << "\n\tmean"

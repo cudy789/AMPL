@@ -118,16 +118,10 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
         // Translate AprilTag from the tag frame into the robot's coordinate frame
         Eigen::Vector3d T_tag_robot = _c_params.R_camera_robot * T_tag_camera + _c_params.T_camera_robot;
 
-        // Debug output
-//        std::cout << "Detection on camera " << _camera_id << std::endl;
-//        std::cout << "\ttag ID: " << det->id << std::endl;
-//        std::cout << "\tpose xyz in robot frame: " << T_tag_robot << std::endl;
-//        std::cout << "\tpose rpy in robot frame: " << R_tag_robot_rpy << std::endl;
-
         // Add tag to detected TagArray object
-        detected_tags.data[det->id-1].push_back(TagPose{Pose{pose.t->data[0], pose.t->data[1], pose.t->data[2],
+        detected_tags.data[det->id-1].push_back(TagPose{Pose{T_tag_robot[0], T_tag_robot[1], T_tag_robot[2],
                                                              R_tag_robot_rpy[0], R_tag_robot_rpy[1], R_tag_robot_rpy[2]},
-                                                        det->id, _c_params.camera_id,
+                                                        det->id, _c_params.camera_id, err,
                                                         det->c[0], det->c[1],
                                                         det->p[0][0], det->p[0][1],
                                                         det->p[1][0], det->p[1][1],
@@ -136,7 +130,7 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
         });
     }
 
-    ulong end_ns = CurrentTime();
+//    ulong end_ns = CurrentTime();
     apriltag_detections_destroy(detections);
 //    std::cout << "Processed AprilTags in img for camera " << _camera_id << " in " << (end_ns - start_ns) / 1.0e6 << "ms" << std::endl;
 

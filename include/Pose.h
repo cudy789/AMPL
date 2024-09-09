@@ -6,7 +6,7 @@
 #include "TimeUtils.h"
 
 
-inline int STALE_TAG_MS = 75; // If a tag hasn't been seen in this amount of time, then assume we no longer see the tag and clear values
+inline int STALE_TAG_MS = 150; // If a tag hasn't been seen in this amount of time, then assume we no longer see the tag and clear values
 inline size_t NUM_TAG_IDS = 25;
 
 
@@ -56,6 +56,9 @@ struct TagPose : public Pose {
     int tag_id;
     int cam_id;
 
+    // The error of the tag
+    double err;
+
     // The center of the detection in image pixel coordinates.
     double c[2];
 
@@ -64,7 +67,7 @@ struct TagPose : public Pose {
     double p[4][2];
 
     friend std::ostream& operator<<(std::ostream& os, const TagPose& o_p) {
-        os << "tag_id: " << o_p.tag_id << "," << (Pose)o_p;
+        os << "tag_id: " << o_p.tag_id << ", " << "cam_id: " << o_p.cam_id << ", err: " << o_p.err << ", " << (Pose)o_p;
 
         return os;
     }
@@ -84,11 +87,11 @@ struct TagArray{
         int stale_tags = 0;
         for (std::vector<TagPose>& v: data){
             for (auto it=v.begin(); it!=v.end();){
-                if (CurrentTime() -  (*it).t > STALE_TAG_MS * 1.0e6){
+                if ((CurrentTime() -  (*it).t) > STALE_TAG_MS * 1.0e6){
                     it = v.erase(it);
+                    stale_tags++;
                 } else{
                     it++;
-                    stale_tags++;
                 }
             }
         }

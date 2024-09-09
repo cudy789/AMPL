@@ -2,6 +2,7 @@
 #include <bits/stdc++.h>
 
 #include "LocalizationWorker.h"
+#include "MatrixHelpers.h"
 
 
 LocalizationWorker::LocalizationWorker() : Worker("Localization worker"){
@@ -35,7 +36,6 @@ void LocalizationWorker::Init() {
 }
 
 void LocalizationWorker::Execute() {
-    std::vector<TagPose> last_tag_poses{NUM_TAG_IDS};
 
     if (_raw_tag_sem.try_acquire()) {
         // Get a local copy of the raw tags
@@ -54,28 +54,36 @@ void LocalizationWorker::Execute() {
 
         // Clear TagArray of stale tag poses
         int stale_tags = _fresh_tag_poses.ClearStale();
+//        AppLogger::Logger::Log("num stale tags: " + std::to_string(stale_tags));
 
         // Disambiguate tags with multiple poses
         _computed_tag_poses = DisambiguateTags(_fresh_tag_poses);
 
         for (int i = 0; i < NUM_TAG_IDS; i++) {
             TagPose &c_t = _computed_tag_poses[i];
-            TagPose &l_t = last_tag_poses[i];
+            TagPose &l_t = _last_tag_poses[i];
             if (c_t.tag_id != l_t.tag_id) {
                 if (c_t.tag_id > 0) {
                     AppLogger::Logger::Log("Started tracking tag " + std::to_string(c_t.tag_id));
                 } else {
-                    AppLogger::Logger::Log("Lost tracking on tag " + std::to_string(c_t.tag_id));
+                    AppLogger::Logger::Log("Lost tracking on tag " + std::to_string(l_t.tag_id));
                 }
             }
         }
 
 
-        last_tag_poses = _computed_tag_poses;
+        // TODO From each of the tags, calculate the robot's position in the world
 
 
-        // From each of the tags, calculate the robot's position in the world
-        // TODO ^^
+        for (TagPose &c_t: _computed_tag_poses){
+            if (c_t.tag_id != 0){
+                AppLogger::Logger::Log("Tag " + std::to_string(c_t.tag_id) + " detected: " + to_string(c_t));
+            }
+        }
+        _last_tag_poses = _computed_tag_poses;
+
+
+
     }
 
 }

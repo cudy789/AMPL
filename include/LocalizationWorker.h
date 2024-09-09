@@ -41,6 +41,8 @@ private:
     TagArray _raw_tag_poses;
     TagArray _fresh_tag_poses;
     std::vector<TagPose> _computed_tag_poses{NUM_TAG_IDS};
+    std::vector<TagPose> _last_tag_poses{NUM_TAG_IDS};
+
     Pose _robot_pose;
 
 

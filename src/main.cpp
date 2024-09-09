@@ -29,7 +29,7 @@ void signal_callback(int signum){
 
 int main(int argc, char *argv[])
 {
-    AppLogger::Logger::SetVerbosity(AppLogger::DEBUG);
+    AppLogger::Logger::SetVerbosity(AppLogger::INFO);
     AppLogger::Logger::Log("Starting Multicam Apriltag Localization", AppLogger::INFO);
 
     // Register signal handler
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
     // Wait until localization is finished (never)
 //    l_worker.join();
 
-    //TODO randomly crashing
+    //TODO randomly crashing -> corrupt size vs. prev_size was an error message
 
     return 0;
 }

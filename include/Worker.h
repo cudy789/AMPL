@@ -68,6 +68,16 @@ public:
         }
     };
 
+    double GetExecutionFreq(){
+        double ret_exec_freq;
+        if (_exec_freq_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(100))){
+            ret_exec_freq = _measure_exec_freq;
+            _exec_freq_sem.release();
+        }
+
+        return ret_exec_freq;
+    }
+
 protected:
     virtual void Execute() {};
     virtual void Init() {};
@@ -78,7 +88,11 @@ private:
     std::string _thread_name;
     std::binary_semaphore _stop_sem{1};
     int _debug_v = 0;
+
     double _exec_freq;
+
+    std::binary_semaphore _exec_freq_sem{1};
+    double _measure_exec_freq;
 
     /***
      * Run the execute function at a maximum rate of _exec_freq. No timeout if execution cannot match desired freqency.
@@ -115,8 +129,13 @@ private:
             }
 
             if ((CurrentTime() - last_log_time_ns) > 1.0e9){
+                double avg_exec_ms = std::accumulate(runtimes.begin(), runtimes.end(), 0.0) / (1.0e6 * runtimes.size());
+                if (_exec_freq_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(10))){
+                    _measure_exec_freq = 1.0 / (avg_exec_ms / 1.0e3);
+                    _exec_freq_sem.release();
+                }
                 if (_debug_v <= AppLogger::DEBUG){
-                    AppLogger::Logger::Log("Average " + _thread_name + " execution time: " + std::to_string(std::accumulate(runtimes.begin(), runtimes.end(), 0.0) / (1.0e6 * runtimes.size())) + "ms", AppLogger::DEBUG);
+                    AppLogger::Logger::Log("Average " + _thread_name + " execution ms: " + std::to_string(avg_exec_ms), AppLogger::DEBUG);
                     AppLogger::Logger::Log("\t Max: " + std::to_string(*std::max_element(runtimes.begin(), runtimes.end()) / 1.0e6) + "ms", AppLogger::DEBUG);
                 }
                 last_log_time_ns = CurrentTime();

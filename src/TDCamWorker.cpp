@@ -33,8 +33,22 @@ void TDCamWorker::Execute() {
 
         TagArray raw_tags = GetTagsFromImage(img);
 
+        cv::Mat box_img = DrawTagBoxesOnImage(raw_tags, img);
+
+        std::stringstream ss;
+        ss << std::fixed << std::setprecision(1) << GetExecutionFreq();
+
+        // Put fps in top right corner
+        cv::putText(box_img, ss.str(), cv::Point(box_img.size().width - 50, 0 + 20),
+                    cv::FONT_HERSHEY_DUPLEX, 0.65, cv::Scalar(0, 255, 0), 2);
+
+        // Put camera name in top left corner
+        cv::putText(box_img, _c_params.name, cv::Point(10, 0 + 20),
+                    cv::FONT_HERSHEY_DUPLEX, 0.65, cv::Scalar(0, 255, 0), 2);
+
+
         if (_annotated_im_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(100))){
-            _annotated_im = DrawTagBoxesOnImage(raw_tags, img);
+            _annotated_im = box_img;
             _annotated_im_sem.release();
         }
 

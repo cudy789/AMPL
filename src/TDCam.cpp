@@ -15,9 +15,22 @@ TDCam::TDCam(CamParams& c_params) {
             _c_params.name, AppLogger::SEVERITY::ERROR);
     }
 
-    _cap.set(cv::CAP_PROP_FPS, 30); // Frame rate
-    _cap.set(cv::CAP_PROP_FRAME_WIDTH, 480); // Width
-    _cap.set(cv::CAP_PROP_FRAME_HEIGHT, 360); // Height
+//    cv::Mat temp;
+//    _cap >> temp; // get first frame so we can adjust the settings
+
+    _cap.set(cv::CAP_PROP_FPS, c_params.fps); // Frame rate
+//    _cap.set(cv::CAP_PROP_FRAME_WIDTH, 544); // Width
+//    _cap.set(cv::CAP_PROP_FRAME_HEIGHT, 288); // Height
+//    _cap.set(cv::CAP_PROP_FRAME_WIDTH, 640); // Width
+//    _cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480); // Height
+    _cap.set(cv::CAP_PROP_FRAME_WIDTH, c_params.res_x); // Width
+    _cap.set(cv::CAP_PROP_FRAME_HEIGHT, c_params.res_y); // Height
+
+    _cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));
+
+//    _cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 3); // Turn off autoexposure = 1, on = 3
+    _cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 1); // Turn off autoexposure = 1, on = 3
+    _cap.set(cv::CAP_PROP_EXPOSURE, c_params.exposure); // set exposure value, do not use auto exposure
 
     // Initialize tag detector with options
     _tf = tag36h11_create();
@@ -80,7 +93,7 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
     zarray_t *detections = apriltag_detector_detect(_tag_detector, &im);
     if (errno == EAGAIN) {
         AppLogger::Logger::Log("Unable to create the " + std::to_string(_tag_detector->nthreads) +
-            " requested", AppLogger::SEVERITY::ERROR);
+            " threads requested", AppLogger::SEVERITY::ERROR);
         exit(-1);
     }
 

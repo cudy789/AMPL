@@ -1,7 +1,21 @@
 Cameras:
-  c0:
+  CAM0:
     camera_id: 0
-#  c2:
-#    camera_id: 2
-#  c5:
-#    camera_id: 5
+    res_x: 544
+    res_y: 288
+    fps: 30.0
+    exposure: 1
+  CAM2:
+    camera_id: 2
+    res_x: 544
+    res_y: 288
+    fps: 30.0
+    exposure: 1
+  CAM4:
+    camera_id: 4
+    res_x: 544
+    res_y: 288
+    fps: 30.0
+    exposure: 100000
+
+

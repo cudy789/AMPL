@@ -8,6 +8,12 @@
 struct CamParams{
     std::string name;
     int camera_id;
+
+    int res_x;
+    int res_y;
+    float fps;
+    int exposure;
+
     Eigen::Matrix3d R_camera_robot {{1, 0, 0},
                                     {0, 0, 1},
                                     {0, -1, 0}}; // 90* rotation, camera is facing same direction as robot
@@ -57,8 +63,13 @@ public:
 
                     std::string c_name = it->first.as<std::string>();
                     int c_id = it->second["camera_id"].as<int>();
+                    int c_resx = it->second["res_x"].as<int>();
+                    int c_resy = it->second["res_y"].as<int>();
+                    float c_fps = it->second["fps"].as<float>();
+                    int c_exposure = it->second["exposure"].as<int>();
 
-                    cam_p.emplace_back(CamParams{.name = c_name, .camera_id=c_id});
+                    cam_p.emplace_back(CamParams{.name=c_name, .camera_id=c_id, .res_x=c_resx, .res_y=c_resy,
+                                                 .fps=c_fps, .exposure=c_exposure});
 
                 }
             }

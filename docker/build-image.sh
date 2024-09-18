@@ -8,8 +8,6 @@ docker image prune -f
 # Script directory - https://stackoverflow.com/questions/59895/how-do-i-get-the-directory-where-a-bash-script-is-located-from-within-the-script
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-
-# Default to the noetic image
 ARCH=$( uname -m )
 
 # The first three options will require a user to enable buildx for docker on their system. The last option is the

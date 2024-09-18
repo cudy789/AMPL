@@ -2,6 +2,7 @@
 #include <csignal>
 
 #include "LocalizationWorker.h"
+#include "WebServerWorker.h"
 #include "TDCamWorker.h"
 #include "ParamParser.h"
 #include "Logger.h"
@@ -27,14 +28,23 @@ int main(int argc, char *argv[])
     // Register signal handler
     signal(SIGINT, signal_callback);
 
+    // Create localization worker
     workers_t.emplace_back(new LocalizationWorker());
     LocalizationWorker* l_w = (LocalizationWorker*) workers_t[0];
 
+    // Create webserver worker
+    workers_t.emplace_back(new WebServerWorker(8080));
+    WebServerWorker* w_w = (WebServerWorker*) workers_t[1];
+
+    // Parse map and camera configuration for camera workers
     std::vector<CamParams> c_params = ParamParser::ParseConfig("../config.yml");
     TagLayoutParser::ParseConfig("../crescendo_2024.fmap");
 
+    // Create camera workers
     for (CamParams& p: c_params){
         workers_t.emplace_back(new TDCamWorker(p, [l_w](TagArray& raw_tags) -> bool {return l_w->QueueTags(raw_tags);}, false));
+        TDCamWorker* this_cam_worker = (TDCamWorker*) workers_t.back();
+        w_w->RegisterMatFunc([this_cam_worker]() -> cv::Mat {return this_cam_worker->GetAnnotatedIm();});
     }
 
     // Start all camera workers

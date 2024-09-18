@@ -56,6 +56,10 @@ std::vector<std::vector<double>> Localization::Stats(std::vector<TagPose>& tag_p
 
 }
 
+// TODO make this a strategy design pattern
+// Particle filter based on previous pose(s) and dt
+// Kalman filter with covariance based on tag ambiguity, distance, how many cameras see the same tag
+
 std::vector<TagPose> Localization::DisambiguateTags(TagArray& fresh_tag_poses){
     std::vector<TagPose> computed_tag_poses{NUM_TAG_IDS};
 

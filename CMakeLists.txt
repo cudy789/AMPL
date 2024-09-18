@@ -10,16 +10,20 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Find OpenCV package
 find_package(OpenCV REQUIRED)
 
+# Find boost for beast webserver
+find_package(Boost REQUIRED COMPONENTS system)
+
 # Add the include directories
 include_directories(include)
 include_directories(lib/Eigen)
 include_directories(${OpenCV_INCLUDE_DIRS})
+include_directories(${Boost_INCLUDE_DIR})
 
 # Add the apriltag library
 add_subdirectory(lib/apriltag)
 
 # Add the source files
-add_executable(apriltag_localization src/LocalizationWorker.cpp src/Localization.cpp src/TDCam.cpp src/TDCamWorker.cpp src/main.cpp)
+add_executable(apriltag_localization src/LocalizationWorker.cpp src/Localization.cpp src/TDCam.cpp src/TDCamWorker.cpp src/WebServerWorker.cpp src/main.cpp)
 
 # Yaml parser
 include(FetchContent)
@@ -37,7 +41,7 @@ FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download
 FetchContent_MakeAvailable(json)
 
 # Link any libraries if needed (add any libraries here)
-target_link_libraries(apriltag_localization PUBLIC yaml-cpp::yaml-cpp apriltag ${OpenCV_LIBS} PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(apriltag_localization PUBLIC yaml-cpp::yaml-cpp apriltag ${OpenCV_LIBS} ${Boost_LIBRARIES} PRIVATE nlohmann_json::nlohmann_json)
 
 # Option to enable or disable tests
 option(ENABLE_TESTS "Enable building tests" OFF)
@@ -59,7 +63,7 @@ if(ENABLE_TESTS)
     file(GLOB TEST_SOURCES "test/*.cpp")
 
     # Create the test executable
-    add_executable(runTests ${TEST_SOURCES} src/LocalizationWorker.cpp src/Localization.cpp src/TDCam.cpp src/TDCamWorker.cpp)
+    add_executable(runTests ${TEST_SOURCES} src/LocalizationWorker.cpp src/Localization.cpp src/TDCam.cpp src/WebServerWorker.cpp src/TDCamWorker.cpp)
 
     # Link the test executable against gtest and gtest_main
     target_link_libraries(runTests PUBLIC yaml-cpp::yaml-cpp gtest_main  apriltag ${OpenCV_LIBS} PRIVATE nlohmann_json::nlohmann_json)

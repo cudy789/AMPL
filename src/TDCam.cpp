@@ -67,8 +67,6 @@ cv::Mat TDCam::GetImage() {
 }
 
 TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
-    ulong start_ns = CurrentTime();
-
     TagArray detected_tags;
 
     // Convert img to grayscale
@@ -93,7 +91,7 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
         // Calculate pose of tag
         apriltag_detection_info_t info;
         info.det = det;
-//            info.tagsize = 0.165; // in meters, TODO good guess, but need actual size
+//            info.tagsize = 0.165; // in meters, TODO this is what it "should" be, but the distances don't work out
         info.tagsize = 0.095; // in meters, TODO hand tuned, probably not correct, scales okay with distance
         // Camera params from https://horus.readthedocs.io/en/release-0.2/source/scanner-components/camera.html
         info.fx = 1430;
@@ -125,24 +123,25 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
 
         Pose& Pose_AG = TagLayout[det->id];
 
-        AppLogger::Logger::Log("Tag " + std::to_string(det->id) + " global rotation & translation: " + to_string(Pose_AG));
+//        AppLogger::Logger::Log("Tag " + std::to_string(det->id) + " global rotation & translation: " + to_string(Pose_AG));
+//        AppLogger::Logger::Log("Pose_AG.R: " + to_string(Pose_AG.R));
 
-        Eigen::Vector3d T_robot_global = Pose_AG.R * ((-1 * T_tag_robot)) + Pose_AG.T; // TODO this calculation is zeroing out the rotation matrix for some reason
+        Eigen::Vector3d T_robot_global = Pose_AG.R * ((-1.0 * T_tag_robot)) + Pose_AG.T;
         Eigen::Matrix3d R_robot_global = Pose_AG.R * R_tag_robot.transpose();
 
+        TagPose world_tag{Pose{T_tag_robot, R_tag_robot},
+                          det->id, _c_params.camera_id,
+                          T_robot_global, R_robot_global,
+                          err,
+                          det->c[0], det->c[1],
+                          det->p[0][0], det->p[0][1],
+                          det->p[1][0], det->p[1][1],
+                          det->p[2][0], det->p[2][1],
+                          det->p[3][0], det->p[3][1]};
 
 
         // Add tag to detected TagArray object
-        detected_tags.data[det->id-1].push_back(TagPose{Pose{T_tag_robot, R_tag_robot},
-                                                        det->id, _c_params.camera_id,
-                                                        T_robot_global, R_robot_global,
-                                                        err,
-                                                        det->c[0], det->c[1],
-                                                        det->p[0][0], det->p[0][1],
-                                                        det->p[1][0], det->p[1][1],
-                                                        det->p[2][0], det->p[2][1],
-                                                        det->p[3][0], det->p[3][1]
-        });
+        detected_tags.data[det->id-1].push_back(world_tag);
     }
 
 //    ulong end_ns = CurrentTime();

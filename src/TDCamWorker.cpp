@@ -17,6 +17,14 @@ void TDCamWorker::Init() {
     }
 }
 
+cv::Mat TDCamWorker::GetAnnotatedIm() {
+    if (_annotated_im_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(500))){
+        _annotated_im_sem.release();
+        return _annotated_im;
+    }
+    return cv::Mat();
+}
+
 void TDCamWorker::Execute() {
 
     ulong start_ns = CurrentTime();
@@ -24,6 +32,11 @@ void TDCamWorker::Execute() {
     if (!img.empty()) {
 
         TagArray raw_tags = GetTagsFromImage(img);
+
+        if (_annotated_im_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(100))){
+            _annotated_im = DrawTagBoxesOnImage(raw_tags, img);
+            _annotated_im_sem.release();
+        }
 
         bool success = _queue_tags_callback(raw_tags);
 

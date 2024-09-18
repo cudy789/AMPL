@@ -16,6 +16,6 @@ RUN cmake ../opencv
 RUN make -j4
 RUN make install
 
-# ========================
+# ============ Install Boost.Beast ============
 
-RUN apt-get update && apt-get install -y gdb
+RUN apt-get update && apt-get install -y libboost-all-dev libssl-dev

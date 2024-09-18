@@ -16,9 +16,9 @@ inline size_t NUM_TAG_IDS = 25;
 // Robot Frame = R
 // Camera Frame = C
 
-struct Pose {
-public:
+// TODO refactor tagpose to contain two pose objects, one for robot frame, the other for global frame.
 
+struct Pose {
     // Translation (x,y,z) and rotation (rotation matrix RPY)
     Eigen::Vector3d T;
     Eigen::Matrix3d R;

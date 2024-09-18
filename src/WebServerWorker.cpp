@@ -45,7 +45,7 @@ void WebServerWorker::Execute() {
         std::vector<uchar> buffer;
         cv::Mat merged_frame = _mat_funcs[0]();
 
-        for (int i=0; i<_mat_funcs.size(); i++){
+        for (int i=1; i<_mat_funcs.size(); i++){
             cv::hconcat(merged_frame, _mat_funcs[i](), merged_frame);
         }
 

@@ -5,13 +5,6 @@
 docker container prune -f
 docker image prune -f
 
-# Script directory - https://stackoverflow.com/questions/59895/how-do-i-get-the-directory-where-a-bash-script-is-located-from-within-the-script
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
-ARCH=$( uname -m )
-
-# The first three options will require a user to enable buildx for docker on their system. The last option is the
-# intended method for users to manually build an image on their local machine.
 
 if [ "$NO_CACHE" = "1" ]; then
   echo "building image without cache"

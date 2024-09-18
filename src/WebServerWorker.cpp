@@ -7,20 +7,17 @@ WebServerWorker::WebServerWorker(unsigned short port) :
         _acceptor(_io_service, tcp::endpoint(tcp::v4(), _port)),
         _err(),
         _socket(_io_service)
-        {
-
-
+{
+    AppLogger::Logger::Log("Starting webserver");
 }
 
 bool WebServerWorker::RegisterMatFunc(const std::function<cv::Mat()>& mat_func){
     _mat_funcs.emplace_back(mat_func);
-
     return true;
 }
 
 // TODO webserver doesn't handle multiple connections, only the first one that makes a connection
 void WebServerWorker::Init() {
-    AppLogger::Logger::Log("Starting webserver");
 
     _acceptor.accept(_socket);
 
@@ -38,6 +35,7 @@ void WebServerWorker::Init() {
     res.keep_alive();
     http::response_serializer<http::empty_body> sr{res};
     http::write_header(_socket, sr);
+    AppLogger::Logger::Log("Client connected to webserver, starting stream");
 }
 
 void WebServerWorker::Execute() {
@@ -54,21 +52,21 @@ void WebServerWorker::Execute() {
 
             auto const size = buffer.size();
 
-            // do not use http::response<>
-            // hack: write to socket the multipart message
             std::string message{"\r\n--frame\r\nContent-Type: image/jpeg\r\nContent-Length: "};
             message += std::to_string(size);
             message += "\r\n\r\n";
             auto bytesSent = _socket.send(boost::asio::buffer(message), 0, _err);
-            //        if( !bytesSent )
-            //        {
-            //            break;
-            //        }
+            if( !bytesSent )
+            {
+                _socket.close();
+                Init();
+            }
             bytesSent = _socket.send(boost::asio::buffer(buffer), 0, _err);
-            //        if( !bytesSent )
-            //        {
-            //            break;
-            //        }
+            if( !bytesSent )
+            {
+                _socket.close();
+                Init();
+            }
         }
 
     } else {

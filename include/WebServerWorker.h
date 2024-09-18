@@ -38,6 +38,8 @@ protected:
 
 
 private:
+    void HandleConnection();
+
     unsigned short _port;
 
     boost::asio::io_context _io_service;

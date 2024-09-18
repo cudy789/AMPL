@@ -2,13 +2,6 @@
 
 # Corey Knutson, 12/2/2021
 
-# Default to running the noetic image
-
-ARCH=$( uname -m )
-
-
-# If we're trying to run an arm image on an x86 machine, we need to add an additional flag
-
 IMAGE_NAME="apriltag-multicam"
 IMAGE_TAG="latest"
 

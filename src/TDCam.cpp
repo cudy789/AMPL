@@ -19,16 +19,11 @@ TDCam::TDCam(CamParams& c_params) {
 //    _cap >> temp; // get first frame so we can adjust the settings
 
     _cap.set(cv::CAP_PROP_FPS, c_params.fps); // Frame rate
-//    _cap.set(cv::CAP_PROP_FRAME_WIDTH, 544); // Width
-//    _cap.set(cv::CAP_PROP_FRAME_HEIGHT, 288); // Height
-//    _cap.set(cv::CAP_PROP_FRAME_WIDTH, 640); // Width
-//    _cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480); // Height
     _cap.set(cv::CAP_PROP_FRAME_WIDTH, c_params.res_x); // Width
     _cap.set(cv::CAP_PROP_FRAME_HEIGHT, c_params.res_y); // Height
 
     _cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));
 
-//    _cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 3); // Turn off autoexposure = 1, on = 3
     _cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 1); // Turn off autoexposure = 1, on = 3
     _cap.set(cv::CAP_PROP_EXPOSURE, c_params.exposure); // set exposure value, do not use auto exposure
 

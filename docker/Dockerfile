@@ -12,7 +12,7 @@ WORKDIR /opencv_install
 RUN git clone https://github.com/opencv/opencv.git
 RUN mkdir build
 WORKDIR build
-RUN cmake ../opencv
+RUN cmake WITH_JPEG=OFF ../opencv
 RUN make -j4
 RUN make install
 

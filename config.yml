@@ -3,19 +3,32 @@ Cameras:
     camera_id: 0
     res_x: 544
     res_y: 288
+#    res_x: 640
+#    res_y: 360
     fps: 30.0
     exposure: 1
   CAM2:
     camera_id: 2
     res_x: 544
     res_y: 288
+#    res_x: 640
+#    res_y: 360
     fps: 30.0
     exposure: 1
   CAM4:
     camera_id: 4
     res_x: 544
     res_y: 288
+#    res_x: 640
+#    res_y: 360
     fps: 30.0
-    exposure: 100000
+    exposure: 1
+#
+#  CAM6:
+#    camera_id: 6
+#    res_x: 640
+#    res_y: 360
+#    fps: 30.0
+#    exposure: 350
 
 

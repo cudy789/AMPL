@@ -21,5 +21,9 @@ USB2 power/bandwidth/overheating is causing the latency to slowly increase, cree
 Maybe try USB3 cameras to spread the load. CPU is totally fine, less than 50% utilization across all cores. ~33% now with low res.
 
 
+## THE ISSUE:
+The cameras are set to autoexposure before the program gets a hold of them. If they're in low light environments, they 
+default to a higher exposure, locking it in at a lower FPS. Need to figure out how to properly adjust the exposure in the code.
+
 `v4l2-ctl --device /dev/video0 --all` <- list camera information, including exposure and auto exposure settings
 `v4l2-ctl --device /dev/video0 --list-formats-ext` <- list camera resolution & framerates in all video formats

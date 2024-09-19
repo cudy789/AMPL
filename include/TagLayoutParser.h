@@ -11,7 +11,7 @@
 
 using json = nlohmann::json;
 
-inline std::map<int, Pose> TagLayout;
+inline std::map<int, Pose_base> TagLayout;
 
 
 class TagLayoutParser{
@@ -37,9 +37,13 @@ public:
                                      {transform[4], transform[5], transform[6]},
                                      {transform[8], transform[9], transform[10]}};
 
-                TagLayout.insert({id, Pose{T_AG, R_AG}});
+                Pose_base new_pose;
+                new_pose.R = R_AG;
+                new_pose.T = T_AG;
 
-                AppLogger::Logger::Log("Adding tag " + to_string(Pose{T_AG, R_AG}) + " from .fmap file", AppLogger::SEVERITY::INFO);
+                TagLayout.insert({id, new_pose});
+
+                AppLogger::Logger::Log("Adding tag " + to_string(new_pose) + " from .fmap file", AppLogger::SEVERITY::INFO);
             }
 
 

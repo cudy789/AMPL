@@ -1,24 +1,32 @@
 #pragma once
 
+#include <utility>
 #include <vector>
 
 #include "Pose.h"
 
-class Localization{
+class ILocalizationStrategy{
 public:
-    Localization() = default;
 
+    virtual bool Compute(TagArray& fresh_poses, RobotPose& filtered_pose) = 0;
 
-    std::vector<std::vector<double>> Stats(std::vector<TagPose>& tag_poses);
+};
 
+class MeanLocalizationStrategy: public ILocalizationStrategy{
+public:
+    bool Compute(TagArray& fresh_poses, RobotPose& filtered_pose) override;
+};
 
-    /***
-     * Given a vector of fresh tag poses (with multiple Poses per tag), compute a single Pose for each tag
-     *
-     * @param[in] fresh_tag_poses
-     * @return A vector of tag poses that are our best guess for where the tag actually is in the robot frame
-     */
-    std::vector<TagPose> DisambiguateTags(TagArray& fresh_tag_poses);
+class LocalizationFilter{
+public:
+    explicit LocalizationFilter(ILocalizationStrategy* strategy): _strategy(strategy){};
+
+    ~LocalizationFilter(){delete _strategy;}
+
+protected:
+    ILocalizationStrategy* _strategy;
+    RobotPose _filtered_pose;
+
 };
 
 

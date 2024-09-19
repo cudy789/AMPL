@@ -17,18 +17,18 @@ inline int INTER_CAMERA_DELTA_MS = 50; // If the time delta between the same tag
 
 
 
-class LocalizationWorker: public Localization, public Worker{
+class LocalizationWorker: public LocalizationFilter, public Worker{
 
 public:
     LocalizationWorker();
 
     bool QueueTags(TagArray& raw_tagarray);
 
-    bool QueueTag(TagPose raw_pose);
+    bool QueueTag(PoseCv raw_pose);
 
-    Pose GetRobotPose();
+    RobotPose GetRobotPose();
 
-    TagPose GetTagPose(int tag_id);
+    PoseCv GetTagPose(int tag_id);
 
 
 
@@ -40,9 +40,10 @@ private:
     std::binary_semaphore _raw_tag_sem{1};
     TagArray _raw_tag_poses;
     TagArray _fresh_tag_poses;
-    std::vector<TagPose> _computed_tag_poses{NUM_TAG_IDS};
-    std::vector<TagPose> _last_tag_poses{NUM_TAG_IDS};
+    std::vector<int> _fresh_unique_tags{static_cast<int>(NUM_TAG_IDS), 0};
+    std::vector<int> _last_unique_tags{static_cast<int>(NUM_TAG_IDS), 0};
 
+    std::binary_semaphore _robot_pose_sem{1};
     Pose _robot_pose;
 
 

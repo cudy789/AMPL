@@ -5,11 +5,11 @@
 #include "MatrixHelpers.h"
 
 
-LocalizationWorker::LocalizationWorker() : Worker("Localization worker"){
+LocalizationWorker::LocalizationWorker() : Worker("Localization worker"), LocalizationFilter(new MeanLocalizationStrategy()){
 
 }
 
-bool LocalizationWorker::QueueTag(TagPose raw_pose) {
+bool LocalizationWorker::QueueTag(PoseCv raw_pose) {
     if(_raw_tag_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(50))){
         _raw_tag_poses.data[raw_pose.tag_id-1].push_back(raw_pose);
         _raw_tag_sem.release();
@@ -20,8 +20,8 @@ bool LocalizationWorker::QueueTag(TagPose raw_pose) {
 
 bool LocalizationWorker::QueueTags(TagArray& raw_tagarray){
     if(_raw_tag_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(50))){
-        for (std::vector<TagPose>& v: raw_tagarray.data){
-            for (TagPose p: v){
+        for (std::vector<PoseCv>& v: raw_tagarray.data){
+            for (PoseCv& p: v){
                 _raw_tag_poses.data[p.tag_id-1].push_back(p);
             }
         }
@@ -31,12 +31,24 @@ bool LocalizationWorker::QueueTags(TagArray& raw_tagarray){
     return false;
 }
 
+RobotPose LocalizationWorker::GetRobotPose() {
+    RobotPose ret_pose;
+    if(_robot_pose_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(100))) {
+        ret_pose = _filtered_pose;
+        _robot_pose_sem.release();
+    }
+
+    return ret_pose;
+}
+
 void LocalizationWorker::Init() {
 
 }
 
 void LocalizationWorker::Execute() {
+    // ==================== Get raw tags ====================
 
+    // Get lock for new tags
     if (_raw_tag_sem.try_acquire()) {
         // Get a local copy of the raw tags
         TagArray local_raw_tag_poses = _raw_tag_poses;
@@ -46,42 +58,54 @@ void LocalizationWorker::Execute() {
 
         // Add fresh poses
         for (int i = 0; i < local_raw_tag_poses.data.size(); i++) {
-            std::vector<TagPose> &r_v = local_raw_tag_poses.data[i];
-            for (TagPose r_p: r_v) {
+            std::vector<PoseCv> &r_v = local_raw_tag_poses.data[i];
+            for (PoseCv& r_p: r_v) {
                 _fresh_tag_poses.data[i].push_back(r_p);
             }
         }
 
         // Clear TagArray of stale tag poses
         int stale_tags = _fresh_tag_poses.ClearStale();
-//        AppLogger::Logger::Log("num stale tags: " + std::to_string(stale_tags));
 
-        // Disambiguate tags with multiple poses
-        _computed_tag_poses = DisambiguateTags(_fresh_tag_poses);
+        // ==================== Log unique new/lost tags ====================
 
+        _fresh_unique_tags = std::vector<int>(NUM_TAG_IDS, 0);
+
+        // Find all of the unique tag ids from the fresh tag poses
+        for(int i=0; i<_fresh_tag_poses.data.size(); i++){
+            if (!_fresh_tag_poses.data[i].empty()){
+                _fresh_unique_tags[i]++;
+            }
+        }
         for (int i = 0; i < NUM_TAG_IDS; i++) {
-            TagPose &c_t = _computed_tag_poses[i];
-            TagPose &l_t = _last_tag_poses[i];
-            if (c_t.tag_id != l_t.tag_id) {
-                if (c_t.tag_id > 0) {
-                    AppLogger::Logger::Log("Started tracking tag " + std::to_string(c_t.tag_id));
+            int f = _fresh_unique_tags[i];
+            int l = _last_unique_tags[i];
+            if (f != l) {
+                if (f > 0) {
+                    AppLogger::Logger::Log("Started tracking tag " + std::to_string(i+1));
                 } else {
-                    AppLogger::Logger::Log("Lost tracking on tag " + std::to_string(l_t.tag_id));
+                    AppLogger::Logger::Log("Lost tracking on tag " + std::to_string(i+1));
                 }
             }
         }
+        _last_unique_tags = _fresh_unique_tags;
 
+        // ==================== Compute new robot state ====================
 
-        // TODO From each of the tags, calculate the robot's position in the world
-
-
-        for (TagPose &c_t: _computed_tag_poses){
-            if (c_t.tag_id != 0){
-                AppLogger::Logger::Log("Tag " + std::to_string(c_t.tag_id) + " detected: " + to_string(c_t));
+        // Get lock to grab latest robot pose
+        if(_robot_pose_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(100))) {
+            RobotPose local_filtered_pose = _filtered_pose;
+            _robot_pose_sem.release();
+            // Compute updated pose
+            _strategy->Compute(_fresh_tag_poses, local_filtered_pose);
+            // Get lock to reassign updated pose
+            if (_robot_pose_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(100))) {
+                _filtered_pose = local_filtered_pose;
+                _robot_pose_sem.release();
             }
         }
-        _last_tag_poses = _computed_tag_poses;
 
+        AppLogger::Logger::Log("Computed robot position: " + to_string(GetRobotPose()));
 
 
     }

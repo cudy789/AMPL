@@ -93,10 +93,11 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
     }
 
     for (int i = 0; i < zarray_size(detections); i++) {
+        // ==================== Calculate the pose of the tag ====================
+
         apriltag_detection_t *det;
         zarray_get(detections, i, &det);
 
-        // Calculate pose of tag
         apriltag_detection_info_t info;
         info.det = det;
 //            info.tagsize = 0.165; // in meters, TODO this is what it "should" be, but the distances don't work out
@@ -109,8 +110,11 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
         info.cy = 240;
 
         // Calculate the tag's pose, return an error value as well
+        // TODO decide for ourselves which of the two possible tag poses we want to consider
         apriltag_pose_t pose;
         double err = estimate_tag_pose(&info, &pose);
+
+        // ==================== AT -> Camera ====================
 
         // Construct matrices for the rotation (R) and translation (T) of the tag from the tag frame to the camera frame.
         // This is the rotation and position of the tag relative to the camera.
@@ -118,51 +122,72 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
         Eigen::Vector3d T_tag_camera = Array2EM<double, 3, 1>(pose.t->data);
 
 
-        // ==================== AT -> Robot ====================
-        // Rotate AprilTag from the tag frame into the robot's coordinate frame
-        Eigen::Matrix3d R_tag_robot = _c_params.R_camera_robot * R_tag_camera;
-        Eigen::Vector3d R_tag_robot_rpy = RotationMatrixToRPY(R_tag_robot);
+        // ==================== Camera -> Robot ====================
+        // Rotate AprilTag from the camera frame into the robot's coordinate frame
+        Eigen::Matrix3d R_camera_robot = _c_params.R_camera_robot * R_tag_camera;
+        Eigen::Vector3d R_camera_robot_rpy = RotationMatrixToRPY(R_camera_robot);
 
         // Translate AprilTag from the tag frame into the robot's coordinate frame
-        Eigen::Vector3d T_tag_robot = _c_params.R_camera_robot * T_tag_camera + _c_params.T_camera_robot;
+        Eigen::Vector3d T_camera_robot = _c_params.R_camera_robot * T_tag_camera + _c_params.T_camera_robot;
 
 
         // ==================== Robot -> World ====================
 
-        Pose& Pose_AG = TagLayout[det->id];
+        // Get the location of the apriltag in the world frame
+        Pose_base Pose_AG;
+
+        if (TagLayout.find(det->id) != TagLayout.end()){
+            Pose_AG = TagLayout[det->id];
+        }
 
 //        AppLogger::Logger::Log("Tag " + std::to_string(det->id) + " global rotation & translation: " + to_string(Pose_AG));
 //        AppLogger::Logger::Log("Pose_AG.R: " + to_string(Pose_AG.R));
 
-        Eigen::Vector3d T_robot_global = Pose_AG.R * ((-1.0 * T_tag_robot)) + Pose_AG.T;
-        Eigen::Matrix3d R_robot_global = Pose_AG.R * R_tag_robot.transpose();
+        Eigen::Vector3d T_robot_global = Pose_AG.R * ((-1.0 * T_camera_robot)) + Pose_AG.T;
+        Eigen::Matrix3d R_robot_global = Pose_AG.R * R_camera_robot.transpose();
 
-        TagPose world_tag{Pose{T_tag_robot, R_tag_robot},
-                          det->id, _c_params.camera_id,
-                          T_robot_global, R_robot_global,
-                          err,
-                          det->c[0], det->c[1],
-                          det->p[0][0], det->p[0][1],
-                          det->p[1][0], det->p[1][1],
-                          det->p[2][0], det->p[2][1],
-                          det->p[3][0], det->p[3][1]};
+        // ==================== Now make the Pose_t object ====================
+
+        PoseCv new_tag;
+        new_tag.cam_id = _c_params.camera_id;
+        new_tag.tag_id = det->id;
+        new_tag.err = err;
+        // Tag frame
+        new_tag.tag.R = Eigen::Matrix3d::Constant(0);
+        new_tag.tag.T = Eigen::Vector3d::Constant(0);
+        // Camera frame
+        new_tag.camera.R = R_tag_camera;
+        new_tag.camera.T = T_tag_camera;
+        // Robot frame
+        new_tag.robot.R = R_camera_robot;
+        new_tag.robot.T = T_camera_robot;
+        // Global frame
+        new_tag.global.R = R_robot_global;
+        new_tag.global.T = T_robot_global;
+
+        // CV pixel coords for outlining tag on image
+        new_tag.c[0] = det->c[0];
+        new_tag.c[1] = det->c[1];
+        for (int j=0; j<4; j++){
+            for (int k=0; k<2; k++){
+                new_tag.p[j][k] = det->p[j][k];
+            }
+        }
+
+        AppLogger::Logger::Log("Processed tag " + to_string(new_tag));
 
 
         // Add tag to detected TagArray object
-        detected_tags.data[det->id-1].push_back(world_tag);
+        detected_tags.data[det->id-1].push_back(new_tag);
     }
-
-//    ulong end_ns = CurrentTime();
     apriltag_detections_destroy(detections);
-//    std::cout << "Processed AprilTags in img for camera " << _camera_id << " in " << (end_ns - start_ns) / 1.0e6 << "ms" << std::endl;
-
     return detected_tags;
 }
 
 cv::Mat TDCam::DrawTagBoxesOnImage(const TagArray &tags, const cv::Mat &img) {
     cv::Mat annotated_img = img;
-    for (const std::vector<TagPose>& v: tags.data){
-        for (const TagPose& p: v){
+    for (const std::vector<PoseCv>& v: tags.data){
+        for (const PoseCv& p: v){
 
             // Draw detection outlines
             line(annotated_img, cv::Point(p.p[0][0], p.p[0][1]),

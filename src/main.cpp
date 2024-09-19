@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 
     // Parse map and camera configuration for camera workers
     std::vector<CamParams> c_params = ParamParser::ParseConfig("../config.yml");
-    TagLayoutParser::ParseConfig("../crescendo_2024.fmap");
+    TagLayoutParser::ParseConfig("../singletag.fmap");
 
     // Create camera workers
     for (CamParams& p: c_params){

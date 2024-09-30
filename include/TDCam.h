@@ -18,6 +18,7 @@ extern "C" {
 #include "tagStandard41h12.h"
 #include "tagStandard52h13.h"
 #include "common/getopt.h"
+#include "common/homography.h"
 }
 
 inline std::vector<int> GetAttachedCamIDs(int max_index){

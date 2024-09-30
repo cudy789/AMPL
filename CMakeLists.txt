@@ -7,6 +7,17 @@ project(ApriltagLocalization)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# Option for setting target architecture
+option(TARGET_ARM64 "Build for ARM64 architecture" OFF)
+
+# Set the toolchain file for cross-compiling to ARM64 if the option is enabled
+if(TARGET_ARM64)
+    set(CMAKE_SYSTEM_NAME Linux)
+    set(CMAKE_SYSTEM_PROCESSOR aarch64)
+    set(CMAKE_C_COMPILER /usr/bin/aarch64-linux-gnu-gcc)
+    set(CMAKE_CXX_COMPILER /usr/bin/aarch64-linux-gnu-g++)
+endif()
+
 # Find OpenCV package
 find_package(OpenCV REQUIRED)
 

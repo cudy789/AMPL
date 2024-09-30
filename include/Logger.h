@@ -271,7 +271,6 @@ namespace AppLogger {
         std::queue<std::tuple<std::string, std::string, SEVERITY>> _filestream_queue;
         ulong _thread_write_period_ns = 5 * 1.0e6; // write to file every 5 seconds
         SEVERITY _verbosity;
-
         bool _stdout_enabled = true;
         bool _fileout_enabled = true;
 

@@ -5,13 +5,14 @@
 #include "MatrixHelpers.h"
 
 
-LocalizationWorker::LocalizationWorker() : Worker("Localization worker"), LocalizationFilter(new MeanLocalizationStrategy()){
+LocalizationWorker::LocalizationWorker() : Worker("Localization worker"), LocalizationFilter(new KMeansLocalizationStrategy()){
 
 }
 
-bool LocalizationWorker::QueueTag(PoseCv raw_pose) {
+bool LocalizationWorker::QueueTag(Pose raw_pose) {
     if(_raw_tag_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(50))){
         _raw_tag_poses.data[raw_pose.tag_id-1].push_back(raw_pose);
+        _raw_tag_poses._num_tags++;
         _raw_tag_sem.release();
         return true;
     }
@@ -20,9 +21,10 @@ bool LocalizationWorker::QueueTag(PoseCv raw_pose) {
 
 bool LocalizationWorker::QueueTags(TagArray& raw_tagarray){
     if(_raw_tag_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(50))){
-        for (std::vector<PoseCv>& v: raw_tagarray.data){
-            for (PoseCv& p: v){
+        for (std::vector<Pose>& v: raw_tagarray.data){
+            for (Pose& p: v){
                 _raw_tag_poses.data[p.tag_id-1].push_back(p);
+                _raw_tag_poses._num_tags++;
             }
         }
         _raw_tag_sem.release();
@@ -58,9 +60,10 @@ void LocalizationWorker::Execute() {
 
         // Add fresh poses
         for (int i = 0; i < local_raw_tag_poses.data.size(); i++) {
-            std::vector<PoseCv> &r_v = local_raw_tag_poses.data[i];
-            for (PoseCv& r_p: r_v) {
+            std::vector<Pose> &r_v = local_raw_tag_poses.data[i];
+            for (Pose& r_p: r_v) {
                 _fresh_tag_poses.data[i].push_back(r_p);
+                _fresh_tag_poses._num_tags++;
             }
         }
 

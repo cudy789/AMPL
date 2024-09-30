@@ -19,3 +19,7 @@ RUN make install
 # ============ Install Boost.Beast ============
 
 RUN apt-get update && apt-get install -y libboost-all-dev libssl-dev
+
+# ============ Install arm64 cross compile toolchain ============
+
+RUN apt-get update && apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu

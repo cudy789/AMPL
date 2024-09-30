@@ -11,7 +11,7 @@
 
 using json = nlohmann::json;
 
-inline std::map<int, Pose_base> TagLayout;
+inline std::map<int, Pose_single> TagLayout;
 
 
 class TagLayoutParser{
@@ -37,7 +37,7 @@ public:
                                      {transform[4], transform[5], transform[6]},
                                      {transform[8], transform[9], transform[10]}};
 
-                Pose_base new_pose;
+                Pose_single new_pose;
                 new_pose.R = R_AG;
                 new_pose.T = T_AG;
 

@@ -24,11 +24,11 @@ public:
 
     bool QueueTags(TagArray& raw_tagarray);
 
-    bool QueueTag(PoseCv raw_pose);
+    bool QueueTag(Pose raw_pose);
 
     RobotPose GetRobotPose();
 
-    PoseCv GetTagPose(int tag_id);
+    Pose GetTagPose(int tag_id);
 
 
 

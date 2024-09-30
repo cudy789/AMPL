@@ -5,6 +5,12 @@
 IMAGE_NAME="apriltag-multicam"
 IMAGE_TAG="latest"
 
+if [ "$ARM" = "1" ] || [ "$( uname -m )" = "aarch64" ]; then
+  ARCH="--platform=linux/arm64"
+else
+  ARCH="--platform=linux/amd64"
+fi
+
 # Start this docker container from the specified image, adding a unique hostname and proper networking
 # Also forwards any GUI applications to the host and also adds the current user to the container and mounts its home directory
 
@@ -20,4 +26,5 @@ docker run --rm -h $IMAGE_NAME-$HOSTNAME --name apriltag_localization --group-ad
   --volume="$HOME:$HOME" \
   --workdir="$(pwd)" \
   --privileged \
+  $ARCH \
   rogueraptor7/$IMAGE_NAME:$IMAGE_TAG /bin/bash -c "$@"

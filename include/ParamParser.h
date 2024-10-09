@@ -17,7 +17,7 @@ struct CamParams{
     Eigen::Matrix3d R_camera_robot {{1, 0, 0},
                                     {0, 0, 1},
                                     {0, -1, 0}}; // 90* rotation, camera is facing same direction as robot
-    Eigen::Vector3d T_camera_robot {0,0,0}; // No displacement relative to robot front
+    Eigen::Vector3d T_camera_robot {0,0,0}; // No displacement relative to robot geometric center
 
     struct {
         float quad_decimate = 2.0; // Decimate input image by this factor
@@ -40,6 +40,18 @@ struct CamParams{
 
 };
 
+// Assuming the origin is at the 3D geometric center of the robot, use the following frame axis convention:
+//   x: positive right
+//   y: positive forwards
+//   z: positive up
+// Define your camera locations using the above axis. For example, a camera on the front of the robot (50cm from the center
+// of the robot), centered left-right, mounted on a pole 25cm above the midpoint of the robot looking upwards
+// at a 20 degree angle:
+// translation: [0.0, 0.5, 0.25] # x,y,z
+// rotation: [0, 20, 0] # roll, pitch, yaw
+// For the same configuration, but at the back of the robot looking backwards:
+// translation: [0, -0.5, 0.25] # x,y,z
+// rotation: [0, 20, 180] # roll, pitch, yaw
 class ParamParser{
 public:
     ParamParser() = delete;
@@ -47,12 +59,10 @@ public:
     static std::vector<CamParams> ParseConfig(std::string cfg_file){
         std::vector<CamParams> cam_p;
 
-        Eigen::Matrix3d base_rot_mat;
-        base_rot_mat << 1, 0, 0,
-                0, 0, 1,
-                0, -1, 0;
+        Eigen::Matrix3d R_base {{1, 0, 0},
+                               {0, 0, 1},
+                               {0, -1, 0}}; // 90* rotation, camera is facing same direction as robot
 
-        Eigen::Vector3d base_disp_mat{0, 0, 0};
 
         try {
             YAML::Node parser = YAML::LoadFile(cfg_file);
@@ -68,8 +78,14 @@ public:
                     float c_fps = it->second["fps"].as<float>();
                     int c_exposure = it->second["exposure"].as<int>();
 
+                    Eigen::Vector3d T_total = Eigen::Vector3d(it->second["translation"].as<std::vector<double>>().data());
+                    Eigen::Vector3d c_rotation = Eigen::Vector3d(it->second["rotation"].as<std::vector<double>>().data());
+
+                    Eigen::Matrix3d R_total = R_base + CreateRotationMatrix((Eigen::Vector3d)c_rotation);
+
                     cam_p.emplace_back(CamParams{.name=c_name, .camera_id=c_id, .res_x=c_resx, .res_y=c_resy,
-                                                 .fps=c_fps, .exposure=c_exposure});
+                                                 .fps=c_fps, .exposure=c_exposure,
+                                                 .R_camera_robot=R_total, .T_camera_robot=T_total});
 
                 }
             }
@@ -79,7 +95,6 @@ public:
         }
         return cam_p;
     }
-
 
 
 private:

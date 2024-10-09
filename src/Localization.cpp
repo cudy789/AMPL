@@ -37,7 +37,7 @@ bool MeanLocalizationStrategy::Compute(TagArray &fresh_poses, RobotPose &filtere
 
     }
 
-    AppLogger::Logger::Log("num_poses used to calculate average in localization strategy: " + std::to_string(num_poses));
+//    AppLogger::Logger::Log("num_poses used to calculate average in localization strategy: " + std::to_string(num_poses));
     if (num_poses > 0) {
         avg_filtered_pose /= num_poses;
     } else{

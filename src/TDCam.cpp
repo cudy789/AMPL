@@ -99,6 +99,11 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
         apriltag_detection_t *det;
         zarray_get(detections, i, &det);
 
+        // Check that tagID is within our expected tag range
+        if (det->id < 0 || det->id >= NUM_TAG_IDS){
+            continue;
+        }
+
         apriltag_detection_info_t info;
         info.det = det;
 //            info.tagsize = 0.165; // in meters, TODO this is what it "should" be, but the distances don't work out

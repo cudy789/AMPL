@@ -102,14 +102,12 @@ struct RobotPose: public Pose {
 //    int tag_id = -1;
 //    int cam_id = -1;
 
+    friend std::ostream& operator<<(std::ostream& os, const RobotPose& o_p) {
+        os << o_p.global;
+        return os;
+    }
+
 };
-
-//struct FilterPose {
-//    Pose_t pose_global_frame;
-//};
-
-
-
 
 struct TagArray{
     explicit TagArray(){
@@ -118,8 +116,8 @@ struct TagArray{
     }
 
     void ClearAll(){
-        data = std::vector<std::vector<Pose>>{NUM_TAG_IDS};
         _num_tags = 0;
+        data = std::vector<std::vector<Pose>>{NUM_TAG_IDS};
     }
     int ClearStale(){
         int stale_tags = 0;

@@ -43,6 +43,11 @@ RobotPose LocalizationWorker::GetRobotPose() {
     return ret_pose;
 }
 
+void LocalizationWorker::LogStats(bool log_stats){
+    _log_stats = log_stats;
+}
+
+
 void LocalizationWorker::Init() {
 
 }
@@ -75,7 +80,7 @@ void LocalizationWorker::Execute() {
         _fresh_unique_tags = std::vector<int>(NUM_TAG_IDS, 0);
 
         // Find all of the unique tag ids from the fresh tag poses
-        for(int i=0; i<_fresh_tag_poses.data.size(); i++){
+        for(int i=0; i<NUM_TAG_IDS; i++){
             if (!_fresh_tag_poses.data[i].empty()){
                 _fresh_unique_tags[i]++;
             }
@@ -101,6 +106,7 @@ void LocalizationWorker::Execute() {
             _robot_pose_sem.release();
             // Compute updated pose
             _strategy->Compute(_fresh_tag_poses, local_filtered_pose);
+
             // Get lock to reassign updated pose
             if (_robot_pose_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(100))) {
                 _filtered_pose = local_filtered_pose;
@@ -108,9 +114,17 @@ void LocalizationWorker::Execute() {
             }
         }
 
-        AppLogger::Logger::Log("Computed robot position: " + to_string(GetRobotPose()));
+//        AppLogger::Logger::Log("Computed robot position: " + to_string(GetRobotPose()));
 
 
     }
+
+    if ((CurrentTime() - _last_log_time_ns) > _log_period_ns){
+        if (_log_stats){
+            AppLogger::Logger::Log("Robot pose: " + to_string(GetRobotPose()), AppLogger::INFO);
+        }
+        _last_log_time_ns = CurrentTime();
+    }
+
 
 }

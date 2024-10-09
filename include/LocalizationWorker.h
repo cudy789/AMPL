@@ -30,9 +30,11 @@ public:
 
     Pose GetTagPose(int tag_id);
 
+    void LogStats(bool log_stats);
 
 
-private:
+    private:
+
     void Init() override;
     void Execute() override;
 
@@ -45,6 +47,10 @@ private:
 
     std::binary_semaphore _robot_pose_sem{1};
     Pose _robot_pose;
+
+    bool _log_stats = false;
+    ulong _last_log_time_ns = CurrentTime();
+    ulong _log_period_ns = 5e8; // 500 ms logging rate
 
 
 };

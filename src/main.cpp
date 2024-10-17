@@ -34,8 +34,8 @@ int main(int argc, char *argv[])
     l_w->LogStats(true);
 
     // Create webserver worker
-//    workers_t.emplace_back(new WebServerWorker(8080));
-//    WebServerWorker* w_w = (WebServerWorker*) workers_t[1];
+    workers_t.emplace_back(new WebServerWorker(8080));
+    WebServerWorker* w_w = (WebServerWorker*) workers_t[1];
 
     // Parse map and camera configuration for camera workers
     std::vector<CamParams> c_params = ParamParser::ParseConfig("../config.yml");
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     for (CamParams& p: c_params){
         workers_t.emplace_back(new TDCamWorker(p, [l_w](TagArray& raw_tags) -> bool {return l_w->QueueTags(raw_tags);}, false));
         TDCamWorker* this_cam_worker = (TDCamWorker*) workers_t.back();
-//        w_w->RegisterMatFunc([this_cam_worker]() -> cv::Mat {return this_cam_worker->GetAnnotatedIm();});
+        w_w->RegisterMatFunc([this_cam_worker]() -> cv::Mat {return this_cam_worker->GetAnnotatedIm();});
     }
 
     // Start all camera workers

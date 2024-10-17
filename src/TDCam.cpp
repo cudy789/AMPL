@@ -106,14 +106,19 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
 
         apriltag_detection_info_t info;
         info.det = det;
-//            info.tagsize = 0.165; // in meters, TODO this is what it "should" be, but the distances don't work out
-        info.tagsize = 0.095; // in meters, TODO hand tuned, probably not correct, scales okay with distance
+        info.tagsize = 0.165; // in meters, TODO this is what it "should" be, but the distances don't work out
+//        info.tagsize = 0.095; // in meters, TODO hand tuned, probably not correct, scales okay with distance
         // Camera params from https://horus.readthedocs.io/en/release-0.2/source/scanner-components/camera.html
-        info.fx = 1430;
-        info.fy = 1430;
+//        info.fx = 1430;
+//        info.fy = 1430;
+        info.fx = 487;
+        info.fy = 487;
 
-        info.cx = 320;
-        info.cy = 240;
+//        info.cx = 320;
+//        info.cy = 240;
+
+        info.cx = _c_params.res_x/2;
+        info.cy = _c_params.res_y/2;
 
         // Calculate the tag's pose, return an error value as well
         // ######## Single pose ########
@@ -137,7 +142,7 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
 
 
         for (int j=0; j < calculated_poses.size(); j++) {
-            apriltag_pose_t* pose = calculated_poses[j];
+            apriltag_pose_t* pose = calculated_poses[j]; // get the pose and corresponding error
             double err = calculated_errors[j];
 
 
@@ -151,18 +156,17 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
 
             // ==================== Camera -> Robot ====================
             // Rotate AprilTag from the camera frame into the robot's coordinate frame
-            Eigen::Matrix3d R_camera_robot = _c_params.R_camera_robot * R_tag_camera;
+            Eigen::Matrix3d R_camera_robot = _c_params.R_camera_robot * CreateRotationMatrix({90, 0, 0}) * R_tag_camera; // offset roll by 90 degrees
             Eigen::Vector3d R_camera_robot_rpy = RotationMatrixToRPY(R_camera_robot);
 
-            // Translate AprilTag from the tag frame into the robot's coordinate frame
+            // Translate AprilTag from the camera frame into the robot's coordinate frame
             Eigen::Vector3d T_camera_robot = _c_params.R_camera_robot * T_tag_camera + _c_params.T_camera_robot;
 
 
             // ==================== Robot -> World ====================
 
             // Get the location of the apriltag in the world frame
-            Pose_single Pose_AG;
-
+            Pose_single Pose_AG; // the field transformation from apriltag frame to global field frame as specified in the .fmap file
             if (TagLayout.find(det->id) != TagLayout.end()) {
                 Pose_AG = TagLayout[det->id];
             }
@@ -201,7 +205,7 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
                 }
             }
 
-            AppLogger::Logger::Log("Processed tag " + to_string(new_tag), AppLogger::SEVERITY::DEBUG);
+            AppLogger::Logger::Log("Processed tag " + to_string(new_tag));
 
 
             // Add tag to detected TagArray object

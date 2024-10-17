@@ -114,9 +114,6 @@ void LocalizationWorker::Execute() {
             }
         }
 
-//        AppLogger::Logger::Log("Computed robot position: " + to_string(GetRobotPose()));
-
-
     }
 
     if ((CurrentTime() - _last_log_time_ns) > _log_period_ns){

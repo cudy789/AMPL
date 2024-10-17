@@ -91,7 +91,7 @@ struct Pose{
 
     friend std::ostream& operator<<(std::ostream& os, const Pose& o_p) {
         os << "tag_id: " << o_p.tag_id << ", " << "cam_id: " << o_p.cam_id << ", err: " << o_p.err
-           << ", GLOBAL_FRAME: " << o_p.global << ", ROBOT_FRAME: " << o_p.robot << ", TAG_FRAME: " << o_p.tag;
+           << ", GLOBAL_FRAME: " << o_p.global << ", ROBOT_FRAME: " << o_p.robot << ", CAM_FRAME: " << o_p.camera;
         return os;
     }
 

@@ -48,7 +48,7 @@ void WebServerWorker::Execute() {
         }
 
         if (!merged_frame.empty()) {
-            cv::imencode(".jpg", merged_frame, buffer, std::vector<int>{cv::IMWRITE_JPEG_QUALITY, 95});
+            cv::imencode(".jpg", merged_frame, buffer, std::vector<int>{cv::IMWRITE_JPEG_QUALITY, 85});
 
             auto const size = buffer.size();
 

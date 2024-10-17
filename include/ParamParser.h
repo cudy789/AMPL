@@ -81,11 +81,13 @@ public:
                     Eigen::Vector3d T_total = Eigen::Vector3d(it->second["translation"].as<std::vector<double>>().data());
                     Eigen::Vector3d c_rotation = Eigen::Vector3d(it->second["rotation"].as<std::vector<double>>().data());
 
-                    Eigen::Matrix3d R_total = R_base + CreateRotationMatrix((Eigen::Vector3d)c_rotation);
+                    Eigen::Matrix3d R_total = CreateRotationMatrix((Eigen::Vector3d)c_rotation) * R_base; // add the two rotations together by matrix multiplication, R2 * R1
 
                     cam_p.emplace_back(CamParams{.name=c_name, .camera_id=c_id, .res_x=c_resx, .res_y=c_resy,
                                                  .fps=c_fps, .exposure=c_exposure,
                                                  .R_camera_robot=R_total, .T_camera_robot=T_total});
+
+                    AppLogger::Logger::Log("created rotation matrix " + to_string(R_total));
 
                 }
             }

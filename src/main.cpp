@@ -1,3 +1,7 @@
+
+// No debug messages from the apriltag library
+#define NODEBUG
+
 #include <vector>
 #include <csignal>
 

@@ -116,12 +116,9 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
         info.cy = _c_params.ry/2;
 
         // Calculate the tag's pose, return an error value as well
-        // ######## Single pose ########
-//        apriltag_pose_t pose;
-//        double err = estimate_tag_pose(&info, &pose);
-        // ######## Two poses ########
         double err1, err2;
         apriltag_pose_t pose1, pose2;
+        // Use underlying method of estimate_tag_pose so we can use both possible pose locations
         estimate_tag_pose_orthogonal_iteration(&info, &err1, &pose1, &err2, &pose2, 50);
 
         std::vector<apriltag_pose_t*> calculated_poses;
@@ -198,8 +195,8 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
                 }
             }
 
-            AppLogger::Logger::Log("Processed tag " + to_string(new_tag));
-            AppLogger::Logger::Log("Tag " + to_string(det->id) + " global location: " + to_string(Pose_AG.T));
+            AppLogger::Logger::Log("Processed tag " + to_string(new_tag), AppLogger::SEVERITY::DEBUG);
+            AppLogger::Logger::Log("Tag " + to_string(det->id) + " global location: " + to_string(Pose_AG.T), AppLogger::SEVERITY::DEBUG);
 
             // Add tag to detected TagArray object
             detected_tags.data[det->id - 1].push_back(new_tag);

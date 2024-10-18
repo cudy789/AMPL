@@ -3,7 +3,7 @@
 
 #include "common.h"
 #include "TDCamWorker.h"
-#include "ParamParser.h"
+#include "ConfigParser.h"
 #include "MatrixHelpers.h"
 
 TEST(TDCamWorker, HelloWorld){

@@ -62,9 +62,9 @@ struct CamParams{
 // For the same configuration, but at the back of the robot looking backwards:
 // translation: [0, -0.5, 0.25] # x,y,z
 // rotation: [0, 20, 180] # roll, pitch, yaw
-class ParamParser{
+class ConfigParser{
 public:
-    ParamParser() = delete;
+    ConfigParser() = delete;
 
     static std::vector<CamParams> ParseConfig(std::string cfg_file){
         std::vector<CamParams> cam_p;

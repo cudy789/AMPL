@@ -4,7 +4,7 @@
 #include "LocalizationWorker.h"
 #include "WebServerWorker.h"
 #include "TDCamWorker.h"
-#include "ParamParser.h"
+#include "ConfigParser.h"
 #include "Logger.h"
 
 
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     WebServerWorker* w_w = (WebServerWorker*) workers_t[1];
 
     // Parse map and camera configuration for camera workers
-    std::vector<CamParams> c_params = ParamParser::ParseConfig("../config.yml");
+    std::vector<CamParams> c_params = ConfigParser::ParseConfig("../config.yml");
     TagLayoutParser::ParseConfig("../at14.fmap");
 
     // Create camera workers

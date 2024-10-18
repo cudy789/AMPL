@@ -4,7 +4,7 @@
 #include "Pose.h"
 #include "opencv2/opencv.hpp"
 #include "Logger.h"
-#include "ParamParser.h"
+#include "ConfigParser.h"
 #include "TagLayoutParser.h"
 
 extern "C" {

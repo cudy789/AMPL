@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 
     // Parse map and camera configuration for camera workers
     std::vector<CamParams> c_params = ParamParser::ParseConfig("../config.yml");
-    TagLayoutParser::ParseConfig("../singletag.fmap");
+    TagLayoutParser::ParseConfig("../at14.fmap");
 
     // Create camera workers
     for (CamParams& p: c_params){

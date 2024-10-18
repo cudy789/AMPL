@@ -156,8 +156,7 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
 
             // ==================== Camera -> Robot ====================
             // Rotate AprilTag from the camera frame into the robot's coordinate frame
-            Eigen::Matrix3d R_camera_robot = _c_params.R_camera_robot * CreateRotationMatrix({90, 0, 0}) * R_tag_camera; // offset roll by 90 degrees
-            Eigen::Vector3d R_camera_robot_rpy = RotationMatrixToRPY(R_camera_robot);
+            Eigen::Matrix3d R_camera_robot = _c_params.R_camera_robot * CreateRotationMatrix({90, 0, 0}) * R_tag_camera; // offset roll by 90 degrees TODO this still might not be correct
 
             // Translate AprilTag from the camera frame into the robot's coordinate frame
             Eigen::Vector3d T_camera_robot = _c_params.R_camera_robot * T_tag_camera + _c_params.T_camera_robot;
@@ -169,12 +168,11 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
             Pose_single Pose_AG; // the field transformation from apriltag frame to global field frame as specified in the .fmap file
             if (TagLayout.find(det->id) != TagLayout.end()) {
                 Pose_AG = TagLayout[det->id];
+            } else {
+                AppLogger::Logger::Log("Cannot find tag ID " + to_string(det->id) + " in .fmap file", AppLogger::SEVERITY::WARNING);
             }
 
-//        AppLogger::Logger::Log("Tag " + std::to_string(det->id) + " global rotation & translation: " + to_string(Pose_AG));
-//        AppLogger::Logger::Log("Pose_AG.R: " + to_string(Pose_AG.R));
-
-            Eigen::Vector3d T_robot_global = Pose_AG.R * ((-1.0 * T_camera_robot)) + Pose_AG.T;
+            Eigen::Vector3d T_robot_global = (-1.0 * CreateRotationMatrix({0, 0, 90}) * T_camera_robot) + Pose_AG.T;
             Eigen::Matrix3d R_robot_global = Pose_AG.R * R_camera_robot.transpose();
 
             // ==================== Now make the Pose_t object ====================
@@ -206,7 +204,7 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
             }
 
             AppLogger::Logger::Log("Processed tag " + to_string(new_tag));
-
+            AppLogger::Logger::Log("Tag " + to_string(det->id) + " global location: " + to_string(Pose_AG.T));
 
             // Add tag to detected TagArray object
             detected_tags.data[det->id - 1].push_back(new_tag);

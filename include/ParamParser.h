@@ -9,9 +9,19 @@ struct CamParams{
     std::string name;
     int camera_id;
 
-    int res_x;
-    int res_y;
+    // Resolution x, y
+    int rx;
+    int ry;
+
+    // Focal length (in pixels), x and y
+    // focalLengthPxX = focalLengthPxY = px/mm * focalLengthMm
+    int fx;
+    int fy;
+
+    // Desired FPS
     float fps;
+
+    // Exposure, range varies per camera
     int exposure;
 
     Eigen::Matrix3d R_camera_robot {{1, 0, 0},
@@ -73,8 +83,10 @@ public:
 
                     std::string c_name = it->first.as<std::string>();
                     int c_id = it->second["camera_id"].as<int>();
-                    int c_resx = it->second["res_x"].as<int>();
-                    int c_resy = it->second["res_y"].as<int>();
+                    int c_rx = it->second["rx"].as<int>();
+                    int c_ry = it->second["ry"].as<int>();
+                    int c_fx = it->second["fx"].as<int>();
+                    int c_fy = it->second["fy"].as<int>();
                     float c_fps = it->second["fps"].as<float>();
                     int c_exposure = it->second["exposure"].as<int>();
 
@@ -83,8 +95,8 @@ public:
 
                     Eigen::Matrix3d R_total = CreateRotationMatrix((Eigen::Vector3d)c_rotation) * R_base; // add the two rotations together by matrix multiplication, R2 * R1
 
-                    cam_p.emplace_back(CamParams{.name=c_name, .camera_id=c_id, .res_x=c_resx, .res_y=c_resy,
-                                                 .fps=c_fps, .exposure=c_exposure,
+                    cam_p.emplace_back(CamParams{.name=c_name, .camera_id=c_id, .rx=c_rx, .ry=c_ry,
+                                                 .fx=c_fx, .fy=c_fy, .fps=c_fps, .exposure=c_exposure,
                                                  .R_camera_robot=R_total, .T_camera_robot=T_total});
 
                     AppLogger::Logger::Log("created rotation matrix " + to_string(R_total));

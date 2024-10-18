@@ -17,8 +17,11 @@ Cameras:
   # front left
   CAM_LEFT:
     camera_id: 0
-    res_x: 544
-    res_y: 288
+    rx: 544
+    ry: 288
+
+    fx: 600
+    fy: 600
     # x,y,z
 #    translation: [-0.10, 0, 0]
     translation: [0, 0, 0]
@@ -31,8 +34,10 @@ Cameras:
 
 #  CAM_RIGHT:
 #    camera_id: 4
-#    res_x: 544
-#    res_y: 288
+#    rx: 544
+#    ry: 288
+#    fx: 600
+#    fy: 600
 #    # x,y,z
 #    translation: [0.10, 0, 0]
 #    # roll, pitch, yaw
@@ -43,8 +48,10 @@ Cameras:
 #  # backwards facing cam
 #  CAM_REAR:
 #    camera_id: 2
-#    res_x: 544
-#    res_y: 288
+#    rx: 544
+#    ry: 288
+#    fx: 600
+#    fy: 600
 #    # x,y,z
 #    translation: [-0.02, -0.305, 0]
 #    # roll, pitch, yaw

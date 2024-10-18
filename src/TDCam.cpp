@@ -19,8 +19,8 @@ TDCam::TDCam(CamParams& c_params) {
 //    _cap >> temp; // get first frame so we can adjust the settings
 
     _cap.set(cv::CAP_PROP_FPS, c_params.fps); // Frame rate
-    _cap.set(cv::CAP_PROP_FRAME_WIDTH, c_params.res_x); // Width
-    _cap.set(cv::CAP_PROP_FRAME_HEIGHT, c_params.res_y); // Height
+    _cap.set(cv::CAP_PROP_FRAME_WIDTH, c_params.rx); // Width
+    _cap.set(cv::CAP_PROP_FRAME_HEIGHT, c_params.ry); // Height
 
     _cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));
 
@@ -106,19 +106,14 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
 
         apriltag_detection_info_t info;
         info.det = det;
-        info.tagsize = 0.165; // in meters, TODO this is what it "should" be, but the distances don't work out
-//        info.tagsize = 0.095; // in meters, TODO hand tuned, probably not correct, scales okay with distance
+        info.tagsize = 0.165; // in meters
         // Camera params from https://horus.readthedocs.io/en/release-0.2/source/scanner-components/camera.html
-//        info.fx = 1430;
-//        info.fy = 1430;
-        info.fx = 487;
-        info.fy = 487;
 
-//        info.cx = 320;
-//        info.cy = 240;
+        info.fx = _c_params.fx; // TODO these need to be tuned per camera per resolution
+        info.fy = _c_params.fy;
 
-        info.cx = _c_params.res_x/2;
-        info.cy = _c_params.res_y/2;
+        info.cx = _c_params.rx/2;
+        info.cy = _c_params.ry/2;
 
         // Calculate the tag's pose, return an error value as well
         // ######## Single pose ########

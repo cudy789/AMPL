@@ -22,14 +22,14 @@ bool MeanLocalizationStrategy::Compute(TagArray &fresh_poses, RobotPose &filtere
             }
         }
 
-        // find the max error for each camera
+        // find the min error pose for each camera
         for (Pose& p: v){
             if (p.err < cam_pose_err[p.cam_id]->err){
                 cam_pose_err[p.cam_id] = &p;
             }
         }
 
-        // add maxes to average
+        // add mins to average
         for (const auto& pair: cam_pose_err){
             avg_filtered_pose += pair.second->global;
             num_poses++;
@@ -90,7 +90,7 @@ bool KMeansLocalizationStrategy::Compute(TagArray &fresh_poses, RobotPose &filte
 //        }
 
         // find the cluster with the most values in it
-        std::vector<int> num_labels(k_clusters, 0);
+        std::vector<int> num_labels = std::vector<int>(k_clusters, 0);
         for (const auto& label : std::get<1>(clustered_data)) {
             num_labels[label]++;
         }

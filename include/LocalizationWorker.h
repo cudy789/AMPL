@@ -42,8 +42,8 @@ public:
     std::binary_semaphore _raw_tag_sem{1};
     TagArray _raw_tag_poses;
     TagArray _fresh_tag_poses;
-    std::vector<int> _fresh_unique_tags{static_cast<int>(NUM_TAG_IDS), 0};
-    std::vector<int> _last_unique_tags{static_cast<int>(NUM_TAG_IDS), 0};
+    std::vector<int> _fresh_unique_tags = std::vector<int> (static_cast<int>(NUM_TAG_IDS), 0);
+    std::vector<int> _last_unique_tags = std::vector<int> (static_cast<int>(NUM_TAG_IDS), 0);
 
     std::binary_semaphore _robot_pose_sem{1};
     Pose _robot_pose;

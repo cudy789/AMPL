@@ -27,7 +27,7 @@ public:
     WebServerWorker() = delete;
     ~WebServerWorker() = default;
 
-    WebServerWorker(unsigned short port);
+    explicit WebServerWorker(unsigned short port);
 
     bool RegisterMatFunc(const std::function<cv::Mat()>& mat_func);
 

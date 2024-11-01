@@ -26,7 +26,11 @@ class Worker{
 public:
     Worker() : Worker("THREADNAME"){}
 
-    explicit Worker(std::string thread_name, double execution_freq = 100.0, AppLogger::SEVERITY debug_verbosity=AppLogger::DEBUG){
+    explicit Worker(std::string thread_name): Worker(std::move(thread_name), 100.0, AppLogger::SEVERITY::INFO){}
+
+    explicit Worker(std::string thread_name, double execution_freq): Worker(std::move(thread_name), execution_freq, AppLogger::SEVERITY::INFO){}
+
+    explicit Worker(std::string thread_name, double execution_freq, AppLogger::SEVERITY debug_verbosity){
         _exec_freq = execution_freq;
         _thread_name = std::move(thread_name);
         _debug_v = debug_verbosity;
@@ -81,7 +85,7 @@ public:
 protected:
     virtual void Execute() {};
     virtual void Init() {};
-    std::thread* _t_worker;
+    std::thread* _t_worker{};
 
 private:
     bool _stop = false;
@@ -89,10 +93,10 @@ private:
     std::binary_semaphore _stop_sem{1};
     int _debug_v = 0;
 
-    double _exec_freq;
+    double _exec_freq{};
 
     std::binary_semaphore _exec_freq_sem{1};
-    double _measure_exec_freq;
+    double _measure_exec_freq{};
 
     /***
      * Run the execute function at a maximum rate of _exec_freq. No timeout if execution cannot match desired freqency.

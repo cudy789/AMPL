@@ -8,7 +8,8 @@
 TEST(ParamParser, TestConfigYaml){
     SetupLogger("ParamParser_TestConfigYaml");
 
-    std::vector<CamParams> c_params = ParamParser::ParseConfig("../test/test_config.yml");
+    AMPLParams params = ConfigParser::ParseConfig("../test/test_config.yml");
+    std::vector<CamParams>& c_params = params.cam_params;
 
     ASSERT_EQ(c_params.size(), 2);
     for (int i=0; i<c_params.size(); i++){

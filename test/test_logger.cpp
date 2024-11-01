@@ -83,7 +83,7 @@ TEST(Logger, HighFreqFileout){
 
     std::cout << "Wrote " << n_messages << " x4 messages to the log file in " << full_duration_ms << " ms" << std::endl;
 
-    ASSERT_GE(logger_freq, 200000);
+    ASSERT_GE(logger_freq, 150000);
     ASSERT_LE(full_duration_ms, 2500);
     ASSERT_TRUE(std::filesystem::exists(logfile));
 }

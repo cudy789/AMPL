@@ -4,8 +4,8 @@
 #include <Eigen>
 #include "Logger.h"
 
-
 struct CamParams{
+
     std::string name;
     int camera_id;
 
@@ -51,6 +51,21 @@ struct CamParams{
 
 };
 
+struct AMPLParams {
+    int team_num;
+
+    std::vector<CamParams> cam_params;
+
+    friend std::ostream& operator <<(std::ostream& os, const AMPLParams& param) {
+        os << "team_num: : " << param.team_num << ", camera parameters:";
+
+        for (const auto& c: param.cam_params){
+            os << "\t\t" << c;
+        }
+        return os;
+    }
+};
+
 // Assuming the origin is at the 3D geometric center of the robot, use the following frame axis convention:
 //   x: positive right
 //   y: positive forwards
@@ -67,18 +82,9 @@ class ConfigParser{
 public:
     ConfigParser() = delete;
 
-    static std::vector<CamParams> ParseConfig(std::string cfg_file){
-        std::vector<CamParams> cam_p;
-
-
-        // convert to camera frame from AT frame
-        // camera frame is aligned with robot frame
-//        Eigen::Matrix3d R_base {{1, 0, 0},
-//                                {0, 1, 0},
-//                                {0, 0, 1}};
-
-        // TODO This transform is correct, but now the roll, pitch, and yaw aren't lining up in the proper order. The order is the same as in the jupyter notebook, so maybe we're naming the rpy around the wrong axes
-
+    static AMPLParams ParseConfig(std::string cfg_file){
+        AMPLParams params;
+        std::vector<CamParams>& cam_p = params.cam_params;
 
         try {
             YAML::Node parser = YAML::LoadFile(cfg_file);
@@ -109,11 +115,19 @@ public:
 
                 }
             }
+            if (parser["Team Number"]){
+                params.team_num = 2987;
+                AppLogger::Logger::Log("Team number " + to_string(params.team_num));
+            }
+            else{
+                AppLogger::Logger::Log("Error parsing YAML file: missing Team Number", AppLogger::SEVERITY::ERROR);
+                exit(-1);
+            }
         } catch (const std::exception& e) {
             AppLogger::Logger::Log("Error parsing YAML file: " + std::string(e.what()), AppLogger::SEVERITY::ERROR);
             throw(e);
         }
-        return cam_p;
+        return params;
     }
 
 

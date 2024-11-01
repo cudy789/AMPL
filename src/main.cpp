@@ -11,6 +11,7 @@
 #include "LocalizationWorker.h"
 #include "WebServerWorker.h"
 #include "TDCamWorker.h"
+#include "NTWorker.h"
 #include "ConfigParser.h"
 #include "Logger.h"
 
@@ -35,19 +36,25 @@ int main(int argc, char *argv[])
     // Register signal handler
     signal(SIGINT, signal_callback);
 
+    // Parse map and configuration files
+    AMPLParams params = ConfigParser::ParseConfig("../config.yml");
+    std::vector<CamParams>& c_params = params.cam_params;
+    TagLayoutParser::ParseConfig("../at14_6.fmap");
+
     // Create localization worker
     workers_t.emplace_back(new LocalizationWorker());
-    LocalizationWorker* l_w = (LocalizationWorker*) workers_t[0];
+    LocalizationWorker* l_w = (LocalizationWorker*) workers_t.back();
     l_w->LogStats(true);
 
     // Create webserver worker
     workers_t.emplace_back(new WebServerWorker(8080));
-    WebServerWorker* w_w = (WebServerWorker*) workers_t[1];
+    WebServerWorker* w_w = (WebServerWorker*) workers_t.back();
 
-    // Parse map and camera configuration for camera workers
-    std::vector<CamParams> c_params = ConfigParser::ParseConfig("../config.yml");
-    TagLayoutParser::ParseConfig("../at14_6.fmap");
-//    TagLayoutParser::ParseConfig("../at14zeroed.fmap");
+    // Create NetworkTables worker
+    workers_t.emplace_back(new NTWorker(params.team_num));
+    NTWorker* w_nt = (NTWorker*) workers_t.back();
+    w_nt->RegisterPoseCallback([l_w]() -> RobotPose {return l_w->GetRobotPose();});
+
 
     // Create camera workers
     for (CamParams& p: c_params){

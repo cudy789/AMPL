@@ -32,7 +32,8 @@ TEST(TDCamWorker, HelloWorld){
 TEST(TDCamWorker, OpenFromYaml){
     SetupLogger("TDCamWorker_OpenFromYaml");
 
-    std::vector<CamParams> c_params = ParamParser::ParseConfig("../test/test_config.yml");
+    AMPLParams params = ConfigParser::ParseConfig("../test/test_config.yml");
+    std::vector<CamParams>& c_params = params.cam_params;
 
     AppLogger::Logger::Log("Parsed params from yaml");
 

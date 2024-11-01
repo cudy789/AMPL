@@ -118,7 +118,7 @@ void LocalizationWorker::Execute() {
 
     if ((CurrentTime() - _last_log_time_ns) > _log_period_ns){
         if (_log_stats){
-            AppLogger::Logger::Log("Robot pose: " + to_string(GetRobotPose()), AppLogger::INFO);
+            AppLogger::Logger::Log("Robot pose: " + to_string(GetRobotPose()), AppLogger::DEBUG);
         }
         _last_log_time_ns = CurrentTime();
     }

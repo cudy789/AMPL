@@ -1,7 +1,7 @@
 #include "TDCamWorker.h"
 
 TDCamWorker::TDCamWorker(CamParams& c_params, std::function<bool(TagArray&)> queue_tags_callback, bool show_im)
-        : Worker{"TDCamWorker " + c_params.name},  // Call Worker constructor
+        : Worker{"TDCamWorker " + c_params.name, 50},  // Call Worker constructor
           TDCam{c_params},  // Call TDCam constructor
           _queue_tags_callback{std::move(queue_tags_callback)},
           _show_im{show_im} {

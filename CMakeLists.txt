@@ -26,15 +26,16 @@ include_directories(lib/Eigen)
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIR})
 
-# Add the apriltag library
-add_subdirectory(lib/apriltag)
-
 # Add the source files
-add_executable(apriltag_localization src/LocalizationWorker.cpp src/Localization.cpp src/TDCam.cpp src/TDCamWorker.cpp src/WebServerWorker.cpp src/main.cpp)
+add_executable(apriltag_localization src/LocalizationWorker.cpp src/Localization.cpp src/TDCam.cpp src/TDCamWorker.cpp src/WebServerWorker.cpp src/NTWorker.cpp src/main.cpp)
+
+# Add the apriltag library, do not build examples or python wrapper
+add_subdirectory(lib/apriltag)
+set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(BUILD_PYTHON_WRAPPER OFF CACHE BOOL "" FORCE)
 
 # Yaml parser
 include(FetchContent)
-
 FetchContent_Declare(
         yaml-cpp
         GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
@@ -43,12 +44,36 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(yaml-cpp)
 
 # Json parser
-
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
 FetchContent_MakeAvailable(json)
 
+# NetworkTables library
+FetchContent_Declare(
+        ntcore
+        GIT_REPOSITORY https://github.com/wpilibsuite/allwpilib.git
+        GIT_TAG        main # or specify a stable release tag
+)
+# Set options to disable unnecessary components of allwpilib in NetworkTables
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(WITH_JAVA OFF CACHE BOOL "" FORCE)
+set(WITH_JAVA_SOURCE OFF CACHE BOOL "" FORCE)
+set(WITH_DOCS OFF CACHE BOOL "" FORCE)
+set(WITH_CSCORE OFF CACHE BOOL "" FORCE)
+set(WITH_NTCORE ON CACHE BOOL "" FORCE)  # Make sure ntcore is enabled
+set(WITH_WPIMATH OFF CACHE BOOL "" FORCE)
+set(WITH_WPIUNITS OFF CACHE BOOL "" FORCE)
+set(WITH_WPILIB OFF CACHE BOOL "" FORCE)
+set(WITH_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(WITH_TESTS OFF CACHE BOOL "" FORCE)
+set(WITH_GUI OFF CACHE BOOL "" FORCE)
+set(WITH_SIMULATION_MODULES OFF CACHE BOOL "" FORCE)
+set(WITH_PROTOBUF OFF CACHE BOOL "" FORCE)
+
+FetchContent_MakeAvailable(ntcore)
+
 # Link any libraries if needed (add any libraries here)
-target_link_libraries(apriltag_localization PUBLIC yaml-cpp::yaml-cpp apriltag ${OpenCV_LIBS} ${Boost_LIBRARIES} PRIVATE nlohmann_json::nlohmann_json)
+#target_link_libraries(apriltag_localization PUBLIC yaml-cpp::yaml-cpp apriltag ${OpenCV_LIBS} ${Boost_LIBRARIES} ntcore PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(apriltag_localization PUBLIC yaml-cpp::yaml-cpp ${OpenCV_LIBS} ${Boost_LIBRARIES} ntcore apriltag PRIVATE nlohmann_json::nlohmann_json)
 
 # Option to enable or disable tests
 option(ENABLE_TESTS "Enable building tests" OFF)
@@ -70,10 +95,10 @@ if(ENABLE_TESTS)
     file(GLOB TEST_SOURCES "test/*.cpp")
 
     # Create the test executable
-    add_executable(runTests ${TEST_SOURCES} src/LocalizationWorker.cpp src/Localization.cpp src/TDCam.cpp src/WebServerWorker.cpp src/TDCamWorker.cpp)
+    add_executable(runTests ${TEST_SOURCES} src/LocalizationWorker.cpp src/Localization.cpp src/TDCam.cpp src/WebServerWorker.cpp src/TDCamWorker.cpp src/NTWorker.cpp)
 
     # Link the test executable against gtest and gtest_main
-    target_link_libraries(runTests PUBLIC yaml-cpp::yaml-cpp gtest_main  apriltag ${OpenCV_LIBS} PRIVATE nlohmann_json::nlohmann_json)
+    target_link_libraries(runTests PUBLIC yaml-cpp::yaml-cpp gtest_main ${OpenCV_LIBS} ntcore PRIVATE nlohmann_json::nlohmann_json apriltag)
 
     # Enable testing
     enable_testing()

@@ -1,6 +1,9 @@
 
 // No debug messages from the apriltag library
-#define NODEBUG
+
+#define NODEBUG 1
+//#define DEBUG 0
+
 
 #include <vector>
 #include <csignal>
@@ -43,7 +46,8 @@ int main(int argc, char *argv[])
 
     // Parse map and camera configuration for camera workers
     std::vector<CamParams> c_params = ConfigParser::ParseConfig("../config.yml");
-    TagLayoutParser::ParseConfig("../at14.fmap");
+    TagLayoutParser::ParseConfig("../at14_6.fmap");
+//    TagLayoutParser::ParseConfig("../at14zeroed.fmap");
 
     // Create camera workers
     for (CamParams& p: c_params){

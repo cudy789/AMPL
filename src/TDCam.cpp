@@ -142,13 +142,31 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
 
             // Construct matrices for the rotation (R) and translation (T) of the tag from the tag frame to the camera frame.
             // This is the rotation and position of the tag relative to the camera.
-            Eigen::Matrix3d R_tag_camera = Array2EM<double, 3, 3>(pose->R->data);
-            Eigen::Vector3d T_tag_camera = Array2EM<double, 3, 1>(pose->t->data);
+//            Eigen::Matrix3d R_transform {{1, 0, 0},
+//                                    {0, 0, -1},
+//                                    {0, 1, 0}}; // Transform the rotation correctly
+
+            Eigen::Matrix3d T_transform {{1, 0, 0},
+                                         {0, 0, 1},
+                                         {0, -1, 0}}; // Transform the translation correctly TODO this is 100% correct for AT -> Camera translation transform
+
+            Eigen::Vector3d T_tag_camera = T_transform * Array2EM<double, 3, 1>(pose->t->data);
+
+            // The rotation matrix comes out PYR ordering, need to convert to RPY
+            Eigen::Matrix3d R_tag_camera_unordered = Array2EM<double, 3, 3>(pose->R->data);
+            Eigen::Vector3d v_unordered = RotationMatrixToRPY(R_tag_camera_unordered);
+            AppLogger::Logger::Log("raw rotation from tag: " + to_string(RotationMatrixToRPY(Array2EM<double, 3, 3>(pose->R->data))));
+            AppLogger::Logger::Log("raw displacement from tag: " + to_string(Array2EM<double, 3, 1>(pose->t->data)));
+            Eigen::Matrix3d R_tag_camera = CreateRotationMatrix({v_unordered[2], v_unordered[0], -v_unordered[1]}); // TODO this ordering is correct now, and the signs are correct! (maybe yaw is incorrect)
+            // TODO all transforms below this need to be updated now
 
 
             // ==================== Camera -> Robot ====================
-            // Rotate AprilTag from the camera frame into the robot's coordinate frame
-            Eigen::Matrix3d R_camera_robot = _c_params.R_camera_robot * CreateRotationMatrix({90, 0, 0}) * R_tag_camera; // offset roll by 90 degrees TODO this still might not be correct
+
+            Eigen::Matrix3d R_camera_robot = _c_params.R_camera_robot * R_tag_camera;
+
+
+            AppLogger::Logger::Log("_c_params.R_camera_robot: " + to_string(_c_params.R_camera_robot) + ", R_tag_camera matrix: " + to_string(R_tag_camera) + ", as euler angles: " + to_string(RotationMatrixToRPY(R_tag_camera)));
 
             // Translate AprilTag from the camera frame into the robot's coordinate frame
             Eigen::Vector3d T_camera_robot = _c_params.R_camera_robot * T_tag_camera + _c_params.T_camera_robot;
@@ -164,8 +182,17 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
                 AppLogger::Logger::Log("Cannot find tag ID " + to_string(det->id) + " in .fmap file", AppLogger::SEVERITY::WARNING);
             }
 
-            Eigen::Vector3d T_robot_global = (-1.0 * CreateRotationMatrix({0, 0, 90}) * T_camera_robot) + Pose_AG.T;
+
+            Eigen::Vector3d T_robot_global = Pose_AG.T - CreateRotationMatrix({0, 0, 90}) * Pose_AG.R * R_camera_robot.transpose() * T_camera_robot;
+
             Eigen::Matrix3d R_robot_global = Pose_AG.R * R_camera_robot.transpose();
+
+
+
+
+
+//            Eigen::Vector3d T_robot_global = (-1.0 * CreateRotationMatrix({0, 0, -90}) * T_camera_robot) + Pose_AG.T;
+//            Eigen::Matrix3d R_robot_global = Pose_AG.R * R_camera_robot.transpose();
 
             // ==================== Now make the Pose_t object ====================
 
@@ -195,8 +222,8 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
                 }
             }
 
-            AppLogger::Logger::Log("Processed tag " + to_string(new_tag), AppLogger::SEVERITY::DEBUG);
-            AppLogger::Logger::Log("Tag " + to_string(det->id) + " global location: " + to_string(Pose_AG.T), AppLogger::SEVERITY::DEBUG);
+            AppLogger::Logger::Log("Processed tag " + to_string(new_tag));
+            AppLogger::Logger::Log("Tag " + to_string(det->id) + " known global location: " + to_string(Pose_AG.T));
 
             // Add tag to detected TagArray object
             detected_tags.data[det->id - 1].push_back(new_tag);

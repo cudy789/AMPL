@@ -25,8 +25,9 @@ struct CamParams{
     int exposure;
 
     Eigen::Matrix3d R_camera_robot {{1, 0, 0},
-                                    {0, 0, 1},
-                                    {0, -1, 0}}; // 90* rotation, camera is facing same direction as robot
+                                    {0, 1, 0},
+                                    {0, 0, 1}}; // Converts from AT frame to robot frame AND includes 90* rotation to align camera Z axis with robot Z axis TODO update note properly
+
     Eigen::Vector3d T_camera_robot {0,0,0}; // No displacement relative to robot geometric center
 
     struct {
@@ -69,9 +70,14 @@ public:
     static std::vector<CamParams> ParseConfig(std::string cfg_file){
         std::vector<CamParams> cam_p;
 
-        Eigen::Matrix3d R_base {{1, 0, 0},
-                               {0, 0, 1},
-                               {0, -1, 0}}; // 90* rotation, camera is facing same direction as robot
+
+        // convert to camera frame from AT frame
+        // camera frame is aligned with robot frame
+//        Eigen::Matrix3d R_base {{1, 0, 0},
+//                                {0, 1, 0},
+//                                {0, 0, 1}};
+
+        // TODO This transform is correct, but now the roll, pitch, and yaw aren't lining up in the proper order. The order is the same as in the jupyter notebook, so maybe we're naming the rpy around the wrong axes
 
 
         try {
@@ -93,7 +99,7 @@ public:
                     Eigen::Vector3d T_total = Eigen::Vector3d(it->second["translation"].as<std::vector<double>>().data());
                     Eigen::Vector3d c_rotation = Eigen::Vector3d(it->second["rotation"].as<std::vector<double>>().data());
 
-                    Eigen::Matrix3d R_total = CreateRotationMatrix((Eigen::Vector3d)c_rotation) * R_base; // add the two rotations together by matrix multiplication, R2 * R1
+                    Eigen::Matrix3d R_total = CreateRotationMatrix((Eigen::Vector3d)c_rotation);
 
                     cam_p.emplace_back(CamParams{.name=c_name, .camera_id=c_id, .rx=c_rx, .ry=c_ry,
                                                  .fx=c_fx, .fy=c_fy, .fps=c_fps, .exposure=c_exposure,

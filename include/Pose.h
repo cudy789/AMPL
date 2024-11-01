@@ -58,7 +58,7 @@ struct Pose_single {
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Pose_single& p) {
-        os << "XYZ: " << p.T
+        os << "XYZ: " << std::fixed << std::setprecision(4) << p.T
            << " RPY: " << RotationMatrixToRPY(p.R);
 
         return os;
@@ -90,7 +90,7 @@ struct Pose{
     double err;
 
     friend std::ostream& operator<<(std::ostream& os, const Pose& o_p) {
-        os << "tag_id: " << o_p.tag_id << ", " << "cam_id: " << o_p.cam_id << ", err: " << o_p.err
+        os << "tag_id: " << o_p.tag_id << ", " << "cam_id: " << o_p.cam_id << ", err: " << std::fixed << std::setprecision(4) << o_p.err
            << ", GLOBAL_FRAME: " << o_p.global << ", ROBOT_FRAME: " << o_p.robot << ", CAM_FRAME: " << o_p.camera;
         return os;
     }

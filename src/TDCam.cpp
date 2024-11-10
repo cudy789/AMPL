@@ -1,8 +1,8 @@
 #include "TDCam.h"
 
-TDCam::TDCam(CamParams& c_params) {
-    _c_params = c_params;
+TDCam::TDCam(CamParams& c_params): _c_params(c_params) {}
 
+void TDCam::InitCap() {
     AppLogger::Logger::Log("Enabling video capture on camera " + _c_params.name);
 
     ulong start_ns = CurrentTime();
@@ -12,19 +12,19 @@ TDCam::TDCam(CamParams& c_params) {
     _cap = cv::VideoCapture (_c_params.camera_id, cv::CAP_V4L);
     if (!_cap.isOpened()) {
         AppLogger::Logger::Log("Enabling video capture on camera " +
-            _c_params.name, AppLogger::SEVERITY::ERROR);
+                               _c_params.name, AppLogger::SEVERITY::ERROR);
     }
 
 //    cv::Mat temp;
 //    _cap >> temp; // get first frame so we can adjust the settings
     _cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 1); // Turn off autoexposure = 1, on = 3
-    _cap.set(cv::CAP_PROP_EXPOSURE, c_params.exposure); // set exposure value, do not use auto exposure
+    _cap.set(cv::CAP_PROP_EXPOSURE, _c_params.exposure); // set exposure value, do not use auto exposure
 
     sleep(2);
 
-    _cap.set(cv::CAP_PROP_FPS, c_params.fps); // Frame rate
-    _cap.set(cv::CAP_PROP_FRAME_WIDTH, c_params.rx); // Width
-    _cap.set(cv::CAP_PROP_FRAME_HEIGHT, c_params.ry); // Height
+    _cap.set(cv::CAP_PROP_FPS, _c_params.fps); // Frame rate
+    _cap.set(cv::CAP_PROP_FRAME_WIDTH, _c_params.rx); // Width
+    _cap.set(cv::CAP_PROP_FRAME_HEIGHT, _c_params.ry); // Height
 
     _cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));
 
@@ -52,11 +52,16 @@ TDCam::TDCam(CamParams& c_params) {
 
     ulong end_ns = CurrentTime();
     AppLogger::Logger::Log("Camera AprilTag detector " + _c_params.name +
-        " initialized in " + std::to_string((end_ns - start_ns) / 1.0e9) + " seconds" );
+                           " initialized in " + std::to_string((end_ns - start_ns) / 1.0e9) + " seconds" );
 
     AppLogger::Logger::Log(std::to_string(_cap.get(cv::CAP_PROP_FRAME_WIDTH)) + "x" +
-        std::to_string(_cap.get(cv::CAP_PROP_FRAME_HEIGHT)) + " @" +
-        std::to_string(_cap.get(cv::CAP_PROP_FPS)) + "FPS");
+                           std::to_string(_cap.get(cv::CAP_PROP_FRAME_HEIGHT)) + " @" +
+                           std::to_string(_cap.get(cv::CAP_PROP_FPS)) + "FPS");
+}
+
+void TDCam::CloseCap(){
+    AppLogger::Logger::Log("Closing video capture on camera " + _c_params.name);
+    _cap.release();
 }
 
 TDCam::~TDCam(){

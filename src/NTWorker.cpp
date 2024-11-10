@@ -15,7 +15,6 @@ NTWorker::NTWorker(int team_num) :  NTWorker() { _team_num=team_num; }
 
 NTWorker::NTWorker(std::string hostname) :  NTWorker() { _hostname=hostname; }
 
-
 void NTWorker::RegisterPoseCallback(const std::function<RobotPose()>& pose_callback) {
     _pose_callback = pose_callback;
 }

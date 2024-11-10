@@ -55,7 +55,6 @@ int main(int argc, char *argv[])
     NTWorker* w_nt = (NTWorker*) workers_t.back();
     w_nt->RegisterPoseCallback([l_w]() -> RobotPose {return l_w->GetRobotPose();});
 
-
     // Create camera workers
     for (CamParams& p: c_params){
         workers_t.emplace_back(new TDCamWorker(p, [l_w](TagArray& raw_tags) -> bool {return l_w->QueueTags(raw_tags);}, false));
@@ -76,8 +75,6 @@ int main(int argc, char *argv[])
     }
 
     AppLogger::Logger::Log("All workers finished");
-
-    //TODO randomly crashing -> corrupt size vs. prev_size was an error message
 
     return 0;
 }

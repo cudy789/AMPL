@@ -41,6 +41,10 @@ public:
 
     virtual ~TDCam();
 
+    void InitCap();
+
+    void CloseCap();
+
     cv::Mat GetImage();
 
     TagArray GetTagsFromImage(const cv::Mat& img);

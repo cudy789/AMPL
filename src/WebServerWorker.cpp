@@ -1,7 +1,7 @@
 #include "WebServerWorker.h"
 
 WebServerWorker::WebServerWorker(unsigned short port) :
-        Worker{"Webserver worker", 50.0},  // Call Worker constructor
+        Worker{"Webserver worker", true, 50.0},  // Call Worker constructor
         _port(port),
         _io_service(),
         _acceptor(_io_service, tcp::endpoint(tcp::v4(), _port)),

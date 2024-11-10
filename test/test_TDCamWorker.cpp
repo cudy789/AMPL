@@ -25,6 +25,11 @@ TEST(TDCamWorker, HelloWorld){
 
     sleep(5);
 
+    // Test stopping & starting
+    ASSERT_FALSE(w.Stop(false));
+
+    sleep(5);
+
     ASSERT_TRUE(w.Stop());
     AppLogger::Logger::Flush();
 }

@@ -8,7 +8,6 @@
 #include "MatrixHelpers.h"
 #include "Logger.h"
 
-
 inline int STALE_TAG_MS = 150; // If a tag hasn't been seen in this amount of time, then assume we no longer see the tag and clear values
 inline size_t NUM_TAG_IDS = 25;
 

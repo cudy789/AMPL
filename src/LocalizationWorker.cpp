@@ -5,7 +5,7 @@
 #include "MatrixHelpers.h"
 
 
-LocalizationWorker::LocalizationWorker() : Worker("Localization worker"), LocalizationFilter(new MeanLocalizationStrategy()){
+LocalizationWorker::LocalizationWorker() : Worker{"Localization worker"}, LocalizationFilter{new MeanLocalizationStrategy()}{
 
 }
 

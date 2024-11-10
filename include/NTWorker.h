@@ -3,7 +3,6 @@
 #include "Worker.h"
 #include "Pose.h"
 
-#include <networktables/DoubleTopic.h>
 #include <networktables/DoubleArrayTopic.h>
 #include <networktables/NetworkTable.h>
 #include <networktables/NetworkTableInstance.h>
@@ -18,7 +17,6 @@ public:
 
     void RegisterPoseCallback(const std::function<RobotPose()>& pose_callback);
     bool IsConnected();
-
 
 private:
 

@@ -1,7 +1,7 @@
 #include "TDCamWorker.h"
 
 TDCamWorker::TDCamWorker(CamParams& c_params, std::function<bool(TagArray&)> queue_tags_callback, bool show_im)
-        : Worker{"TDCamWorker " + c_params.name, 50},  // Call Worker constructor
+        : Worker{"TDCamWorker " + c_params.name, true, 50},  // Call Worker constructor
           TDCam{c_params},  // Call TDCam constructor
           _queue_tags_callback{std::move(queue_tags_callback)},
           _show_im{show_im} {
@@ -9,12 +9,18 @@ TDCamWorker::TDCamWorker(CamParams& c_params, std::function<bool(TagArray&)> que
 }
 
 void TDCamWorker::Init() {
+    InitCap();
+
     if (!_cap.isOpened()){
         AppLogger::Logger::Log("Camera " + std::to_string(_c_params.camera_id) + " cannot be opened", AppLogger::SEVERITY::ERROR);
 
     } else{
         AppLogger::Logger::Log("Starting tag detector for cam " + std::to_string(_c_params.camera_id));
     }
+}
+
+void TDCamWorker::Finish() {
+    CloseCap();
 }
 
 cv::Mat TDCamWorker::GetAnnotatedIm() {

@@ -19,6 +19,15 @@ TEST(Worker, ImmediateStop){
     ASSERT_TRUE(w.Stop());
 }
 
+TEST(Worker, Interrupted){
+    SetupLogger("Worker_Interrupted");
+    Worker w("Worker_Interrupted_t");
+
+    w.Start();
+    ASSERT_FALSE(w.Stop(false));
+    ASSERT_TRUE(w.Stop());
+}
+
 TEST(Worker, StartStop){
     SetupLogger("Worker_StartStop");
     Worker w("Worker_StartStop_t");
@@ -30,7 +39,7 @@ TEST(Worker, StartStop){
 
 TEST(Worker, HighFreq){
     SetupLogger("Worker_HighFreq");
-    Worker w("Worker_HighFreq_t", 100000);
+    Worker w("Worker_HighFreq_t", true, 100000);
 
     w.Start();
     sleep(5);

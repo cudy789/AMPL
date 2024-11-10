@@ -19,6 +19,7 @@ protected:
 
     void Init() override;
     void Execute() override;
+    void Finish() override;
 
     bool _show_im;
     std::function<bool(TagArray&)> _queue_tags_callback;

@@ -27,7 +27,10 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIR})
 
 # Add the source files
-add_executable(apriltag_localization src/LocalizationWorker.cpp src/Localization.cpp src/TDCam.cpp src/TDCamWorker.cpp src/WebServerWorker.cpp src/NTWorker.cpp src/main.cpp)
+add_executable(apriltag_localization src/LocalizationWorker.cpp src/Localization.cpp src/TDCam.cpp src/TDCamWorker.cpp src/WebServerWorker.cpp src/NTWorker.cpp src/AMPL.cpp src/main.cpp)
+
+add_library(mongoose STATIC lib/mongoose/mongoose.c)
+target_include_directories(mongoose PUBLIC lib/mongoose)
 
 # Add the apriltag library, do not build examples or python wrapper
 add_subdirectory(lib/apriltag)
@@ -73,7 +76,7 @@ FetchContent_MakeAvailable(ntcore)
 
 # Link any libraries if needed (add any libraries here)
 #target_link_libraries(apriltag_localization PUBLIC yaml-cpp::yaml-cpp apriltag ${OpenCV_LIBS} ${Boost_LIBRARIES} ntcore PRIVATE nlohmann_json::nlohmann_json)
-target_link_libraries(apriltag_localization PUBLIC yaml-cpp::yaml-cpp ${OpenCV_LIBS} ${Boost_LIBRARIES} ntcore apriltag PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(apriltag_localization PUBLIC yaml-cpp::yaml-cpp ${OpenCV_LIBS} ${Boost_LIBRARIES} ntcore apriltag PRIVATE nlohmann_json::nlohmann_json mongoose)
 
 # Option to enable or disable tests
 option(ENABLE_TESTS "Enable building tests" OFF)
@@ -95,10 +98,10 @@ if(ENABLE_TESTS)
     file(GLOB TEST_SOURCES "test/*.cpp")
 
     # Create the test executable
-    add_executable(runTests ${TEST_SOURCES} src/LocalizationWorker.cpp src/Localization.cpp src/TDCam.cpp src/WebServerWorker.cpp src/TDCamWorker.cpp src/NTWorker.cpp)
+    add_executable(runTests ${TEST_SOURCES} src/LocalizationWorker.cpp src/Localization.cpp src/TDCam.cpp src/WebServerWorker.cpp src/TDCamWorker.cpp src/NTWorker.cpp src/AMPL.cpp)
 
     # Link the test executable against gtest and gtest_main
-    target_link_libraries(runTests PUBLIC yaml-cpp::yaml-cpp gtest_main ${OpenCV_LIBS} ntcore PRIVATE nlohmann_json::nlohmann_json apriltag)
+    target_link_libraries(runTests PUBLIC yaml-cpp::yaml-cpp gtest_main ${OpenCV_LIBS} ntcore PRIVATE nlohmann_json::nlohmann_json apriltag mongoose)
 
     # Enable testing
     enable_testing()

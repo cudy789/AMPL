@@ -10,16 +10,10 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/core/core.hpp>
 
-#include <boost/beast/core.hpp>
-#include <boost/beast/http.hpp>
-#include <boost/beast/version.hpp>
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/config.hpp>
+#include "mongoose.h"
 
 #include "Worker.h"
 
-using boost::asio::ip::tcp;
-namespace http = boost::beast::http;
 
 class WebServerWorker: public Worker {
 public:
@@ -38,14 +32,16 @@ protected:
 
 
 private:
-    void HandleConnection();
+
+//    static void EventHandler(mg_connection* conn, int ev, void* ev_data, void* fn_data);
+    void StartStreaming(mg_connection* conn);
 
     unsigned short _port;
+    mg_mgr _mgr;
+    mg_connection* _connection;
 
-    boost::asio::io_context _io_service;
-    tcp::acceptor _acceptor;
-    boost::system::error_code _err;
-    tcp::socket _socket;
+    std::binary_semaphore _frame_sem{1};
+    std::vector<uchar> _frame_buf;
 
     std::vector<std::function<cv::Mat()>> _mat_funcs;
 

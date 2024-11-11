@@ -39,7 +39,8 @@ void NTWorker::Init() {
     if (_nt_instance.IsConnected()){
         AppLogger::Logger::Log("NTWorker successfully connected");
     } else{
-        AppLogger::Logger::Log("NTWorker could not connect to NetworkTables server", AppLogger::SEVERITY::WARNING);
+        AppLogger::Logger::Log("NTWorker could not connect to NetworkTables server, retrying...", AppLogger::SEVERITY::WARNING);
+        Stop(false);
     }
 }
 

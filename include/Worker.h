@@ -8,6 +8,8 @@
 #include "Logger.h"
 #include "TimeUtils.h"
 
+// TODO switch to std::atomic 's for bools
+
 /***
  * Worker lifecycle
  *
@@ -73,10 +75,23 @@ public:
         return stay_alive;
     }
 
+    bool Stopped(){
+        bool stop;
+        _stop_sem.acquire();
+        stop = _stop;
+        _stop_sem.release();
+        return stop;
+    }
+
+    const std::string& GetName(){
+        return _thread_name;
+    }
+
     void Start(){
         _t_worker = new std::thread([this]() {this->run();});
     };
     bool Stop(bool interrupted=true){
+        AppLogger::Logger::Log(_thread_name + " signalled to stop with interrupted=" + std::to_string(interrupted));
         _stop_sem.acquire();
         _stop = true;
         _stop_sem.release();
@@ -94,6 +109,7 @@ public:
     };
 
     void Join(){
+        AppLogger::Logger::Log(_thread_name + " in join");
         if (_t_worker){
             _t_worker->join();
         }
@@ -112,7 +128,9 @@ public:
 protected:
     virtual void Execute() {};
     virtual void Init() {};
-    virtual void Finish() {};
+    virtual void Finish() {
+        AppLogger::Logger::Log(_thread_name + " exited");
+    };
     std::thread* _t_worker{};
 
 private:
@@ -199,6 +217,7 @@ private:
                 Finish();
                 break;
             }
+
             _stay_alive_sem.release();
             _interrupted_sem.release();
 

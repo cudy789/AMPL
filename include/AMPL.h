@@ -24,6 +24,8 @@ public:
 
     void Start();
 
+    RobotPose GetRobotPose();
+
     void Join();
 
     bool Stop();
@@ -35,5 +37,6 @@ public:
 private:
     AMPL() = default;
 
+    LocalizationWorker* _l_w;
     std::vector<Worker*> _workers_t;
 };

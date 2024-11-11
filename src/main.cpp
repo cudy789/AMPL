@@ -8,6 +8,9 @@ int main(int argc, char *argv[])
 
     m_ample.Start();
 
+    // Get the estimated robot pose
+    // m_ample.GetRobotPose();
+
     m_ample.Join();
 
     return 0;

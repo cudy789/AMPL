@@ -62,7 +62,6 @@ void TDCamWorker::Execute() {
 
             bool success = _queue_tags_callback(raw_tags);
 
-            ulong duration_ns = CurrentTime() - start_ns;
             if (!success) {
                 AppLogger::Logger::Log("Camera " + std::to_string(_c_params.camera_id) +
                                        " error acquiring lock to add tags to processing queue",

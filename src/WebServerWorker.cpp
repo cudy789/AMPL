@@ -17,7 +17,6 @@ void WebServerWorker::Init() {
     std::string address = "http://0.0.0.0:" + std::to_string(_port);
     mg_connection* _connection = mg_http_listen(&_mgr, address.c_str(),
                                  [](mg_connection *conn, int ev, void *ev_data) {
-                                     // Cast fn_data to access WebServerWorker instance
                                      if (ev == MG_EV_HTTP_MSG) {
                                          mg_printf(conn,
                                                    "HTTP/1.0 200 OK\r\n"

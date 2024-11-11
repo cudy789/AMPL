@@ -7,7 +7,6 @@ void TDCam::InitCap() {
 
     ulong start_ns = CurrentTime();
 
-
     // Initialize camera
     _cap = cv::VideoCapture (_c_params.camera_id, cv::CAP_V4L);
     if (!_cap.isOpened()) {
@@ -15,8 +14,6 @@ void TDCam::InitCap() {
                                _c_params.name, AppLogger::SEVERITY::ERROR);
     }
 
-//    cv::Mat temp;
-//    _cap >> temp; // get first frame so we can adjust the settings
     _cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 1); // Turn off autoexposure = 1, on = 3
     _cap.set(cv::CAP_PROP_EXPOSURE, _c_params.exposure); // set exposure value, do not use auto exposure
 
@@ -110,7 +107,7 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
         info.tagsize = 0.165; // in meters
         // Camera params from https://horus.readthedocs.io/en/release-0.2/source/scanner-components/camera.html
 
-        info.fx = _c_params.fx; // TODO these need to be tuned per camera per resolution
+        info.fx = _c_params.fx;
         info.fy = _c_params.fy;
 
         info.cx = _c_params.rx/2;
@@ -132,8 +129,6 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
             calculated_errors = {err1};
         }
 
-
-
         for (int j=0; j < calculated_poses.size(); j++) {
             apriltag_pose_t* pose = calculated_poses[j]; // get the pose and corresponding error
             double err = calculated_errors[j];
@@ -143,23 +138,16 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
 
             // Construct matrices for the rotation (R) and translation (T) of the tag from the tag frame to the camera frame.
             // This is the rotation and position of the tag relative to the camera.
-//            Eigen::Matrix3d R_transform {{1, 0, 0},
-//                                    {0, 0, -1},
-//                                    {0, 1, 0}}; // Transform the rotation correctly
-
             Eigen::Matrix3d T_transform {{1, 0, 0},
                                          {0, 0, 1},
-                                         {0, -1, 0}}; // Transform the translation correctly TODO this is 100% correct for AT -> Camera translation transform
+                                         {0, -1, 0}}; // Transform the translation correctly
 
             Eigen::Vector3d T_tag_camera = T_transform * Array2EM<double, 3, 1>(pose->t->data);
 
             // The rotation matrix comes out PYR ordering, need to convert to RPY
             Eigen::Matrix3d R_tag_camera_unordered = Array2EM<double, 3, 3>(pose->R->data);
             Eigen::Vector3d v_unordered = RotationMatrixToRPY(R_tag_camera_unordered);
-//            AppLogger::Logger::Log("raw rotation from tag: " + to_string(RotationMatrixToRPY(Array2EM<double, 3, 3>(pose->R->data))));
-//            AppLogger::Logger::Log("raw displacement from tag: " + to_string(Array2EM<double, 3, 1>(pose->t->data)));
-            Eigen::Matrix3d R_tag_camera = CreateRotationMatrix({v_unordered[2], v_unordered[0], -v_unordered[1]}); // TODO this ordering is correct now, and the signs are correct! (maybe yaw is incorrect)
-            // TODO all transforms below this need to be updated now
+            Eigen::Matrix3d R_tag_camera = CreateRotationMatrix({v_unordered[2], v_unordered[0], -v_unordered[1]});
 
 
             // ==================== Camera -> Robot ====================

@@ -8,7 +8,6 @@ NTWorker::NTWorker() :
 
     _position = _nt_table->GetDoubleArrayTopic("position").Publish();
     _orientation = _nt_table->GetDoubleArrayTopic("orientation").Publish();
-
 }
 
 NTWorker::NTWorker(int team_num) :  NTWorker() { _team_num=team_num; }

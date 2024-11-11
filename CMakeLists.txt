@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Set the project name
-project(ApriltagLocalization)
+project(ApriltagMulticameraPoseLocalization)
 
 # Set the C++ standard
 set(CMAKE_CXX_STANDARD 20)
@@ -17,17 +17,13 @@ set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "RelWithD
 # Find OpenCV package
 find_package(OpenCV REQUIRED)
 
-# Find boost for beast webserver
-find_package(Boost REQUIRED COMPONENTS system)
-
 # Add the include directories
 include_directories(include)
 include_directories(lib/Eigen)
 include_directories(${OpenCV_INCLUDE_DIRS})
-include_directories(${Boost_INCLUDE_DIR})
 
 # Add the source files
-add_executable(apriltag_localization src/LocalizationWorker.cpp src/Localization.cpp src/TDCam.cpp src/TDCamWorker.cpp src/WebServerWorker.cpp src/NTWorker.cpp src/AMPL.cpp src/main.cpp)
+add_executable(ampl src/LocalizationWorker.cpp src/Localization.cpp src/TDCam.cpp src/TDCamWorker.cpp src/WebServerWorker.cpp src/NTWorker.cpp src/AMPL.cpp src/main.cpp)
 
 add_library(mongoose STATIC lib/mongoose/mongoose.c)
 target_include_directories(mongoose PUBLIC lib/mongoose)
@@ -75,8 +71,7 @@ set(WITH_PROTOBUF OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(ntcore)
 
 # Link any libraries if needed (add any libraries here)
-#target_link_libraries(apriltag_localization PUBLIC yaml-cpp::yaml-cpp apriltag ${OpenCV_LIBS} ${Boost_LIBRARIES} ntcore PRIVATE nlohmann_json::nlohmann_json)
-target_link_libraries(apriltag_localization PUBLIC yaml-cpp::yaml-cpp ${OpenCV_LIBS} ${Boost_LIBRARIES} ntcore apriltag PRIVATE nlohmann_json::nlohmann_json mongoose)
+target_link_libraries(ampl PUBLIC yaml-cpp::yaml-cpp ${OpenCV_LIBS}  ntcore apriltag PRIVATE nlohmann_json::nlohmann_json mongoose)
 
 # Option to enable or disable tests
 option(ENABLE_TESTS "Enable building tests" OFF)
@@ -109,6 +104,3 @@ if(ENABLE_TESTS)
     # Add the tests to CTest
     add_test(NAME runTests COMMAND runTests)
 endif()
-
-# Optionally, set additional compiler flags
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -O3")

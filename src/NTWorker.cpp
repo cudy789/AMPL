@@ -41,6 +41,7 @@ void NTWorker::Init() {
     } else{
         AppLogger::Logger::Log("NTWorker could not connect to NetworkTables server, retrying...", AppLogger::SEVERITY::WARNING);
         Stop(false);
+        sleep(10);
     }
 }
 

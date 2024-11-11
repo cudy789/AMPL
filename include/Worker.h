@@ -91,12 +91,11 @@ public:
         _t_worker = new std::thread([this]() {this->run();});
     };
     bool Stop(bool interrupted=true){
-        AppLogger::Logger::Log(_thread_name + " signalled to stop with interrupted=" + std::to_string(interrupted));
         _stop_sem.acquire();
         _stop = true;
         _stop_sem.release();
         _interrupted_sem.acquire();
-        _interrupted = interrupted;
+        if (!_interrupted) _interrupted = interrupted; // only change interrupted flag if not already interrupted
         _interrupted_sem.release();
         _stay_alive_sem.acquire();
         if (_stay_alive && !interrupted){
@@ -109,7 +108,6 @@ public:
     };
 
     void Join(){
-        AppLogger::Logger::Log(_thread_name + " in join");
         if (_t_worker){
             _t_worker->join();
         }

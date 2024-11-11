@@ -11,7 +11,7 @@ void TDCam::InitCap() {
     // Initialize camera
     _cap = cv::VideoCapture (_c_params.camera_id, cv::CAP_V4L);
     if (!_cap.isOpened()) {
-        AppLogger::Logger::Log("Enabling video capture on camera " +
+        AppLogger::Logger::Log("Error enabling video capture on camera " +
                                _c_params.name, AppLogger::SEVERITY::ERROR);
     }
 
@@ -72,12 +72,6 @@ TDCam::~TDCam(){
 cv::Mat TDCam::GetImage() {
     cv::Mat img;
     _cap >> img;
-    if (img.empty()){
-        AppLogger::Logger::Log("Error getting img from camera " + _c_params.name, AppLogger::SEVERITY::WARNING);
-//        _cap = cv::VideoCapture(_c_params.camera_id);
-        sleep(2);
-        return cv::Mat();
-    }
     return img;
 }
 

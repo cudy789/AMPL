@@ -13,23 +13,27 @@ void AMPL::Setup(const std::string& config_file, const std::string& fmap_file) {
     TagLayoutParser::ParseConfig(fmap_file);
 
 //    // Create localization worker
-    _workers_t.emplace_back(new LocalizationWorker());
-    LocalizationWorker* l_w = (LocalizationWorker*) _workers_t.back();
+    LocalizationWorker* l_w = new LocalizationWorker;
+    _workers_t.emplace_back(l_w);
     l_w->LogStats(true);
 
     // Create webserver worker
-    _workers_t.emplace_back(new WebServerWorker(8080));
-    WebServerWorker* w_w = (WebServerWorker*) _workers_t.back();
+    WebServerWorker* w_w = new WebServerWorker(8080);
+    _workers_t.emplace_back(w_w);
 
-//    // Create NetworkTables worker
-//    _workers_t.emplace_back(new NTWorker(params.team_num));
-//    NTWorker* w_nt = (NTWorker*) _workers_t.back();
-//    w_nt->RegisterPoseCallback([l_w]() -> RobotPose {return l_w->GetRobotPose();});
+    // Create NetworkTables worker
+    if (params.team_num > 0){
+        NTWorker* w_nt = new NTWorker();
+        _workers_t.emplace_back(w_nt);
+        w_nt->RegisterPoseCallback([l_w]() -> RobotPose {return l_w->GetRobotPose();});
+    } else{
+        AppLogger::Logger::Log("Not starting NetworkTables, invalid team number provided", AppLogger::SEVERITY::WARNING);
+    }
 
     // Create camera workers
     for (CamParams& p: c_params){
-        _workers_t.emplace_back(new TDCamWorker(p, [l_w](TagArray& raw_tags) -> bool {return l_w->QueueTags(raw_tags);}, false));
-        TDCamWorker* this_cam_worker = (TDCamWorker*) _workers_t.back();
+        TDCamWorker* this_cam_worker = new TDCamWorker(p, [l_w](TagArray& raw_tags) -> bool {return l_w->QueueTags(raw_tags);}, false);
+        _workers_t.emplace_back(this_cam_worker);
         w_w->RegisterMatFunc([this_cam_worker]() -> cv::Mat {return this_cam_worker->GetAnnotatedIm();});
     }
 }
@@ -71,7 +75,6 @@ void AMPL::StaticSignalCallback(int signum) {
 void AMPL::SignalCallback(int signum) {
     AppLogger::Logger::Log("Caught CTRL-C, exiting...");
     for (Worker* t: _workers_t){
-        AppLogger::Logger::Log("in AMPL, trying to stop " + t->GetName());
         t->Stop();
         delete t;
     }

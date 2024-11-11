@@ -12,12 +12,12 @@
 # translation: [0, -0.5, 0.25] # x,y,z
 # rotation: [0, 20, 180] # roll, pitch, yaw
 
-Team Number: 2987
+Team Number: -1
 
 Cameras:
   # front left
   CAM_LEFT:
-    camera_id: 0
+    camera_id: 4
     rx: 544
     ry: 288
 
@@ -33,32 +33,32 @@ Cameras:
     fps: 30.0
     exposure: 1
 
-#  CAM_RIGHT:
-#    camera_id: 4
-#    rx: 544
-#    ry: 288
-#    fx: 600
-#    fy: 600
-#    # x,y,z
-#    translation: [0.10, 0, 0]
-#    # roll, pitch, yaw
-#    rotation: [0, 0, 0]
-#    fps: 30.0
-#    exposure: 1
-#
-#  # backwards facing cam
-#  CAM_REAR:
-#    camera_id: 2
-#    rx: 544
-#    ry: 288
-#    fx: 600
-#    fy: 600
-#    # x,y,z
-#    translation: [-0.02, -0.305, 0]
-#    # roll, pitch, yaw
-#    rotation: [0, 0, 180]
-#    fps: 30.0
-#    exposure: 1
+  CAM_RIGHT:
+    camera_id: 2
+    rx: 544
+    ry: 288
+    fx: 600
+    fy: 600
+    # x,y,z
+    translation: [0.10, 0, 0]
+    # roll, pitch, yaw
+    rotation: [0, 0, 0]
+    fps: 30.0
+    exposure: 1
+
+  # backwards facing cam
+  CAM_REAR:
+    camera_id: 0
+    rx: 544
+    ry: 288
+    fx: 600
+    fy: 600
+    # x,y,z
+    translation: [-0.02, -0.305, 0]
+    # roll, pitch, yaw
+    rotation: [0, 0, 180]
+    fps: 30.0
+    exposure: 1
 
 
 

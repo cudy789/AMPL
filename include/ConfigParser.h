@@ -116,12 +116,12 @@ public:
                 }
             }
             if (parser["Team Number"]){
-                params.team_num = 2987;
+                params.team_num = parser["Team Number"].as<int>();
                 AppLogger::Logger::Log("Team number " + to_string(params.team_num));
             }
             else{
-                AppLogger::Logger::Log("Error parsing YAML file: missing Team Number", AppLogger::SEVERITY::ERROR);
-                exit(-1);
+                AppLogger::Logger::Log("No Team Number found", AppLogger::SEVERITY::WARNING);
+                params.team_num = -1;
             }
         } catch (const std::exception& e) {
             AppLogger::Logger::Log("Error parsing YAML file: " + std::string(e.what()), AppLogger::SEVERITY::ERROR);

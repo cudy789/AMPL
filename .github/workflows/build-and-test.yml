@@ -8,14 +8,18 @@ on:
     branches: [ "main" ]
 
 jobs:
-  run-ci-tests-job:
+  run-ci-multiarch-tests-job:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
     - name: Pull code
       uses: actions/checkout@v4
 
-    - name: Run build and test script
+    - name: x86 tests
       shell: bash
       run: bash ci-tests.sh
+
+    - name: ARM64 tests
+      shell: bash
+      run: ARM=1 bash ci-tests.sh

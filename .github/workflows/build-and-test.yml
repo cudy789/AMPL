@@ -10,11 +10,10 @@ on:
 jobs:
   container-test-job:
     runs-on: ubuntu-latest
-    # container: rogueraptor7/apriltag-multicam:latest
 
     steps:
     - uses: actions/checkout@v4
 
     - name: Run build and test script
       shell: bash
-      run: bash build-and-test.sh
+      run: bash ci-tests.sh

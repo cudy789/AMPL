@@ -1,0 +1,279 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: PJ Reiniger <pj.reiniger@gmail.com>
+Date: Tue, 26 Apr 2022 15:09:43 -0400
+Subject: [PATCH 3/9] Fix warnings
+
+---
+ include/uv/win.h    |  5 +++++
+ src/idna.c          |  4 ++--
+ src/inet.c          |  4 ++++
+ src/threadpool.c    |  4 ++++
+ src/unix/core.c     | 12 ++++++++++--
+ src/unix/internal.h |  4 ++--
+ src/unix/linux.c    |  2 +-
+ src/unix/thread.c   |  6 ------
+ src/uv-common.c     |  8 ++++++++
+ src/win/fs-event.c  |  2 ++
+ src/win/fs.c        |  2 ++
+ src/win/pipe.c      |  2 ++
+ src/win/process.c   |  2 ++
+ src/win/thread.c    |  4 ++--
+ src/win/tty.c       |  2 ++
+ 15 files changed, 48 insertions(+), 15 deletions(-)
+
+diff --git a/include/uv/win.h b/include/uv/win.h
+index d4c271d4d856a5ec847439825cace5bafb0d4acd..48e1402d155ceb80e35a904815cb5739cab2fbe8 100644
+--- a/include/uv/win.h
++++ b/include/uv/win.h
+@@ -201,11 +201,16 @@ typedef int (WSAAPI* LPFN_WSARECVFROM)
+              LPWSAOVERLAPPED overlapped,
+              LPWSAOVERLAPPED_COMPLETION_ROUTINE completion_routine);
+ 
++#pragma warning(push)
++#pragma warning(disable : 28251)
++
+ #ifndef _NTDEF_
+   typedef LONG NTSTATUS;
+   typedef NTSTATUS *PNTSTATUS;
+ #endif
+ 
++#pragma warning(pop)
++
+ #ifndef RTL_CONDITION_VARIABLE_INIT
+   typedef PVOID CONDITION_VARIABLE, *PCONDITION_VARIABLE;
+ #endif
+diff --git a/src/idna.c b/src/idna.c
+index 765e12e8f2e030cffa9d498f381c0640aa43a647..17a0e7e74c0204c662594198c1f5b545534ee85e 100644
+--- a/src/idna.c
++++ b/src/idna.c
+@@ -153,7 +153,7 @@ static int uv__idna_toascii_label(const char* s, const char* se,
+                                   char** d, char* de) {
+   static const char alphabet[] = "abcdefghijklmnopqrstuvwxyz0123456789";
+   const char* ss;
+-  unsigned c;
++  unsigned c = 0;
+   unsigned h;
+   unsigned k;
+   unsigned n;
+@@ -386,7 +386,7 @@ ssize_t uv_wtf8_length_as_utf16(const char* source_ptr) {
+ 
+ void uv_wtf8_to_utf16(const char* source_ptr,
+                       uint16_t* w_target,
+-                      size_t w_target_len) {
++                      [[maybe_unused]] size_t w_target_len) {
+   int32_t code_point;
+ 
+   do {
+diff --git a/src/inet.c b/src/inet.c
+index dd94bea3886ca37945fcad7909d765e3700e3c21..71c9e5b774d64d505e6c6d6ed2637178b8532d4d 100644
+--- a/src/inet.c
++++ b/src/inet.c
+@@ -22,6 +22,10 @@
+ #include "uv.h"
+ #include "uv-common.h"
+ 
++#ifdef _WIN32
++#pragma warning(disable : 6001)
++#endif
++
+ #define UV__INET_ADDRSTRLEN         16
+ #define UV__INET6_ADDRSTRLEN        46
+ 
+diff --git a/src/threadpool.c b/src/threadpool.c
+index ccb5249893df2733fc607fec6e8d3037ebe2e212..a08832cd4c292f9e7c83b2e8b6c326f542e49cd8 100644
+--- a/src/threadpool.c
++++ b/src/threadpool.c
+@@ -27,6 +27,10 @@
+ 
+ #include <stdlib.h>
+ 
++#ifdef _WIN32
++#pragma warning(disable: 6001 6011)
++#endif
++
+ #define MAX_THREADPOOL_SIZE 1024
+ 
+ static uv_once_t once = UV_ONCE_INIT;
+diff --git a/src/unix/core.c b/src/unix/core.c
+index b72a24e94b0c70455a8ac748a53556ddefb09f49..18f0ce06336e4b3690f84d95b4be954a4466cdf6 100644
+--- a/src/unix/core.c
++++ b/src/unix/core.c
+@@ -586,6 +586,16 @@ int uv__accept(int sockfd) {
+   return peerfd;
+ }
+ 
++#if defined(__APPLE__)
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wdollar-in-identifier-extension"
++#if defined(__LP64__)
++  extern "C" int close$NOCANCEL(int);
++#else
++  extern "C" int close$NOCANCEL$UNIX2003(int);
++#endif
++#pragma GCC diagnostic pop
++#endif
+ 
+ /* close() on macos has the "interesting" quirk that it fails with EINTR
+  * without closing the file descriptor when a thread is in the cancel state.
+@@ -600,10 +610,8 @@ int uv__close_nocancel(int fd) {
+ #pragma GCC diagnostic push
+ #pragma GCC diagnostic ignored "-Wdollar-in-identifier-extension"
+ #if defined(__LP64__) || TARGET_OS_IPHONE
+-  extern int close$NOCANCEL(int);
+   return close$NOCANCEL(fd);
+ #else
+-  extern int close$NOCANCEL$UNIX2003(int);
+   return close$NOCANCEL$UNIX2003(fd);
+ #endif
+ #pragma GCC diagnostic pop
+diff --git a/src/unix/internal.h b/src/unix/internal.h
+index 8d586b0b64a96ca53a18f22d957a81c5600098c1..1daf4d81da3a5bf931c4a5db8fd9116c4c303012 100644
+--- a/src/unix/internal.h
++++ b/src/unix/internal.h
+@@ -394,8 +394,8 @@ UV_UNUSED(static void uv__update_time(uv_loop_t* loop)) {
+   loop->time = uv__hrtime(UV_CLOCK_FAST) / 1000000;
+ }
+ 
+-UV_UNUSED(static char* uv__basename_r(const char* path)) {
+-  char* s;
++UV_UNUSED(static const char* uv__basename_r(const char* path)) {
++  const char* s;
+ 
+   s = strrchr(path, '/');
+   if (s == NULL)
+diff --git a/src/unix/linux.c b/src/unix/linux.c
+index 22f76054ef0987f215afb9d1e20aa18f97489ea4..b8063cc8900d4cf255a46a9620d01815c65c6d21 100644
+--- a/src/unix/linux.c
++++ b/src/unix/linux.c
+@@ -2309,7 +2309,7 @@ static int uv__get_cgroupv2_constrained_cpu(const char* cgroup,
+   if (uv__slurp(path, buf, sizeof(buf)) < 0)
+     return UV_EIO;
+ 
+-  if (sscanf(buf, "%15s %llu", quota_buf, &constraint->period_length) != 2)
++  if (sscanf(buf, "%15s %lld", quota_buf, &constraint->period_length) != 2)
+     return UV_EINVAL;
+ 
+   if (strncmp(quota_buf, "max", 3) == 0)
+diff --git a/src/unix/thread.c b/src/unix/thread.c
+index 20409541de3cb300504b823472a73bc95fa38f62..688c042e1aedf379264900c29758c8b01a4a90ed 100644
+--- a/src/unix/thread.c
++++ b/src/unix/thread.c
+@@ -137,12 +137,6 @@ int uv_thread_create_ex(uv_thread_t* tid,
+   size_t stack_size;
+   size_t min_stack_size;
+ 
+-  /* Used to squelch a -Wcast-function-type warning. */
+-  union {
+-    void (*in)(void*);
+-    void* (*out)(void*);
+-  } f;
+-
+   stack_size =
+       params->flags & UV_THREAD_HAS_STACK_SIZE ? params->stack_size : 0;
+ 
+diff --git a/src/uv-common.c b/src/uv-common.c
+index 69e95801a18104ea910abf86db236d85f62afb66..49126e50f07bac16d198775454b731f40630d1d1 100644
+--- a/src/uv-common.c
++++ b/src/uv-common.c
+@@ -802,6 +802,10 @@ void uv__fs_readdir_cleanup(uv_fs_t* req) {
+   }
+ }
+ 
++#ifdef __clang__
++# pragma clang diagnostic push
++# pragma clang diagnostic ignored "-Wvarargs"
++#endif
+ 
+ int uv_loop_configure(uv_loop_t* loop, uv_loop_option option, ...) {
+   va_list ap;
+@@ -815,6 +819,10 @@ int uv_loop_configure(uv_loop_t* loop, uv_loop_option option, ...) {
+   return err;
+ }
+ 
++#ifdef __clang__
++# pragma clang diagnostic pop
++#endif
++
+ 
+ static uv_loop_t default_loop_struct;
+ static uv_loop_t* default_loop_ptr;
+diff --git a/src/win/fs-event.c b/src/win/fs-event.c
+index 3754437b4989d67f688153e066ef047268911708..2fdcbcb73a9ee29dd282b366011a6878fc431a47 100644
+--- a/src/win/fs-event.c
++++ b/src/win/fs-event.c
+@@ -19,6 +19,8 @@
+  * IN THE SOFTWARE.
+  */
+ 
++#define _CRT_NONSTDC_NO_WARNINGS
++
+ #include <assert.h>
+ #include <errno.h>
+ #include <stdio.h>
+diff --git a/src/win/fs.c b/src/win/fs.c
+index cc095491d7ff14a7f7a850005f02a45860636446..f1966ab5c0245af0f56ca407a1697a5c8609ebb4 100644
+--- a/src/win/fs.c
++++ b/src/win/fs.c
+@@ -19,6 +19,8 @@
+  * IN THE SOFTWARE.
+  */
+ 
++#define _CRT_NONSTDC_NO_WARNINGS
++
+ #include <assert.h>
+ #include <stdlib.h>
+ #include <direct.h>
+diff --git a/src/win/pipe.c b/src/win/pipe.c
+index 9b2723320b72691d5ada0f8e97f0589ce53e82f8..9993f281409345d8163a9c69c103b94e7cb258d3 100644
+--- a/src/win/pipe.c
++++ b/src/win/pipe.c
+@@ -19,6 +19,8 @@
+  * IN THE SOFTWARE.
+  */
+ 
++#define _CRT_NONSTDC_NO_WARNINGS
++
+ #include <assert.h>
+ #include <io.h>
+ #include <stdio.h>
+diff --git a/src/win/process.c b/src/win/process.c
+index 5a648494ae03688f6a56705f2c3d65b026605818..d6b61c14015b8d72d8a9aca71bd0483c06a16820 100644
+--- a/src/win/process.c
++++ b/src/win/process.c
+@@ -19,6 +19,8 @@
+  * IN THE SOFTWARE.
+  */
+ 
++#define _CRT_NONSTDC_NO_WARNINGS
++
+ #include <assert.h>
+ #include <io.h>
+ #include <stdio.h>
+diff --git a/src/win/thread.c b/src/win/thread.c
+index dd958ccd782772869d5448d788a563c1526a89f6..6a4d4498577b0abaa8408052051b0472dde5afec 100644
+--- a/src/win/thread.c
++++ b/src/win/thread.c
+@@ -182,8 +182,8 @@ int uv_thread_setaffinity(uv_thread_t* tid,
+   threadmask = 0;
+   for (i = 0; i < cpumasksize; i++) {
+     if (cpumask[i]) {
+-      if (procmask & (1 << i))
+-        threadmask |= 1 << i;
++      if (procmask & (1LL << i))
++        threadmask |= 1LL << i;
+       else
+         return UV_EINVAL;
+     }
+diff --git a/src/win/tty.c b/src/win/tty.c
+index 145706e27a7b596dc003d43d94b54f6ceb0eabee..62ddf32f0fbd29664dd05c6ba426532a2faf4668 100644
+--- a/src/win/tty.c
++++ b/src/win/tty.c
+@@ -19,6 +19,8 @@
+  * IN THE SOFTWARE.
+  */
+ 
++#define _CRT_NONSTDC_NO_WARNINGS
++
+ #include <assert.h>
+ #include <io.h>
+ #include <string.h>

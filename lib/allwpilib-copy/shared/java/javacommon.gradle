@@ -1,0 +1,144 @@
+apply plugin: 'maven-publish'
+apply plugin: 'java-library'
+apply plugin: 'jacoco'
+
+def baseArtifactId = project.baseId
+def artifactGroupId = project.groupId
+def javaBaseName = "_GROUP_${project.groupId.replace('.', '_')}_ID_${project.baseId}-java_CLS"
+
+def outputsFolder = file("$project.buildDir/outputs")
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    archiveClassifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+task outputJar(type: Jar, dependsOn: classes) {
+    archiveBaseName = javaBaseName
+    destinationDirectory = outputsFolder
+    from sourceSets.main.output
+}
+
+task outputSourcesJar(type: Jar, dependsOn: classes) {
+    archiveBaseName = javaBaseName
+    destinationDirectory = outputsFolder
+    archiveClassifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task outputJavadocJar(type: Jar, dependsOn: javadoc) {
+    archiveBaseName = javaBaseName
+    destinationDirectory = outputsFolder
+    archiveClassifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+    archives outputJar
+    archives outputSourcesJar
+    archives outputJavadocJar
+}
+
+addTaskToCopyAllOutputs(outputSourcesJar)
+addTaskToCopyAllOutputs(outputJavadocJar)
+addTaskToCopyAllOutputs(outputJar)
+
+build.dependsOn outputSourcesJar
+build.dependsOn outputJavadocJar
+build.dependsOn outputJar
+
+project(':').libraryBuild.dependsOn build
+
+publishing {
+    publications {
+
+        java(MavenPublication) {
+            artifact jar
+            artifact sourcesJar
+            artifact javadocJar
+
+            artifactId = "${baseArtifactId}-java"
+            groupId artifactGroupId
+            version wpilibVersioning.version.get()
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
+    testLogging {
+        events "failed"
+        exceptionFormat "full"
+    }
+    finalizedBy jacocoTestReport
+}
+
+if (project.hasProperty('onlylinuxathena') || project.hasProperty('onlylinuxarm32') || project.hasProperty('onlylinuxarm64') || project.hasProperty('onlywindowsarm64')) {
+    test.enabled = false
+}
+
+repositories {
+    maven {
+        url = 'https://frcmaven.wpi.edu/artifactory/ex-mvn'
+    }
+    //maven.url "https://oss.sonatype.org/content/repositories/snapshots/"
+}
+
+sourceSets {
+    dev
+}
+
+configurations {
+    devImplementation.extendsFrom(implementation)
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs = [
+        '--release',
+        '17',
+        '-encoding',
+        'UTF8',
+        "-Werror",
+        "-Xlint:all",
+        // ignore AutoCloseable warnings
+        "-Xlint:-try",
+        // ignore missing serialVersionUID warnings
+        "-Xlint:-serial",
+        // ignore unclaimed annotation warning from annotation processing
+        "-Xlint:-processing",
+    ]
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    devImplementation sourceSets.main.output
+}
+
+task run(type: JavaExec) {
+    classpath = sourceSets.dev.runtimeClasspath
+
+    mainClass = project.devMain
+}
+
+build.dependsOn devClasses
+
+jacoco {
+    toolVersion = "0.8.10"
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}

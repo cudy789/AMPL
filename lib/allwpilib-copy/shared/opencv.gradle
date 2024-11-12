@@ -1,0 +1,33 @@
+def opencvVersion = '4.8.0-4'
+
+if (project.hasProperty('useCpp') && project.useCpp) {
+    model {
+        binaries {
+            withType(NativeBinarySpec).all {
+                def binary = it
+                project.sharedCvConfigs.each {
+                    if (binary.component.name == it.key) {
+                        nativeUtils.useRequiredLibrary(binary, 'opencv_shared')
+                    }
+                }
+                project.staticCvConfigs.each {
+                    if (binary.component.name == it.key) {
+                        nativeUtils.useRequiredLibrary(binary, 'opencv_static')
+                    }
+                }
+            }
+        }
+    }
+}
+
+if (project.hasProperty('useJava') && project.useJava) {
+    dependencies {
+        implementation "edu.wpi.first.thirdparty.frc2024.opencv:opencv-java:${opencvVersion}"
+        if (!project.hasProperty('skipDev') || !project.skipDev) {
+            devImplementation "edu.wpi.first.thirdparty.frc2024.opencv:opencv-java:${opencvVersion}"
+        }
+        if (project.hasProperty('useDocumentation') && project.useDocumentation) {
+            javaSource "edu.wpi.first.thirdparty.frc2024.opencv:opencv-java:${opencvVersion}:sources"
+        }
+    }
+}

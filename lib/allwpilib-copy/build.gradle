@@ -1,0 +1,174 @@
+import edu.wpi.first.toolchain.*
+
+buildscript {
+    repositories {
+        maven {
+            url = 'https://frcmaven.wpi.edu/artifactory/ex-mvn'
+        }
+    }
+}
+
+plugins {
+    id 'base'
+    id 'edu.wpi.first.wpilib.versioning.WPILibVersioningPlugin' version '2023.0.1'
+    id 'edu.wpi.first.wpilib.repositories.WPILibRepositoriesPlugin' version '2020.2'
+    id 'edu.wpi.first.NativeUtils' apply false
+    id 'edu.wpi.first.GradleJni' version '1.1.0'
+    id 'edu.wpi.first.GradleVsCode'
+    id 'idea'
+    id 'visual-studio'
+    id 'net.ltgt.errorprone' version '3.1.0' apply false
+    id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
+    id 'com.diffplug.spotless' version '6.20.0' apply false
+    id 'com.github.spotbugs' version '6.0.2' apply false
+}
+
+wpilibVersioning.buildServerMode = project.hasProperty('buildServer')
+wpilibVersioning.releaseMode = project.hasProperty('releaseMode')
+
+allprojects {
+    repositories {
+        maven {
+        url = 'https://frcmaven.wpi.edu/artifactory/ex-mvn'
+    }
+    }
+    if (project.hasProperty('releaseMode')) {
+        wpilibRepositories.addAllReleaseRepositories(it)
+    } else {
+        wpilibRepositories.addAllDevelopmentRepositories(it)
+    }
+}
+
+buildScan {
+    termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+    termsOfServiceAgree = 'yes'
+
+    publishAlways()
+}
+
+import com.github.spotbugs.snom.Effort
+ext.spotbugsEffort = Effort.MAX
+
+ext.licenseFile = files("$rootDir/LICENSE.md", "$rootDir/ThirdPartyNotices.txt")
+
+if (project.hasProperty("publishVersion")) {
+    wpilibVersioning.version.set(project.publishVersion)
+}
+
+wpilibVersioning.version.finalizeValue()
+
+def outputsFolder = file("$buildDir/allOutputs")
+
+def versionFile = file("$outputsFolder/version.txt")
+
+task outputVersions() {
+    description = 'Prints the versions of wpilib to a file for use by the downstream packaging project'
+    group = 'Build'
+    outputs.files(versionFile)
+
+    doFirst {
+        buildDir.mkdir()
+        outputsFolder.mkdir()
+    }
+
+    doLast {
+        versionFile.write wpilibVersioning.version.get()
+    }
+}
+
+task libraryBuild() {}
+
+build.dependsOn outputVersions
+
+task copyAllOutputs(type: Copy) {
+    destinationDir outputsFolder
+}
+
+build.dependsOn copyAllOutputs
+copyAllOutputs.dependsOn outputVersions
+
+def copyReleaseOnly = project.hasProperty('ciReleaseOnly')
+
+ext.addTaskToCopyAllOutputs = { task ->
+    if (copyReleaseOnly && task.name.contains('debug')) {
+        return
+    }
+    copyAllOutputs.dependsOn task
+    copyAllOutputs.inputs.file task.archiveFile
+    copyAllOutputs.from task.archiveFile
+}
+
+subprojects {
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+
+    def subproj = it
+
+    plugins.withType(NativeComponentPlugin) {
+        subproj.apply plugin: MultiBuilds
+    }
+
+    plugins.withType(JavaPlugin) {
+        java {
+            sourceCompatibility = 17
+            targetCompatibility = 17
+        }
+    }
+
+    apply from: "${rootDir}/shared/java/javastyle.gradle"
+
+    // Disables doclint in java 8.
+    if (JavaVersion.current().isJava8Compatible()) {
+        tasks.withType(Javadoc) {
+            if (project.name != "docs") {
+                options.addStringOption('Xdoclint:none', '-quiet')
+            }
+        }
+    }
+
+    tasks.withType(JavaCompile) {
+        options.compilerArgs.add '-XDstringConcat=inline'
+        options.encoding = 'UTF-8'
+    }
+
+    // Enables UTF-8 support in Javadoc
+    tasks.withType(Javadoc) {
+        options.addStringOption("charset", "utf-8")
+        options.addStringOption("docencoding", "utf-8")
+        options.addStringOption("encoding", "utf-8")
+    }
+
+    // Sign outputs with Developer ID
+    tasks.withType(AbstractLinkTask) { task ->
+        task.inputs.property "HasDeveloperId", project.hasProperty("developerID")
+
+        if (project.hasProperty("developerID")) {
+            // Don't sign any executables because codesign complains
+            // about relative rpath.
+            if (!(task instanceof LinkExecutable)) {
+                doLast {
+                    // Get path to binary.
+                    String path = task.getLinkedFile().getAsFile().get().getAbsolutePath()
+                    exec {
+                        workingDir rootDir
+                        def args = [
+                            "sh",
+                            "-c",
+                            "codesign --force --strict --timestamp --options=runtime " +
+                            "--verbose -s ${project.findProperty("developerID")} ${path}"
+                        ]
+                        commandLine args
+                    }
+                }
+            }
+        }
+    }
+}
+
+ext.getCurrentArch = {
+    return NativePlatforms.desktop
+}
+
+wrapper {
+    gradleVersion = '8.10.2'
+}

@@ -1,0 +1,63 @@
+ext {
+    addNtcoreDependency = { binary, shared->
+        binary.lib project: ':ntcore', library: 'ntcore', linkage: shared
+    }
+
+    addNtcoreJniDependency = { binary->
+        binary.lib project: ':ntcore', library: 'ntcoreJNIShared', linkage: 'shared'
+    }
+
+    nativeName = 'ntcore'
+    devMain = 'edu.wpi.first.ntcore.DevMain'
+    generatedSources = "$projectDir/src/generated/main/native/cpp"
+    generatedHeaders = "$projectDir/src/generated/main/native/include"
+    jniSplitSetup = {
+    }
+    splitSetup = {
+        it.tasks.withType(CppCompile) {
+            it.includes 'src/main/native/cpp'
+        }
+    }
+    exeSplitSetup = {
+    }
+}
+
+apply from: "${rootDir}/shared/jni/setupBuild.gradle"
+
+model {
+    components {}
+    binaries {
+        all {
+            if (!it.buildable || !(it instanceof NativeBinarySpec)) {
+                return
+            }
+            if (it.component.name == "${nativeName}JNI") {
+                lib project: ':wpinet', library: 'wpinet', linkage: 'static'
+                lib project: ':wpiutil', library: 'wpiutil', linkage: 'static'
+            } else {
+                lib project: ':wpinet', library: 'wpinet', linkage: 'shared'
+                lib project: ':wpiutil', library: 'wpiutil', linkage: 'shared'
+            }
+        }
+    }
+}
+
+sourceSets.main.java.srcDir "${projectDir}/src/generated/main/java"
+
+cppHeadersZip {
+    from(generatedHeaders) {
+        into '/'
+    }
+}
+
+Action<List<String>> symbolFilter = { symbols ->
+    symbols.removeIf({ !it.startsWith('NT_') })
+} as Action<List<String>>;
+
+nativeUtils.exportsConfigs {
+    ntcore {
+    }
+    ntcoreJNI {
+        x64SymbolFilter = symbolFilter
+    }
+}

@@ -1,0 +1,92 @@
+ext {
+    addHalDependency = { binary, shared->
+        binary.lib project: ':hal', library: 'hal', linkage: shared
+    }
+
+    addHalJniDependency = { binary->
+        binary.lib project: ':hal', library: 'halJNIShared', linkage: 'shared'
+    }
+
+    nativeName = 'hal'
+    setBaseName = 'wpiHal'
+    devMain = 'edu.wpi.first.hal.DevMain'
+    niLibraries = true
+    generatedHeaders = "src/generated/main/native/include"
+    splitSetup = {
+        if (it.targetPlatform.name == nativeUtils.wpi.platforms.roborio) {
+            it.sources {
+                athenaCpp(CppSourceSet) {
+                    source {
+                        srcDirs = ['src/main/native/athena']
+                        include '**/*.cpp'
+                    }
+                    exportedHeaders {
+                        srcDir 'src/main/native/include'
+                        srcDir generatedHeaders
+                    }
+                }
+            }
+        } else {
+            it.sources {
+                simCpp(CppSourceSet) {
+                    source {
+                        srcDirs 'src/main/native/sim'
+                        include '**/*.cpp'
+                    }
+                    exportedHeaders {
+                        srcDir 'src/main/native/include'
+                        srcDir generatedHeaders
+                    }
+                }
+            }
+        }
+    }
+    exeSplitSetup = {
+        if (it.targetPlatform.name == nativeUtils.wpi.platforms.roborio) {
+            nativeUtils.useRequiredLibrary(it, 'ni_link_libraries', 'ni_runtime_libraries')
+        }
+    }
+}
+
+apply from: "${rootDir}/shared/jni/setupBuild.gradle"
+
+sourceSets.main.java.srcDir "${projectDir}/src/generated/main/java"
+
+cppSourcesZip {
+    from('src/main/native/athena') {
+        into '/athena'
+    }
+
+    from('src/main/native/sim') {
+        into '/sim'
+    }
+}
+
+cppHeadersZip {
+    from(generatedHeaders) {
+        into '/'
+    }
+}
+
+Action<List<String>> symbolFilter = { symbols ->
+    symbols.removeIf({ !it.startsWith('HAL_') && !it.startsWith('HALSIM_') })
+} as Action<List<String>>;
+
+nativeUtils.exportsConfigs {
+    hal {
+    }
+    halJNI {
+        x64SymbolFilter = symbolFilter
+    }
+}
+
+model {
+    binaries {
+        all {
+            if (!(it instanceof NativeBinarySpec)) return
+                if (it.component.name != 'hal' && it.component.name != 'halBase') return
+                if (it.targetPlatform.name != nativeUtils.wpi.platforms.roborio) return
+                nativeUtils.useRequiredLibrary(it, 'ni_link_libraries')
+        }
+    }
+}

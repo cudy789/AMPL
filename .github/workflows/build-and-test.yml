@@ -12,7 +12,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Pull code
+      uses: actions/checkout@v4
 
     - name: Run build and test script
       shell: bash

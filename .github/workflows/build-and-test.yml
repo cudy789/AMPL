@@ -9,7 +9,7 @@ on:
 
 jobs:
   container-test-job:
-    runs-on: ubuntu-opencv-container
+    runs-on: ubuntu-latest
     container: rogueraptor7/apriltag-multicam:latest
 
     steps:

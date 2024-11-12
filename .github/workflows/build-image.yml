@@ -4,8 +4,10 @@ name: Build docker images
 on:
   push:
     branches: [ "main" ]
+    paths: ["docker/**", ".github/workflows/build-image.yml"]
   pull_request:
     branches: [ "main" ]
+    paths: ["docker/**", ".github/workflows/build-image.yml"]
 
 jobs:
   build-docker-image:

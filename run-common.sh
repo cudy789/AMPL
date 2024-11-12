@@ -16,7 +16,7 @@ fi
 
 echo "Using image rogueraptor7/$IMAGE_NAME:$IMAGE_TAG"
 
-docker run --rm -h $IMAGE_NAME-$HOSTNAME --name apriltag_localization --group-add sudo --group-add video --add-host $IMAGE_NAME-$HOSTNAME:127.0.0.1 --network host -it \
+docker run --rm -h $IMAGE_NAME-$HOSTNAME --name ampl --group-add sudo --group-add video --add-host $IMAGE_NAME-$HOSTNAME:127.0.0.1 --network host -it \
   --user=$(id -u $USER):$(id -g $USER) \
   --volume="/etc/passwd:/etc/passwd:ro" \
   --volume="/etc/shadow:/etc/shadow:ro" \

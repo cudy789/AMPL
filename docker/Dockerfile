@@ -16,10 +16,11 @@ RUN cmake WITH_JPEG=OFF ../opencv
 RUN make -j4
 RUN make install
 
-# ============ Install Boost.Beast ============
-
-RUN apt-get update && apt-get install -y libboost-all-dev libssl-dev
-
 # ============ Install gdb ============
 
 RUN apt-get update && apt-get install -y gdb
+
+# ============ Install dependencies for NetworkTables ============
+
+# Java JRE/JDK
+RUN apt-get update && apt-get install -y default-jre default-jdk

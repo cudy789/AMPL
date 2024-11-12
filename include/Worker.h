@@ -92,16 +92,18 @@ public:
     };
     bool Stop(bool interrupted=true){
         _stop_sem.acquire();
-        _stop = true;
-        _stop_sem.release();
         _interrupted_sem.acquire();
+        _stop = true;
         if (!_interrupted) _interrupted = interrupted; // only change interrupted flag if not already interrupted
-        _interrupted_sem.release();
         _stay_alive_sem.acquire();
         if (_stay_alive && !interrupted){
             _stay_alive_sem.release();
+            _stop_sem.release();
+            _interrupted_sem.release();
             return false;
         }
+        _stop_sem.release();
+        _interrupted_sem.release();
         _stay_alive_sem.release();
         Join();
         return true;

@@ -16,7 +16,7 @@ set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "RelWithD
 
 include_directories(include)
 file(GLOB AMPL_SOURCES "src/*.cpp")
-list(REMOVE_ITEM AMPL_SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp")it a
+list(REMOVE_ITEM AMPL_SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp")
 add_executable(ampl ${AMPL_SOURCES} "src/main.cpp")
 
 # Find the NTCore package within allwpilib

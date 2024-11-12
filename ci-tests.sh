@@ -12,6 +12,7 @@ IMAGE_TAG="latest"
 
 if [ "$ARM" = "1" ] || [ "$( uname -m )" = "aarch64" ]; then
   ARCH="--platform=linux/arm64"
+  docker run --rm --privileged multiarch/qemu-user-static --reset -p yes # enable qemu support for docker
 else
   ARCH="--platform=linux/amd64"
 fi

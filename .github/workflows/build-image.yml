@@ -23,4 +23,4 @@ jobs:
 
     - name: Run build and test script
       shell: bash
-      run: cd docker; bash build-image.sh
+      run: cd docker; bash ci-build-image.sh

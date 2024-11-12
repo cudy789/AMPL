@@ -1,0 +1,20 @@
+# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
+name: Run tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  container-test-job:
+    runs-on: ubuntu-opencv-container
+    container: rogueraptor7/apriltag-multicam:latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Run build and test script
+      shell: bash
+      run: bash build-and-test.sh

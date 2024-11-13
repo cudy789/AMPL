@@ -12,7 +12,8 @@
 # translation: [0, -0.5, 0.25] # x,y,z
 # rotation: [0, 20, 180] # roll, pitch, yaw
 
-Team Number: -1
+Team number: -1
+Fmap file: ../at14_6.fmap
 
 Cameras:
   # front left

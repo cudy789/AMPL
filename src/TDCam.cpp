@@ -1,6 +1,6 @@
 #include "TDCam.h"
 
-TDCam::TDCam(CamParams& c_params): _c_params(c_params) {}
+TDCam::TDCam(CamParams& c_params, const std::map<int, Pose_single>& tag_layout): _c_params(c_params), _tag_layout(tag_layout) {}
 
 void TDCam::InitCap() {
     AppLogger::Logger::Log("Enabling video capture on camera " + _c_params.name);
@@ -24,8 +24,16 @@ void TDCam::InitCap() {
     _cap.set(cv::CAP_PROP_FRAME_HEIGHT, _c_params.ry); // Height
 
     _cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));
+    ulong end_ns = CurrentTime();
+    AppLogger::Logger::Log("Camera capture detector " + _c_params.name +
+                           " initialized in " + std::to_string((end_ns - start_ns) / 1.0e9) + " seconds" );
 
+    AppLogger::Logger::Log(std::to_string(_cap.get(cv::CAP_PROP_FRAME_WIDTH)) + "x" +
+                           std::to_string(_cap.get(cv::CAP_PROP_FRAME_HEIGHT)) + " @" +
+                           std::to_string(_cap.get(cv::CAP_PROP_FPS)) + "FPS");
+}
 
+void TDCam::InitDetector(){
     // Initialize tag detector with options
     _tf = tag36h11_create();
 
@@ -46,14 +54,6 @@ void TDCam::InitCap() {
     _tag_detector->nthreads = _c_params.tag_detector.nthreads;
     _tag_detector->debug = _c_params.tag_detector.debug;
     _tag_detector->refine_edges = _c_params.tag_detector.refine_edges;
-
-    ulong end_ns = CurrentTime();
-    AppLogger::Logger::Log("Camera AprilTag detector " + _c_params.name +
-                           " initialized in " + std::to_string((end_ns - start_ns) / 1.0e9) + " seconds" );
-
-    AppLogger::Logger::Log(std::to_string(_cap.get(cv::CAP_PROP_FRAME_WIDTH)) + "x" +
-                           std::to_string(_cap.get(cv::CAP_PROP_FRAME_HEIGHT)) + " @" +
-                           std::to_string(_cap.get(cv::CAP_PROP_FPS)) + "FPS");
 }
 
 void TDCam::CloseCap(){
@@ -154,7 +154,9 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
 
             Eigen::Matrix3d R_camera_robot = _c_params.R_camera_robot * R_tag_camera;
 
-            AppLogger::Logger::Log("_c_params.R_camera_robot: " + to_string(_c_params.R_camera_robot) + ", R_tag_camera matrix: " + to_string(R_tag_camera) + ", as euler angles: " + to_string(RotationMatrixToRPY(R_tag_camera)), AppLogger::SEVERITY::DEBUG);
+            AppLogger::Logger::Log("_c_params.R_camera_robot: " + to_string(_c_params.R_camera_robot)
+                + ", R_tag_camera matrix: " + to_string(R_tag_camera) + ", as euler angles: "
+                + to_string(RotationMatrixToRPY(R_tag_camera)), AppLogger::SEVERITY::DEBUG);
 
             // Translate AprilTag from the camera frame into the robot's coordinate frame
             Eigen::Vector3d T_camera_robot = _c_params.R_camera_robot * T_tag_camera + _c_params.T_camera_robot;
@@ -164,8 +166,8 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
 
             // Get the location of the apriltag in the world frame
             Pose_single Pose_AG; // the field transformation from apriltag frame to global field frame as specified in the .fmap file
-            if (TagLayout.find(det->id) != TagLayout.end()) {
-                Pose_AG = TagLayout[det->id];
+            if (_tag_layout.find(det->id) != _tag_layout.end()) {
+                Pose_AG = _tag_layout[det->id];
             } else {
                 AppLogger::Logger::Log("Cannot find tag ID " + to_string(det->id) + " in .fmap file", AppLogger::SEVERITY::WARNING);
             }
@@ -205,8 +207,7 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
             AppLogger::Logger::Log("Tag " + to_string(det->id) + " known global location: " + to_string(Pose_AG.T), AppLogger::SEVERITY::DEBUG);
 
             // Add tag to detected TagArray object
-            detected_tags.data[det->id - 1].push_back(new_tag);
-            detected_tags._num_tags++;
+            detected_tags.AddTag(new_tag);
 
             if (pose->R) matd_destroy(pose->R);
             if (pose->t) matd_destroy(pose->t);

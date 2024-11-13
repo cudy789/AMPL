@@ -14,24 +14,73 @@
 #include "ConfigParser.h"
 #include "Logger.h"
 
+
+/***
+ * @brief The Apriltag multicamera pose localization (AMPL) class is a singleton object with with individual worker
+ * threads for each camera, the localization computation, the webserver, the NetworkTables client, and the logger.
+ *
+ * First, the config.yml configuration file is read to determine AMPL parameters and setup the camera workers.
+ * Next, the .fmap file is parsed to configure global locations of the Apriltags.
+ * All worker threads are spun up and process data in realtime. Most worker threads are marked as 'stay alive', which
+ * will attempt to restart the worker in case of an exception. AMPL will only exit on a CTRL-C interrupt.
+ *
+ * The latest robot pose in the global frame is available using GetRobotPose(), and is measured in position x,y,z in
+ * meters, and orientation roll, pitch, yaw in degrees.
+ *
+ */
 class AMPL{
+
 public:
+    /***
+     * @brief No copy constructor allowed for the singleton.
+     */
     AMPL (AMPL const&) = delete;
 
+    /***
+     * @brief Return the singleton instance of the AMPL object. Create a new static instance if none exists.
+     */
     static AMPL& GetInstance();
 
-    void Setup(const std::string& config_file, const std::string& fmap_file);
+    /***
+     * @brief Read configuration parameters from the specified config yaml file. Create all worker threads after
+     * files are loaded.
+     * @param config_file The .yaml configuration file path, relative to AMPL.cpp
+     */
+    void Setup(const std::string& config_file);
 
+    /***
+     * @brief Start all worker threads, which starts the AMPL system.
+     */
     void Start();
 
+    /***
+     * @brief Get the latest RobotPose estimate. The estimate depends on which localization strategy is used.
+     * @return A RobotPose object with the global pose position estimate.
+     */
     RobotPose GetRobotPose();
 
+    /***
+     * @brief Wait for all workers to finish. Blocks until CTRL-C is received or Stop() is called.
+     */
     void Join();
 
+    /***
+     * @brief Stop all workers gracefully.
+     * @return true if all workers were successfully stopped, false if at least one worker was not stopped.
+     */
     bool Stop();
 
+    /***
+     * @brief Register sigint callback to workers
+     * @param signum The signal value caught
+     */
     static void StaticSignalCallback(int signum);
 
+    /***
+     * @brief The signal callback within the context of the singleton instance which registers the callback function
+     * to each thread.
+     * @param signum The signal value caught
+     */
     void SignalCallback(int signum);
 
 private:

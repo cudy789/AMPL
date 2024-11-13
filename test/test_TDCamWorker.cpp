@@ -18,8 +18,9 @@ TEST(TDCamWorker, HelloWorld){
     Eigen::Vector3d dispmat{0, 0, 0};
 
     CamParams c1{.name = "C0", .camera_id = 2, .R_camera_robot = rotmat, .T_camera_robot = dispmat};
+    std::map<int, Pose_single> tag_layout;
 
-    TDCamWorker w(c1,[this](TagArray& raw_tags) -> bool {return true;}, false);
+    TDCamWorker w(c1, tag_layout, [this](TagArray& raw_tags) -> bool {return true;}, false);
 
     w.Start();
 
@@ -39,6 +40,7 @@ TEST(TDCamWorker, OpenFromYaml){
 
     AMPLParams params = ConfigParser::ParseConfig("../test/test_config.yml");
     std::vector<CamParams>& c_params = params.cam_params;
+    std::map<int, Pose_single> tag_layout = TagLayoutParser::ParseConfig("../test/test_tag_layout.fmap");
 
     AppLogger::Logger::Log("Parsed params from yaml");
 
@@ -46,7 +48,7 @@ TEST(TDCamWorker, OpenFromYaml){
 
     AppLogger::Logger::Log("Camera params: " + to_string(c1));
 
-    TDCamWorker w(c1,[this](TagArray& raw_tags) -> bool {return true;}, false);
+    TDCamWorker w(c1, tag_layout, [this](TagArray& raw_tags) -> bool {return true;}, false);
 
     w.Start();
 

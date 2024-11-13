@@ -1,14 +1,14 @@
 #include "TDCamWorker.h"
 
-TDCamWorker::TDCamWorker(CamParams& c_params, std::function<bool(TagArray&)> queue_tags_callback, bool show_im)
-        : Worker{"TDCamWorker " + c_params.name, true, 50},  // Call Worker constructor
-          TDCam{c_params},  // Call TDCam constructor
+TDCamWorker::TDCamWorker(CamParams& c_params, const std::map<int, Pose_single>& tag_layout, std::function<bool(TagArray&)> queue_tags_callback, bool show_im)
+        : Worker{"TDCamWorker " + c_params.name, true, 50},
+          TDCam{c_params, tag_layout},
           _queue_tags_callback{std::move(queue_tags_callback)},
-          _show_im{show_im} {
-}
+          _show_im{show_im} {}
 
 void TDCamWorker::Init() {
     InitCap();
+    InitDetector();
 
     if (!_cap.isOpened()){
         AppLogger::Logger::Log("Camera " + std::to_string(_c_params.camera_id) + " cannot be opened", AppLogger::SEVERITY::ERROR);
@@ -34,8 +34,6 @@ cv::Mat TDCamWorker::GetAnnotatedIm() {
 }
 
 void TDCamWorker::Execute() {
-
-    ulong start_ns = CurrentTime();
     cv::Mat img = GetImage();
 
     if (!img.empty()) {
@@ -61,7 +59,6 @@ void TDCamWorker::Execute() {
             }
 
             bool success = _queue_tags_callback(raw_tags);
-
             if (!success) {
                 AppLogger::Logger::Log("Camera " + std::to_string(_c_params.camera_id) +
                                        " error acquiring lock to add tags to processing queue",

@@ -1,6 +1,6 @@
 #include "AMPL.h"
 
-void AMPL::Setup(const std::string& config_file, const std::string& fmap_file) {
+void AMPL::Setup(const std::string& config_file) {
     AppLogger::Logger::SetVerbosity(AppLogger::INFO);
     AppLogger::Logger::Log("Starting Apriltag Multicam Pose Localization", AppLogger::INFO);
 
@@ -10,7 +10,7 @@ void AMPL::Setup(const std::string& config_file, const std::string& fmap_file) {
     // Parse map and configuration files
     AMPLParams params = ConfigParser::ParseConfig(config_file);
     std::vector<CamParams>& c_params = params.cam_params;
-    TagLayoutParser::ParseConfig(fmap_file);
+    std::map<int, Pose_single> tag_layout = TagLayoutParser::ParseConfig(params.fmap_file);
 
     // Create localization worker
     _l_w = new LocalizationWorker;
@@ -32,7 +32,7 @@ void AMPL::Setup(const std::string& config_file, const std::string& fmap_file) {
 
     // Create camera workers
     for (CamParams& p: c_params){
-        TDCamWorker* this_cam_worker = new TDCamWorker(p, [this](TagArray& raw_tags) -> bool {return _l_w->QueueTags(raw_tags);}, false);
+        TDCamWorker* this_cam_worker = new TDCamWorker(p, tag_layout, [this](TagArray& raw_tags) -> bool {return _l_w->QueueTags(raw_tags);}, false);
         _workers_t.emplace_back(this_cam_worker);
         w_w->RegisterMatFunc([this_cam_worker]() -> cv::Mat {return this_cam_worker->GetAnnotatedIm();});
     }

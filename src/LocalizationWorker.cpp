@@ -4,15 +4,12 @@
 #include "LocalizationWorker.h"
 #include "MatrixHelpers.h"
 
-
-LocalizationWorker::LocalizationWorker() : Worker{"Localization worker"}, LocalizationFilter{new MeanLocalizationStrategy()}{
-
-}
+LocalizationWorker::LocalizationWorker() : Worker{"Localization worker"}, Localization{new MeanLocalizationStrategy()}
+{}
 
 bool LocalizationWorker::QueueTag(Pose raw_pose) {
     if(_raw_tag_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(50))){
-        _raw_tag_poses.data[raw_pose.tag_id-1].push_back(raw_pose);
-        _raw_tag_poses._num_tags++;
+        _raw_tag_poses.AddTag(raw_pose);
         _raw_tag_sem.release();
         return true;
     }
@@ -23,8 +20,7 @@ bool LocalizationWorker::QueueTags(TagArray& raw_tagarray){
     if(_raw_tag_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(50))){
         for (std::vector<Pose>& v: raw_tagarray.data){
             for (Pose& p: v){
-                _raw_tag_poses.data[p.tag_id-1].push_back(p);
-                _raw_tag_poses._num_tags++;
+                _raw_tag_poses.AddTag(p);
             }
         }
         _raw_tag_sem.release();
@@ -47,11 +43,6 @@ void LocalizationWorker::LogStats(bool log_stats){
     _log_stats = log_stats;
 }
 
-
-void LocalizationWorker::Init() {
-
-}
-
 void LocalizationWorker::Execute() {
     // ==================== Get raw tags ====================
 
@@ -67,8 +58,7 @@ void LocalizationWorker::Execute() {
         for (int i = 0; i < local_raw_tag_poses.data.size(); i++) {
             std::vector<Pose> &r_v = local_raw_tag_poses.data[i];
             for (Pose& r_p: r_v) {
-                _fresh_tag_poses.data[i].push_back(r_p);
-                _fresh_tag_poses._num_tags++;
+                _fresh_tag_poses.AddTag(r_p);
             }
         }
 

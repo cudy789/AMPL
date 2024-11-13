@@ -9,8 +9,11 @@
 #include "Logger.h"
 
 inline int STALE_TAG_MS = 150; // If a tag hasn't been seen in this amount of time, then assume we no longer see the tag and clear values
-inline size_t NUM_TAG_IDS = 25;
+inline size_t NUM_TAG_IDS = 25; // Total number of tag IDs expected
 
+/***
+ * @brief A single Pose with a translation vector and rotation matrix. Includes arithmetic and ostream operator overloads.
+ */
 struct Pose_single {
     // Translation (x,y,z) and rotation (rotation matrix RPY)
     Eigen::Vector3d T = Eigen::Vector3d::Constant(0);
@@ -64,6 +67,12 @@ struct Pose_single {
     }
 };
 
+/***
+ * @brief A Pose object is created from a single Apriltag detection. Each Pose objecet contains four separate Pose_single
+ * objects, one for each frame of reference between the Apriltag and the robot. We prefer using extra memory
+ * instead of recomputing each of the four frames when we need them. The associated camera and tag ID is recorded, as well
+ * as the calculated error for the tag detection.
+ */
 struct Pose{
     // The tag this pose originated from
     int tag_id = -1;
@@ -96,10 +105,11 @@ struct Pose{
 
 };
 
+/***
+ * @brief A Pose object that describes the robots location in the global frame. Only the global Pose_single object has
+ * valid pose data.
+ */
 struct RobotPose: public Pose {
-    // No camera or tag_id associated with this class
-//    int tag_id = -1;
-//    int cam_id = -1;
 
     friend std::ostream& operator<<(std::ostream& os, const RobotPose& o_p) {
         os << o_p.global;
@@ -108,16 +118,40 @@ struct RobotPose: public Pose {
 
 };
 
+/***
+ * @brief A data structure that organizes Poses based on tag_ids. Includes methods to add tags, clear stale tags and remove
+ * all tags. An ordered vector of NUM_TAG_IDS represents each of the possible tag_ids that can be detected, then for
+ * each tag_id, an inner vector contains all of the Poses that were detected for this tag_id. The size of the outer vector
+ * data is NUM_TAG_IDS, so to get the Poses for a tag with ID i, we must access the vector at index i-1 (data[i-1]).
+ */
 struct TagArray{
+    /***
+     * @brief Create an empty TagArray of size NUM_TAG_IDS.
+     */
     explicit TagArray(){
         _num_tags = 0;
         data = std::vector<std::vector<Pose>>{NUM_TAG_IDS};
     }
-
+    /***
+     * @brief Remove all tags in the TagArray object.
+     */
     void ClearAll(){
         _num_tags = 0;
         data = std::vector<std::vector<Pose>>{NUM_TAG_IDS};
     }
+    /***
+     * @brief Add a tag to the data structure at the tag_id-1 index in data.
+     * @param tag The tag to be added
+     */
+    void AddTag(const Pose& tag){
+        data[tag.tag_id-1].push_back(tag);
+        _num_tags++;
+    }
+
+    /***
+     * @brief Remove all tags that are older than 150ms.
+     * @return The number of stale tags removed.
+     */
     int ClearStale(){
         int stale_tags = 0;
         for (std::vector<Pose>& v: data){

@@ -15,20 +15,20 @@ void WebServerWorker::Init() {
     mg_mgr_init(&_mgr);
 
     std::string address = "http://0.0.0.0:" + std::to_string(_port);
-    mg_connection* _connection = mg_http_listen(&_mgr, address.c_str(),
-                                 [](mg_connection *conn, int ev, void *ev_data) {
-                                     if (ev == MG_EV_HTTP_MSG) {
-                                         mg_printf(conn,
-                                                   "HTTP/1.0 200 OK\r\n"
-                                                   "Cache-Control: no-cache\r\n"
-                                                   "Pragma: no-cache\r\nExpires: Thu, 01 Dec 1994 16:00:00 GMT\r\n"
-                                                   "Content-Type: multipart/x-mixed-replace; boundary=--frame\r\n\r\n");
-                                         conn->data[0] = 'S';
-                                         AppLogger::Logger::Log("Client connected to webserver");
-                                     }
-
-                                 },
-                                 this);
+    mg_connection* _connection =
+        mg_http_listen(&_mgr, address.c_str(),
+           [](mg_connection *conn, int ev, void *ev_data) {
+             if (ev == MG_EV_HTTP_MSG) {
+                 mg_printf(conn,
+                           "HTTP/1.0 200 OK\r\n"
+                           "Cache-Control: no-cache\r\n"
+                           "Pragma: no-cache\r\nExpires: Thu, 01 Dec 1994 16:00:00 GMT\r\n"
+                           "Content-Type: multipart/x-mixed-replace; boundary=--frame\r\n\r\n");
+                 conn->data[0] = 'S';
+                 AppLogger::Logger::Log("Client connected to webserver");
+             }
+         },
+         this);
     if (_connection == nullptr) {
         AppLogger::Logger::Log("Failed to start Mongoose server on port " + std::to_string(_port), AppLogger::SEVERITY::WARNING);
         sleep(10);

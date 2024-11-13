@@ -10,51 +10,78 @@
 extern "C" {
 #include "apriltag.h"
 #include "tag36h11.h"
-
-//#include "common/getopt.h"
 #include "common/homography.h"
 }
 
-inline std::vector<int> GetAttachedCamIDs(int max_index){
-    std::vector<int> cam_ids;
-    for (int i=0; i<max_index; i++){
-        cv::VideoCapture cap(i);
-        if (!cap.isOpened()) continue;
-        cam_ids.push_back(i);
-    }
-    return cam_ids;
-}
-
-
+/***
+ * @brief A tag detector camera class which opens a webcam capture and performs Apriltag detection on the image frame. One
+ * TDCam object per attached webcam.
+ */
 class TDCam{
 public:
     /***
-     * Setup the AprilTag detector & CV2 camera capture logic. Once TagDetectorCamera object per camera
-     * @param getopt
-     * @param camera
-     * @param R_camera_robot
-     * @param t_camera_robot
+     * @brief No default constructor.
      */
     TDCam() = delete;
-
-    explicit TDCam(CamParams& c_params);
-
+    /***
+     * @brief Assign param structs to local member variables.
+     * @param c_params The camera configuration to use during setup and computations.
+     * @param tag_layout The Apriltag field layout to use during computations.
+     */
+    explicit TDCam(CamParams& c_params, const std::map<int, Pose_single>& tag_layout);
+    /***
+     * @brief Ensure all Apriltag dynamic memory is cleaned up in child classes.
+     */
     virtual ~TDCam();
 
+    /***
+     * @brief Create the cv::VideoCapture object to pull frames from. Try to start capture at the desired resolution,
+     * exposure, and FPS specified in the _c_params struct. Disable autoexposure. Note: OpenCV doesn't force the cameras to run at the
+     * specified properties, the camera will choose whichever parameters are closest to its available features. Camera
+     * exposure setting is not supported on some cameras (Logitech C505e for example).
+     */
     void InitCap();
-
+    /***
+     * @brief Create the Apriltag detector with the specified detector parameters.
+     */
+    void InitDetector();
+    /***
+     * @brief Gracefully close the capture device.
+     */
     void CloseCap();
-
+    /***
+     * @brief Get an image frame from the opened capture device. Will block until the capture returns an image.
+     * @return An image frame from the capture device.
+     */
     cv::Mat GetImage();
-
+    /***
+     * @brief Run the Apriltag detector on an input image and find all possible tag poses for all tags in the image. Calculates
+     * the pose for each tag in four frames: tag, tag w.r.t. camera, tag w.r.t. robot, and robot w.r.t. world. Organizes
+     * these detections by tag ID into the TagArray object.
+     * @param img The image to run the Apriltag detector on.
+     * @return All possible tag detections found in the image.
+     */
     TagArray GetTagsFromImage(const cv::Mat& img);
-
+    /***
+     * @brief Given an image and its corresponding tag detections, draw a bounding box around the detected tags in the frame
+     * and label the tag with its ID.
+     * @param tags All tags detected in this image.
+     * @param img The image to draw on.
+     * @return The annotated image with bounding boxes and labels.
+     */
     cv::Mat DrawTagBoxesOnImage(const TagArray& tags, const cv::Mat& img);
 
+    /***
+     * @brief Use OpenCVs imshow function to display an image.
+     * @param title Title of the image window.
+     * @param timeout How long to wait before closing the image window, in milliseconds.
+     * @param img The image to display in the window.
+     */
     void ImShow(const std::string& title, int timeout, const cv::Mat& img);
 
 protected:
     CamParams _c_params;
+    std::map<int, Pose_single> _tag_layout;
 
     cv::VideoCapture _cap;
 

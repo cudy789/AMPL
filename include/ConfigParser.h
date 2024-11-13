@@ -4,10 +4,13 @@
 #include <Eigen>
 #include "Logger.h"
 
+/***
+ * @brief A struct containing the unique camera parameters for each camera connected to AMPL.
+ */
 struct CamParams{
 
     std::string name;
-    int camera_id;
+    int camera_id; // The video number X in /dev/videoX
 
     // Resolution x, y
     int rx;
@@ -50,9 +53,13 @@ struct CamParams{
 
 
 };
-
+/***
+ * @brief Global AMPL parameters, including the FRC team number and all camera parameter structs.
+ */
 struct AMPLParams {
     int team_num;
+
+    std::string fmap_file;
 
     std::vector<CamParams> cam_params;
 
@@ -66,18 +73,9 @@ struct AMPLParams {
     }
 };
 
-// Assuming the origin is at the 3D geometric center of the robot, use the following frame axis convention:
-//   x: positive right
-//   y: positive forwards
-//   z: positive up
-// Define your camera locations using the above axis. For example, a camera on the front of the robot (50cm from the center
-// of the robot), centered left-right, mounted on a pole 25cm above the midpoint of the robot looking upwards
-// at a 20 degree angle:
-// translation: [0.0, 0.5, 0.25] # x,y,z
-// rotation: [0, 20, 0] # roll, pitch, yaw
-// For the same configuration, but at the back of the robot looking backwards:
-// translation: [0, -0.5, 0.25] # x,y,z
-// rotation: [0, 20, 180] # roll, pitch, yaw
+/***
+ * @brief The .yaml configuration parser. Parses all AMPL and camera parameters.
+ */
 class ConfigParser{
 public:
     ConfigParser() = delete;
@@ -116,13 +114,17 @@ public:
                 }
             }
             if (parser["Team Number"]){
-                params.team_num = parser["Team Number"].as<int>();
+                params.team_num = parser["Team number"].as<int>();
                 AppLogger::Logger::Log("Team number " + to_string(params.team_num));
             }
-            else{
-                AppLogger::Logger::Log("No Team Number found", AppLogger::SEVERITY::WARNING);
+            else {
+                AppLogger::Logger::Log("No Team number found", AppLogger::SEVERITY::WARNING);
                 params.team_num = -1;
             }
+            // Expect an fmap file, throw an exception otherwise
+            params.fmap_file = parser["Fmap file"].as<std::string>();
+            AppLogger::Logger::Log("Fmap file: " + params.fmap_file);
+
         } catch (const std::exception& e) {
             AppLogger::Logger::Log("Error parsing YAML file: " + std::string(e.what()), AppLogger::SEVERITY::ERROR);
             throw(e);
@@ -133,7 +135,5 @@ public:
 
 private:
     YAML::Node _yaml_parser;
-
-
 
 };

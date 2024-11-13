@@ -13,46 +13,77 @@
 /***
  * Worker lifecycle
  *
- * Instantiation: create worker object with desired execution frequency, thread name (for debug), and logging verbosity.
- * Start: Called once. Calls run function to begin thread execution.
- * Stop: Called once. Ends thread execution; blocks until the thread has stopped. If param interrupted=false,
- * worker is restarted A stopped worker cannot be restarted, a new object must be created.
+ * Instantiation: create worker object with a thread name, stay_alive flag, desired execution frequency,and logging verbosity.
+ * Start: Called once. Calls private run() function to begin thread execution.
+ * Stop: Called once. Ends thread execution; blocks until the thread has stopped. If param interrupted=false AND stay_alive
+ *       is true, then the worker is restarted. By default, stay_alive=true. A stopped worker cannot be restarted, a
+ *       new object must be created.
  *
  * Init: Called once when the worker is told to begin execution (after Start is called)
  * Execute: Called periodically at a maximum rate of _exec_freq Hz until Stop() is called.
- * Join: Blocks until the thread object has finshed.
+ * Finish: Called once before the Worker is destroyed (before destructor).
+ * Join: Blocks until the thread object has finished.
  *
- * run: Private member function that handles Execute timing and interrupts
+ * run: Private member function that handles Execute timing and monitors for flags to stop execution.
  *
  */
 class Worker{
 
 public:
+    /***
+     * @brief Default constructor with placeholder threadname,
+     */
     Worker() : Worker("THREADNAME"){}
 
-    explicit Worker(std::string thread_name){
+    /***
+     * @brief A worker with a specified thread name.
+     * @param thread_name The thread name of the worker.
+     */
+    explicit Worker(const std::string& thread_name){
         _thread_name = thread_name;
         _t_worker = nullptr;
     }
-    explicit Worker(std::string thread_name, bool stay_alive): Worker(std::move(thread_name)) {
+    /***
+     * @brief A worker with specified thread name and stay_alive flag.
+     * @param thread_name The thread name of the worker.
+     * @param stay_alive Flag to restart worker when Stop(false) is called.
+     */
+    explicit Worker(const std::string& thread_name, bool stay_alive): Worker(thread_name) {
         _stay_alive = stay_alive;
     }
-
-    explicit Worker(std::string thread_name, bool stay_alive, double execution_freq): Worker(std::move(thread_name), stay_alive){
+    /***
+     * @brief A worker with specified thread name, stay_alive flag, and execution_frequency.
+     * @param thread_name The thread name of the worker.
+     * @param stay_alive Flag to restart worker when Stop(false) is called.
+     * @param execution_freq The maximum execution frequency, in hertz.
+     */
+    explicit Worker(const std::string& thread_name, bool stay_alive, double execution_freq): Worker(thread_name, stay_alive){
         _exec_freq = execution_freq;
     }
-
-    explicit Worker(std::string thread_name, bool stay_alive, double execution_freq, AppLogger::SEVERITY debug_verbosity): Worker(std::move(thread_name), stay_alive, execution_freq){
+    /***
+     * @brief A worker with specified thread name, stay_alive flag, execution_frequency, and debug verbosity.
+     * @param thread_name The thread name of the worker.
+     * @param stay_alive Flag to restart worker when Stop(false) is called.
+     * @param execution_freq The maximum execution frequency, in hertz.
+     * @param debug_verbosity The minimum verbosity of events to log.
+     */
+    explicit Worker(const std::string& thread_name, bool stay_alive, double execution_freq, AppLogger::SEVERITY debug_verbosity): Worker(thread_name, stay_alive, execution_freq){
         _debug_v = debug_verbosity;
     }
-
+    /***
+     * @brief Copy constructor, do not copy the thread object.
+     * @param o The object to copy from.
+     */
     Worker(const Worker& o){
         _exec_freq = o._exec_freq;
         _thread_name = o._thread_name;
         _debug_v = o._debug_v;
+        _stay_alive = o._stay_alive;
         _t_worker = nullptr;
     }
-
+    /***
+     * @brief Ensure the thread has stopped execution, then delete the thread.
+     */
     virtual ~Worker(){
         if (_stop_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(3000))){
             if (!_stop) Stop();
@@ -60,13 +91,20 @@ public:
         }
         delete _t_worker;
     }
-
+    /***
+     * @brief Change the stay_alive flag for the worker. Can be modified before or after a Worker has been started.
+     * @param stay_alive true to keep the worker alive after Stop(false) is called, false to kill the worker instead.
+     */
     void SetStayAlive(bool stay_alive){
         _stay_alive_sem.acquire();
         _stay_alive = stay_alive;
         _stay_alive_sem.release();
     }
-
+    /***
+     * @brief Get the value for the stay_alive flag of the worker. true keeps the worker alive after Stop(false) is called,
+     * false kills the worker instead.
+     * @return The value of the stay_alive flag.
+     */
     bool GetStayAlive(){
         bool stay_alive;
         _stay_alive_sem.acquire();
@@ -74,7 +112,10 @@ public:
         _stay_alive_sem.release();
         return stay_alive;
     }
-
+    /***
+     * @brief Check if this worker has stopped.
+     * @return true if the worker has stopped, false otherwise.
+     */
     bool Stopped(){
         bool stop;
         _stop_sem.acquire();
@@ -82,14 +123,27 @@ public:
         _stop_sem.release();
         return stop;
     }
-
+    /***
+     * @brief Get the name of the worker.
+     * @return The worker name.
+     */
     const std::string& GetName(){
         return _thread_name;
     }
-
+    /**
+     * @brief Start the worker.
+     */
     void Start(){
         _t_worker = new std::thread([this]() {this->run();});
     };
+    /***
+     * @brief Stop the worker. If the worker has the stay_alive flag set to true, then Stop(false) will simply
+     * call the Init() function again, then resume execution of the Execute() function. If the worker has the stay_alive
+     * flag set to false OR Stop() is called, the worker will finish its loop in the run() function, then call Finish().
+     * @param interrupted If (true) OR (false AND stay_alive==false), tell the worker to end execution,
+     * then call Finished(). Otherwise the worker will end execution, call Init(), then resume execution.
+     * @return If the worker will completely stop, return true. Otherwise return false.
+     */
     bool Stop(bool interrupted=true){
         _stop_sem.acquire();
         _interrupted_sem.acquire();
@@ -108,13 +162,18 @@ public:
         Join();
         return true;
     };
-
+    /***
+     * @brief Block until the worker finishes execution.
+     */
     void Join(){
         if (_t_worker){
             _t_worker->join();
         }
     };
-
+    /***
+     * @brief Get the desired execution frequency (Hz).
+     * @return The desired execution frequency in hertz.
+     */
     double GetExecutionFreq(){
         double ret_exec_freq;
         if (_exec_freq_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(100))){
@@ -126,8 +185,20 @@ public:
     }
 
 protected:
+    /***
+     * @brief The user-defined Execute function runs once per execution_freq. The execute function should never block. No
+     * timeouts are implemented to detect loop overrun.
+     */
     virtual void Execute() {};
+    /***
+     * @brief The user-defined Init function runs once, right after Start() is called. This function should never block. No
+     * timeouts are implemented to detect loop overrun.
+     */
     virtual void Init() {};
+    /***
+     * @brief The user-defined Finish function runs once, after Stop(true) is called OR (Stop(false) AND stay_alive == false).
+     * This function should never block. No timeouts are implemented to detect loop overrun.
+     */
     virtual void Finish() {
         AppLogger::Logger::Log(_thread_name + " exited");
     };
@@ -149,9 +220,9 @@ private:
     int _debug_v = AppLogger::SEVERITY::INFO;
 
     /***
-     * Run the execute function at a maximum rate of _exec_freq. No timeout if execution cannot match desired frequency.
-     * Log the execution time average and max.
-     *
+     * @brief The function that the worker's thread executes. First, run Init(), then run Execute() function at a maximum
+     * rate of _exec_freq. No timeout if execution cannot match desired frequency. Periodically check flags to determine
+     * if thread should stop. If thread should stop, run the Finish() function, then exit.
      */
     void run(){
         while (true) {

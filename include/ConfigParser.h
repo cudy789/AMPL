@@ -4,27 +4,48 @@
 #include <Eigen>
 #include "Logger.h"
 
-/***
+/**
  * @brief A struct containing the unique camera parameters for each camera connected to AMPL.
  */
 struct CamParams{
 
+    /**
+     * @brief Camera name.
+     */
     std::string name;
-    int camera_id; // The video number X in /dev/videoX
+    /**
+     * @brief Camera ID, the video number X in /dev/videoX
+     */
+    int camera_id;
 
-    // Resolution x, y
+    /**
+     * @brief Camera resolution x.
+     */
     int rx;
+    /**
+     * @brief Camera resolution y.
+     */
     int ry;
 
     // Focal length (in pixels), x and y
     // focalLengthPxX = focalLengthPxY = px/mm * focalLengthMm
+    /**
+     * @brief Focal length (in pixels) x. fx = pixels/mm & focalLengthMm
+     */
     int fx;
+    /**
+     * @brief Focal length (in pixels) y. fy = pixels/mm & focalLengthMm
+     */
     int fy;
 
-    // Desired FPS
+    /**
+     * @brief Desired FPS
+     */
     float fps;
 
-    // Exposure, range varies per camera
+    /**
+     * @brief Exposure. Range varies per camera.
+     */
     int exposure;
 
     Eigen::Matrix3d R_camera_robot {{1, 0, 0},
@@ -32,7 +53,9 @@ struct CamParams{
                                     {0, 0, 1}}; // Converts from AT frame to robot frame AND includes 90* rotation to align camera Z axis with robot Z axis TODO update note properly
 
     Eigen::Vector3d T_camera_robot {0,0,0}; // No displacement relative to robot geometric center
-
+    /**
+     * @brief Apriltag detector parameters
+     */
     struct {
         float quad_decimate = 2.0; // Decimate input image by this factor
         float quad_sigma = 0.0; // Apply low-pass blur to input
@@ -53,14 +76,23 @@ struct CamParams{
 
 
 };
-/***
+/**
  * @brief Global AMPL parameters, including the FRC team number and all camera parameter structs.
  */
 struct AMPLParams {
+    /**
+     * @brief The FRC team number. Used to set static IP of the AMPL client and connect to NetworkTables.
+     */
     int team_num;
 
+    /**
+     * @brief The .fmap file describing the global locations of Apriltags. See TagLayoutParser for more details.
+     */
     std::string fmap_file;
 
+    /**
+     * @brief A vector of camera parameters, one struct per camera.
+     */
     std::vector<CamParams> cam_params;
 
     friend std::ostream& operator <<(std::ostream& os, const AMPLParams& param) {
@@ -73,13 +105,19 @@ struct AMPLParams {
     }
 };
 
-/***
- * @brief The .yaml configuration parser. Parses all AMPL and camera parameters.
+/**
+ * @brief The .yaml configuration parser. Parses all AMPLParams and CamParams parameters.
  */
 class ConfigParser{
 public:
     ConfigParser() = delete;
 
+    /**
+     * @brief Parse the configuration .yaml file for AMPL parameters, including FRC team number, .fmap file,
+     * and camera parameters.
+     * @param cfg_file The path to your config.yaml file.
+     * @return A struct of configuration parameters populated by the specified .yaml file.
+     */
     static AMPLParams ParseConfig(std::string cfg_file){
         AMPLParams params;
         std::vector<CamParams>& cam_p = params.cam_params;

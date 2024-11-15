@@ -6,7 +6,7 @@
 #include <sstream>
 #include <iomanip>
 
-/***
+/**
  * @brief Get the current system time in milliseconds using std::chrono::high_resolution_clock.
  * @return The system time in milliseconds.
  */
@@ -19,7 +19,7 @@ inline ulong CurrentTime() {
 
 }
 
-/***
+/**
  * @brief Get the current system time as a datetime formatted YYYY-MM-DD_HH:MM:SS:XXX with millisecond level resolution.
  * @return A string representation of the current datetime.
  */

@@ -10,7 +10,7 @@ extern "C" {
 #include "tag36h11.h"
 }
 
-/***
+/**
  * @brief Convert any type with a stream operator into a string.
  * @tparam T parameter type
  * @param value parameter value
@@ -24,7 +24,7 @@ inline std::string to_string( const T& value )
     return ss.str();
 }
 
-/***
+/**
  * @brief Convert degrees to radians.
  * @param deg Value in degrees.
  * @return Value in radians.
@@ -33,7 +33,7 @@ inline double Deg2Rad(double deg){
     return deg * M_PI / 180.0;
 }
 
-/***
+/**
  * @brief Convert radians to degrees.
  * @param rad Value in radians.
  * @return Value in degrees.
@@ -42,7 +42,7 @@ inline double Rad2Deg(double rad){
     return rad * 180.0 / M_PI;
 }
 
-/***
+/**
  * @brief Convert an Eigen::Vector3d from radians to degrees.
  * @param vec The vector with values in radians.
  * @return A vector with values in degrees.
@@ -55,7 +55,7 @@ inline Eigen::Vector3d Rad2Deg(Eigen::Vector3d& vec){
     return ret_vec;
 }
 
-/***
+/**
  * @brief Convert an Eigen::Vector3d from degrees to radians.
  * @param vec The vector with values in degrees.
  * @return A vector with values in radians.
@@ -68,7 +68,7 @@ inline Eigen::Vector3d Deg2Rad(Eigen::Vector3d& vec){
     return ret_vec;
 }
 
-/***
+/**
  * @brief Template function to convert an Eigen matrix or vector from radians to degrees.
  * @tparam Derived The base Eigen type.
  * @param matrix The data of the Eigen type in radians.
@@ -83,7 +83,7 @@ inline Eigen::MatrixBase<Derived>& Rad2Deg(Eigen::MatrixBase<Derived>& matrix) {
     return matrix;
 }
 
-/***
+/**
  * @brief Templated function to convert a raw C++ array to an Eigen matrix.
  * @tparam Scalar Array data type.
  * @tparam Rows Number of rows.
@@ -102,7 +102,7 @@ inline Eigen::Matrix<Scalar, Rows, Cols> Array2EM(const Scalar* array) {
     return matrix;
 }
 
-/***
+/**
  * @brief Overload the stream operator for all types of Eigen matrices and vectors.
  * @tparam Derived The Eigen matrix or vector type.
  * @param os The ostream object to stream to.
@@ -129,7 +129,7 @@ std::ostream& operator<<(std::ostream& os, const Eigen::MatrixBase<Derived>& mat
     return os;
 }
 
-/***
+/**
  * @brief Create a rotation matrix from roll, pitch, and yaw in degrees. Uses the 3-2-1 conversion, i.e. apply yaw, then pitch, then roll.
  * @param V The ordered vector of roll, pitch, and yaw in degrees.
  * @return The 3x3 rotation matrix describing the orientation.
@@ -164,7 +164,7 @@ inline Eigen::Matrix3d CreateRotationMatrix(const Eigen::Vector3d& V) {
 }
 
 
-/***
+/**
  * @brief Create a roll, pitch, yaw vector in degrees from a given rotation matrix. Handle gimbal lock when cos(pitch)
  * is close to zero.
  * @param R The 3x3 rotation matrix describing the orientation.
@@ -194,7 +194,7 @@ inline Eigen::Matrix3d CreateRotationMatrix(const Eigen::Vector3d& V) {
     return rpy;
 }
 
-/***
+/**
  * @brief Create a roll, pitch, yaw vector in degrees from a given rotation matrix. The matd_t datatype is used in the
  * Apriltag library. Handle gimbal lock when cos(pitch) is close to zero.
  * @param R The 3x3 rotation matrix describing the orientation.

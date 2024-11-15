@@ -10,7 +10,7 @@
 
 using json = nlohmann::json;
 
-/***
+/**
  * @brief The Apriltag layout .fmap parser. Read the global tag positions from the .fmap file to create a std::map<int, Pose_single>
  * object, which maps Apriltag IDs to their global position on field. All tag IDs in the .fmap file should be unique.
  *
@@ -22,15 +22,15 @@ using json = nlohmann::json;
  */
 class TagLayoutParser{
 public:
-    /***
+    /**
      * @brief No instantiation of this class, only used for its ParseConfig function.
      */
     TagLayoutParser() = delete;
-    /***
+    /**
      * @brief No instantiation of this class, only used for its ParseConfig function.
      */
     void operator=(TagLayoutParser const&) = delete;
-    /***
+    /**
      * @brief Parse the configuration file for tags. All tags should have unique ids, maximum of 25 tags.
      * @param cfg_file The path to the .fmap configuration file relative to the TagLayoutParser.h file.
      * @return The mapping between tag IDs and their location on the field in the global field frame.

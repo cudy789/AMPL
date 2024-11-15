@@ -11,7 +11,7 @@
 
 namespace AppLogger {
 
-    /***
+    /**
      * @brief Logger severity levels, ordered from lowest to highest severity.
      */
     enum SEVERITY {
@@ -32,23 +32,23 @@ namespace AppLogger {
             {ERROR,    "\033[1;31mERROR\033[0m"}, // red
     };
 
-/***
+/**
  * @brief A singleton threaded logger class. Logs to stdout and a logfile with timestamps and varying levels of
  * severity. Non-blocking and high performant.
  */
     class Logger {
     public:
-        /***
+        /**
          * @brief No copy constructor allowed.
          */
         Logger (Logger const&) = delete;
 
-        /***
+        /**
          * @brief No assignment operator allowed.
          */
         void operator=(Logger const&) = delete;
 
-        /***
+        /**
          * @brief Log a message to stdout and the log file.
          * @param value The string to log.
          * @param level The severity of the message, defaults to INFO.
@@ -57,42 +57,42 @@ namespace AppLogger {
         static bool Log(const std::string& value, SEVERITY level = SEVERITY::INFO) {
             return GetInstance().log(value, level);
         }
-        /***
+        /**
          * @brief Set the minimum verbosity of logging messages to be recorded. Defaults to INFO.
          * @param verbosity The verbosity.
          */
         static void SetVerbosity(SEVERITY verbosity){
             GetInstance().setVerbosity(verbosity);
         }
-        /***
+        /**
          * @brief Enable or disable logging to stdout.
          * @param enabled Enable stdout logging if true, disable if false.
          */
         static void SetStdout(bool enabled){
             GetInstance().setStdOut(enabled);
         }
-        /***
+        /**
          * @brief Enable or disable logging to the logfile.
          * @param enabled Enable logfile logging if true, disable if false.
          */
         static void SetFileout(bool enabled){
             GetInstance().setFileout(enabled);
         }
-        /***
+        /**
          * @brief Get the logging file path.
          * @return The path to the logging file relative to the directory the main executable was started from.
          */
         static std::string GetFilePath(){
             return GetInstance().getFilepath();
         }
-        /***
+        /**
          * @brief Set the logging file path.
          * @param filepath The path to the logging file relative to the directory the main executable was started from.
          */
         static void SetFilepath(std::string filepath){
             GetInstance().setFilepath(filepath);
         }
-        /***
+        /**
          * @brief Get the singleton logger instance. If no instance exists, create a new static instance.
          * @return The singleton logger instance.
          */
@@ -100,14 +100,14 @@ namespace AppLogger {
             static Logger instance; // instantiated on first call, guaranteed to be destroyed
             return instance;
         }
-        /***
+        /**
          * @brief Flush stdout and fstream. Block until the operation completes.
          * @return true if all data was successfully flushed, false if not.
          */
         static bool Flush(){
             return GetInstance().flush();
         }
-        /***
+        /**
          * @brief Stop the logger.
          * @param terminate If terminate=true forcefully stop the logger without flushing messages, otherwise gracefully
          * stop the logger and allow the messages to be flushed.
@@ -118,7 +118,7 @@ namespace AppLogger {
         }
 
     private:
-        /***
+        /**
          * @brief Create the logger and its worker thread.
          */
         Logger() {
@@ -126,7 +126,7 @@ namespace AppLogger {
             _filepath = "./multicam_apriltag_localization_log.txt";
             _verbosity = INFO;
         };
-        /***
+        /**
          * @brief Gracefully stop logging on destruction.
          */
         ~Logger() {
@@ -217,7 +217,7 @@ namespace AppLogger {
             }
         }
 
-        /***
+        /**
          * @brief The worker thread of the logger. Waits until the log function notifies this thread new data is available,
          * then processes the available data to stdout, and occasionally flushes data to the logfile. The thread also
          * checks if the logger is shutting down and if data should be flushed immediately.

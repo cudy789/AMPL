@@ -6,7 +6,7 @@
 #include "TDCam.h"
 #include "Worker.h"
 
-/***
+/**
  * @brief The threaded tag detector camera worker periodically polls its capture device for new camera frames, detects
  * Apriltags in the frame, then passes the Apriltag pose detections to the LocalizationWorker class via a callback function.
  * This worker also provides access to an annotated image with bounding boxes and tag IDs displayed around detected Apriltags
@@ -14,15 +14,15 @@
  */
 class TDCamWorker: public Worker, public TDCam {
 public:
-    /***
+    /**
      * @brief No default constructor.
      */
     TDCamWorker() = delete;
-    /***
+    /**
      * @brief Call parent class destructors.
      */
     ~TDCamWorker() = default;
-    /***
+    /**
      * @brief Call the Worker and TDCam constructors, set execution frequency to 50hz and enable stay_alive. Register
      * the tag detection callback function, and set flag to enable/disable debug cv ImShow.
      * @param c_params The camera configuration to use during setup and computations.
@@ -31,7 +31,7 @@ public:
      * @param show_im Flag to enable/disable ImShow.
      */
     TDCamWorker(CamParams& c_params, const std::map<int, Pose_single>& tag_layout, std::function<bool(TagArray&)> queue_tags_callback, bool show_im);
-    /***
+    /**
      * @brief Get the latest camera image with Apriltag detections highlighted with bounding boxes and tagg IDs.
      * @return The latest annotated image.
      */
@@ -39,17 +39,17 @@ public:
 
 
 protected:
-    /***
+    /**
      * @brief Setup the capture device and start the detector. If the capture device cannot be opened, restart the thread.
      */
     void Init() override;
-    /***
+    /**
      * @brief Get an image from the capture device, compute the tag poses in the image, annotate the image with the
      * tag bounding boxes, the camera name, and current FPS. Run callback to send tag pose data, and display image locally
      * if flag is set.
      */
     void Execute() override;
-    /***
+    /**
      * @brief Close the capture device.
      */
     void Finish() override;

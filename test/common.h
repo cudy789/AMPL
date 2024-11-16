@@ -5,7 +5,7 @@
 #include "Logger.h"
 
 
-inline void SetupLogger(std::string testname){
+inline void SetupLogger(const std::string& testname){
     std::string filepath = "./test_" + testname + ".txt";
     std::filesystem::remove(filepath);
 

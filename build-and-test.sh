@@ -9,4 +9,5 @@ fi
 
 echo "./runTests $GTESTFILTER"
 
+#bash run-common.sh "mkdir -p build && cd build && cmake -DENABLE_TESTS=ON -DCMAKE_BUILD_TYPE=Debug .. && make -j4 && gdb ./runTests;"
 bash run-common.sh "mkdir -p build && cd build && cmake -DENABLE_TESTS=ON .. && make -j4 && ./runTests $GTESTFILTER;"

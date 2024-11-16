@@ -110,6 +110,11 @@ struct Pose{
  * valid pose data.
  */
 struct RobotPose: public Pose {
+    RobotPose() = default;
+
+    explicit RobotPose(const Pose_single& global_pose) {
+        this->global = global_pose;
+    }
 
     friend std::ostream& operator<<(std::ostream& os, const RobotPose& o_p) {
         os << o_p.global;

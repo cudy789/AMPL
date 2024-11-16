@@ -72,11 +72,25 @@ namespace AppLogger {
             GetInstance().setStdOut(enabled);
         }
         /**
+         * @brief Check if  logging to stdout.
+         * @return true if logging to stdout, false otherwise.
+         */
+        static bool GetStdout(){
+            return GetInstance().getStdOut();
+        }
+        /**
          * @brief Enable or disable logging to the logfile.
          * @param enabled Enable logfile logging if true, disable if false.
          */
         static void SetFileout(bool enabled){
             GetInstance().setFileout(enabled);
+        }
+        /**
+         * @brief Check if logfile output is enabled
+         * @return logfile logging if true, no logfile logging if false.
+         */
+        static bool GetFileout(){
+            return GetInstance().getFileout();
         }
         /**
          * @brief Get the logging file path.
@@ -89,7 +103,7 @@ namespace AppLogger {
          * @brief Set the logging file path.
          * @param filepath The path to the logging file relative to the directory the main executable was started from.
          */
-        static void SetFilepath(std::string filepath){
+        static void SetFilepath(const std::string& filepath){
             GetInstance().setFilepath(filepath);
         }
         /**
@@ -117,7 +131,8 @@ namespace AppLogger {
             return GetInstance().stop(terminate);
         }
 
-    private:
+    protected:
+
         /**
          * @brief Create the logger and its worker thread.
          */
@@ -125,44 +140,39 @@ namespace AppLogger {
             _worker_t = new std::thread([this]() { this->Run(); });
             _filepath = "./multicam_apriltag_localization_log.txt";
             _verbosity = INFO;
+            _stdout_enabled.store(true);
+            _fileout_enabled.store(true);
         };
         /**
          * @brief Gracefully stop logging on destruction.
          */
-        ~Logger() {
+        virtual ~Logger() {
+            _stop_sem.acquire();
             if (!_stop){
+                _stop_sem.release();
                 Close();
+            } else{
+                _stop_sem.release();
             }
             delete _worker_t;
         }
-        bool log(const std::string& value, SEVERITY level = SEVERITY::INFO) {
-            if (_stop) return false;
-            if (level >= _verbosity){
-                std::string date;
-                if (_ostream_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(200))) {
-                    date = "[" + datetime_ms() + "] ";
-                    _ostream_queue.push({value, date, level});
-                    _ostream_sem.release();
-                    _ostream_data_present_sem.release(); // Notify thread that data is available
-                    return true;
-                } else{
-                    return false;
-                }
-            } else{
-                return false;
-            }
-        };
 
-        void setStdOut(bool enabled){
-            _stdout_enabled = enabled;
+        virtual void setStdOut(bool enabled){
+            _stdout_enabled.store(enabled);
         }
-        void setFileout(bool enabled){
-            _fileout_enabled = enabled;
+        virtual bool getStdOut(){
+            return _stdout_enabled.load();
         }
-        void setVerbosity(SEVERITY verbosity){
+        virtual void setFileout(bool enabled){
+            _fileout_enabled.store(enabled);
+        }
+        virtual bool getFileout(){
+            return _fileout_enabled.load();
+        }
+        virtual void setVerbosity(SEVERITY verbosity){
             _verbosity = verbosity;
         }
-        std::string getFilepath(){
+        virtual std::string getFilepath(){
             if (_filepath_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(1000))){
                 std::string filepath = _filepath;
                 _filepath_sem.release();
@@ -171,7 +181,7 @@ namespace AppLogger {
             return "";
         }
 
-        bool setFilepath(std::string& filepath){
+        virtual bool setFilepath(const std::string& filepath){
             if (_filepath_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(1000))){
                 _filepath = filepath;
                 _filepath_sem.release();
@@ -180,7 +190,7 @@ namespace AppLogger {
             return false;
         }
 
-        bool stop(bool terminate=false) {
+        virtual bool stop(bool terminate=false) {
             if (_stop_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(2000))) {
                 _stop = true;
                 if (!_terminate) _terminate=terminate;
@@ -190,12 +200,11 @@ namespace AppLogger {
                 return true;
             } else {
                 _ostream_data_present_sem.release();
-
                 return false;
             }
         }
 
-        bool flush(){
+        virtual bool flush(){
             if (_flush_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(3000))) {
                 _flush = true;
                 _flush_sem.release();
@@ -216,13 +225,18 @@ namespace AppLogger {
                 return false;
             }
         }
+        virtual std::stringstream messageFormatHelper(const std::tuple<std::string, std::string, SEVERITY>& data_tuple){
+            std::stringstream ss;
+            ss << "[" +  std::get<1>(data_tuple) + "] " << severityToColorString[std::get<2>(data_tuple)] << ": " << std::get<0>(data_tuple) << std::endl;
+            return ss;
+        }
 
         /**
          * @brief The worker thread of the logger. Waits until the log function notifies this thread new data is available,
          * then processes the available data to stdout, and occasionally flushes data to the logfile. The thread also
          * checks if the logger is shutting down and if data should be flushed immediately.
          */
-        void Run() {
+        virtual void Run() {
             ulong start_ns = CurrentTime();
             bool stop = false;
             bool flush = false;
@@ -253,12 +267,11 @@ namespace AppLogger {
                     if (_ostream_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(1000))){
                         _ostream_queue.pop();
                         _ostream_sem.release();
-                        if (_stdout_enabled){
-                            std::stringstream ss;
-                            ss << std::get<1>(item) << severityToColorString[std::get<2>(item)] << ": " << std::get<0>(item) << std::endl;
+                        if (_stdout_enabled.load()){
+                            std::stringstream ss = messageFormatHelper(item);
                             std::cout << ss.str();
                         }
-                        if (_fileout_enabled){
+                        if (_fileout_enabled.load()){
                             _filestream_queue.push(item);
                         }
                     }
@@ -267,7 +280,7 @@ namespace AppLogger {
 
                 // Check to see if enough time has passed and we should log messages to the logfile, or the thread is stopping
                 // Don't perform this check if fileout is disabled.
-                if (((CurrentTime() - start_ns > _thread_write_period_ns) || stop || flush) && _fileout_enabled) {
+                if (((CurrentTime() - start_ns > _thread_write_period_ns) || stop || flush) && _fileout_enabled.load()) {
                     start_ns = CurrentTime();
 
                     std::ofstream *log_file;
@@ -288,8 +301,7 @@ namespace AppLogger {
                         std::tuple<std::string, std::string, SEVERITY> item = _filestream_queue.front();
                         _filestream_queue.pop();
 
-                        std::stringstream ss;
-                        ss << std::get<1>(item) << severityToString[std::get<2>(item)] << ": " << std::get<0>(item) << std::endl;
+                        std::stringstream ss = messageFormatHelper(item);
                         (*log_file) << ss.str();
                     }
                     log_file->close();
@@ -321,10 +333,31 @@ namespace AppLogger {
         std::queue<std::tuple<std::string, std::string, SEVERITY>> _filestream_queue;
         ulong _thread_write_period_ns = 5 * 1.0e6; // write to file every 5 seconds
         SEVERITY _verbosity;
-        bool _stdout_enabled = true;
-        bool _fileout_enabled = true;
+
+        std::atomic<bool> _stdout_enabled;
+//        bool _stdout_enabled = true;
+        std::atomic<bool> _fileout_enabled;
+//        bool _fileout_enabled = true;
 
         std::binary_semaphore _filepath_sem{1};
         std::string _filepath;
+
+        virtual bool log(const std::string& value, SEVERITY level = SEVERITY::INFO) {
+            if (_stop) return false;
+            if (level >= _verbosity){
+                std::string date;
+                if (_ostream_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(200))) {
+                    date = datetime_ms();
+                    _ostream_queue.push({value, date, level});
+                    _ostream_sem.release();
+                    _ostream_data_present_sem.release(); // Notify thread that data is available
+                    return true;
+                } else{
+                    return false;
+                }
+            } else{
+                return false;
+            }
+        }
     };
 }

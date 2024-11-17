@@ -13,7 +13,7 @@ void AMPL::Setup(const std::string& config_file) {
     std::map<int, Pose_single> tag_layout = TagLayoutParser::ParseConfig(params.fmap_file);
 
     // Create localization worker
-    _l_w = new LocalizationWorker;
+    _l_w = new LocalizationWorker(params.pose_logging);
     _workers_t.emplace_back(_l_w);
     _l_w->LogStats(true);
 
@@ -23,7 +23,7 @@ void AMPL::Setup(const std::string& config_file) {
 
     // Create NetworkTables worker
     if (params.team_num > 0){
-        NTWorker* w_nt = new NTWorker();
+        NTWorker* w_nt = new NTWorker;
         _workers_t.emplace_back(w_nt);
         w_nt->RegisterPoseCallback([this]() -> RobotPose {return _l_w->GetRobotPose();});
     } else{
@@ -32,7 +32,8 @@ void AMPL::Setup(const std::string& config_file) {
 
     // Create camera workers
     for (CamParams& p: c_params){
-        TDCamWorker* this_cam_worker = new TDCamWorker(p, tag_layout, [this](TagArray& raw_tags) -> bool {return _l_w->QueueTags(raw_tags);}, false);
+        TDCamWorker* this_cam_worker = new TDCamWorker(p, tag_layout, [this](TagArray& raw_tags) -> bool {return _l_w->QueueTags(raw_tags);},
+                                                       params.video_recording);
         _workers_t.emplace_back(this_cam_worker);
         w_w->RegisterMatFunc([this_cam_worker]() -> cv::Mat {return this_cam_worker->GetAnnotatedIm();});
     }

@@ -91,6 +91,16 @@ struct AMPLParams {
     std::string fmap_file;
 
     /**
+     * @brief Enable/disable RobotPose trajectory logging.
+     */
+    bool pose_logging;
+
+    /**
+     * @brief Enable/disable camera video recording
+     */
+    bool video_recording;
+
+    /**
      * @brief A vector of camera parameters, one struct per camera.
      */
     std::vector<CamParams> cam_params;
@@ -151,7 +161,7 @@ public:
 
                 }
             }
-            if (parser["Team Number"]){
+            if (parser["Team number"]){
                 params.team_num = parser["Team number"].as<int>();
                 AppLogger::Logger::Log("Team number " + to_string(params.team_num));
             }
@@ -162,6 +172,19 @@ public:
             // Expect an fmap file, throw an exception otherwise
             params.fmap_file = parser["Fmap file"].as<std::string>();
             AppLogger::Logger::Log("Fmap file: " + params.fmap_file);
+
+            if (parser["Pose logging"]){
+                params.pose_logging = parser["Pose logging"].as<bool>();
+            } else{
+                params.pose_logging = false;
+            }
+
+            if (parser["Video recording"]){
+                params.video_recording = parser["Video recording"].as<bool>();
+            } else{
+                params.video_recording = false;
+            }
+
 
         } catch (const std::exception& e) {
             AppLogger::Logger::Log("Error parsing YAML file: " + std::string(e.what()), AppLogger::SEVERITY::ERROR);

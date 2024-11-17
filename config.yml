@@ -15,6 +15,9 @@
 Team number: -1
 Fmap file: ../at14_6.fmap
 
+Video recording: true
+Pose logging: true
+
 Cameras:
   # front left
   CAM_LEFT:

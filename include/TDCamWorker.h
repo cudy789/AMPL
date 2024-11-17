@@ -28,9 +28,9 @@ public:
      * @param c_params The camera configuration to use during setup and computations.
      * @param tag_layout The Apriltag field layout to use during computations.
      * @param queue_tags_callback Pass all Apriltag pose detections in the frame through this callback function.
-     * @param show_im Flag to enable/disable ImShow.
+     * @param record_video Flag to enable/disable video recording.
      */
-    TDCamWorker(CamParams& c_params, const std::map<int, Pose_single>& tag_layout, std::function<bool(TagArray&)> queue_tags_callback, bool show_im);
+    TDCamWorker(CamParams& c_params, const std::map<int, Pose_single>& tag_layout, std::function<bool(TagArray&)> queue_tags_callback, bool record_video);
     /**
      * @brief Get the latest camera image with Apriltag detections highlighted with bounding boxes and tagg IDs.
      * @return The latest annotated image.
@@ -54,7 +54,6 @@ protected:
      */
     void Finish() override;
 
-    bool _show_im;
     std::function<bool(TagArray&)> _queue_tags_callback;
 
     std::binary_semaphore _annotated_im_sem{1};

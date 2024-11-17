@@ -28,7 +28,7 @@ public:
      * @param c_params The camera configuration to use during setup and computations.
      * @param tag_layout The Apriltag field layout to use during computations.
      */
-    explicit TDCam(CamParams& c_params, const std::map<int, Pose_single>& tag_layout);
+    explicit TDCam(CamParams& c_params, const std::map<int, Pose_single>& tag_layout, bool enable_video_writer=false);
     /**
      * @brief Ensure all Apriltag dynamic memory is cleaned up in child classes.
      */
@@ -54,6 +54,10 @@ public:
      * @return An image frame from the capture device.
      */
     cv::Mat GetImage();
+    /**
+     * @brief Save the image to a video file. Blocks until image is written.
+     */
+    void SaveImage(const cv::Mat& img);
     /**
      * @brief Run the Apriltag detector on an input image and find all possible tag poses for all tags in the image. Calculates
      * the pose for each tag in four frames: tag, tag w.r.t. camera, tag w.r.t. robot, and robot w.r.t. world. Organizes
@@ -84,6 +88,9 @@ protected:
     std::map<int, Pose_single> _tag_layout;
 
     cv::VideoCapture _cap;
+
+    bool _enable_video_writer;
+    cv::VideoWriter _writer;
 
     apriltag_detector_t* _tag_detector;
     apriltag_family_t* _tf;

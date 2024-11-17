@@ -109,6 +109,7 @@ namespace AppLogger{
 
         TrajectoryLogger(): Logger() {
             _filepath = "./ampl_trajectory_log.csv";
+            _stdout_enabled = false;
         }
         ~TrajectoryLogger(){
             stop();

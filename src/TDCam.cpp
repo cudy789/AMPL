@@ -1,6 +1,15 @@
 #include "TDCam.h"
+#include "TimeUtils.h"
 
-TDCam::TDCam(CamParams& c_params, const std::map<int, Pose_single>& tag_layout): _c_params(c_params), _tag_layout(tag_layout) {}
+TDCam::TDCam(CamParams& c_params, const std::map<int, Pose_single>& tag_layout, bool enable_video_writer):
+        _c_params(c_params), _tag_layout(tag_layout), _enable_video_writer(enable_video_writer){
+    if (_enable_video_writer){
+        _writer = cv::VideoWriter(_c_params.name + "_" + datetime_ms() + ".avi", cv::VideoWriter::fourcc('M', 'J', 'P', 'G'),
+                                  _c_params.fps, cv::Size(_c_params.rx, _c_params.ry));
+        AppLogger::Logger::Log("Enabling video recording on camera " + _c_params.name);
+    }
+
+}
 
 void TDCam::InitCap() {
     AppLogger::Logger::Log("Enabling video capture on camera " + _c_params.name);
@@ -61,15 +70,23 @@ void TDCam::CloseCap(){
     _cap.release();
 }
 
-TDCam::~TDCam(){
+TDCam::~TDCam() {
     delete _tag_detector;
     delete _tf;
+
+    if (_enable_video_writer) {
+        _writer.release();
+    }
 }
 
 cv::Mat TDCam::GetImage() {
     cv::Mat img;
     _cap >> img;
     return img;
+}
+
+void TDCam::SaveImage(const cv::Mat &img) {
+    _writer.write(img);
 }
 
 TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {

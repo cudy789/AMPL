@@ -22,7 +22,7 @@ public:
     /**
      * @brief Initialize the worker, set the strategy to be MeanLocalizationStrategy.
      */
-    LocalizationWorker();
+    LocalizationWorker(bool pose_logging=false);
 
     /**
      * @brief Add multiple tag poses to be used in the localization calculation.
@@ -67,6 +67,8 @@ public:
 
     std::binary_semaphore _robot_pose_sem{1};
     Pose _robot_pose;
+
+    bool _pose_logging;
 
     bool _log_stats = false;
     ulong _last_log_time_ns = CurrentTime();

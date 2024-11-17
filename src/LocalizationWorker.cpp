@@ -3,8 +3,11 @@
 
 #include "LocalizationWorker.h"
 #include "MatrixHelpers.h"
+#include "TrajectoryLogger.h"
 
-LocalizationWorker::LocalizationWorker() : Worker{"Localization worker"}, Localization{new MeanLocalizationStrategy()}
+LocalizationWorker::LocalizationWorker(bool pose_logging) : Worker{"Localization worker"},
+        Localization{new MeanLocalizationStrategy()},
+        _pose_logging(pose_logging)
 {}
 
 bool LocalizationWorker::QueueTag(Pose raw_pose) {
@@ -96,6 +99,11 @@ void LocalizationWorker::Execute() {
             _robot_pose_sem.release();
             // Compute updated pose
             _strategy->Compute(_fresh_tag_poses, local_filtered_pose);
+
+            // Log pose
+            if (_pose_logging){
+                AppLogger::TrajectoryLogger::Log(local_filtered_pose);
+            }
 
             // Get lock to reassign updated pose
             if (_robot_pose_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(100))) {

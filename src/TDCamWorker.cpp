@@ -1,10 +1,11 @@
 #include "TDCamWorker.h"
 
-TDCamWorker::TDCamWorker(CamParams& c_params, const std::map<int, Pose_single>& tag_layout, std::function<bool(TagArray&)> queue_tags_callback, bool show_im)
+TDCamWorker::TDCamWorker(CamParams& c_params, const std::map<int, Pose_single>& tag_layout,
+                         std::function<bool(TagArray&)> queue_tags_callback, bool record_video)
         : Worker{"TDCamWorker " + c_params.name, true, 50},
-          TDCam{c_params, tag_layout},
-          _queue_tags_callback{std::move(queue_tags_callback)},
-          _show_im{show_im} {}
+          TDCam{c_params, tag_layout, record_video},
+          _queue_tags_callback{std::move(queue_tags_callback)}
+          {}
 
 void TDCamWorker::Init() {
     InitCap();
@@ -38,6 +39,11 @@ void TDCamWorker::Execute() {
 
     if (!img.empty()) {
         try {
+            // Save image to video file
+            if (_enable_video_writer){
+                SaveImage(img);
+            }
+
             TagArray raw_tags = GetTagsFromImage(img);
 
             cv::Mat box_img = DrawTagBoxesOnImage(raw_tags, img);
@@ -53,6 +59,7 @@ void TDCamWorker::Execute() {
             cv::putText(box_img, _c_params.name, cv::Point(10, 0 + 20),
                         cv::FONT_HERSHEY_DUPLEX, 0.65, cv::Scalar(0, 255, 0), 2);
 
+            // Update latest annotated image
             if (_annotated_im_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(100))) {
                 _annotated_im = box_img;
                 _annotated_im_sem.release();
@@ -63,10 +70,6 @@ void TDCamWorker::Execute() {
                 AppLogger::Logger::Log("Camera " + std::to_string(_c_params.camera_id) +
                                        " error acquiring lock to add tags to processing queue",
                                        AppLogger::SEVERITY::WARNING);
-            }
-            if (_show_im) {
-                cv::Mat tags_img = DrawTagBoxesOnImage(raw_tags, img);
-                ImShow("Camera " + std::to_string(_c_params.camera_id) + " img", 1, tags_img);
             }
         } catch(cv::Exception& e)
         {

@@ -138,7 +138,7 @@ namespace AppLogger {
          */
         Logger() {
             _worker_t = new std::thread([this]() { this->Run(); });
-            _filepath = "./multicam_apriltag_localization_log.txt";
+            _filepath = "./ampl_log.txt";
             _verbosity = INFO;
             _stdout_enabled.store(true);
             _fileout_enabled.store(true);
@@ -225,9 +225,9 @@ namespace AppLogger {
                 return false;
             }
         }
-        virtual std::stringstream messageFormatHelper(const std::tuple<std::string, std::string, SEVERITY>& data_tuple){
+        virtual std::stringstream messageFormatHelper(const std::tuple<std::string, SEVERITY>& data_tuple){
             std::stringstream ss;
-            ss << "[" +  std::get<1>(data_tuple) + "] " << severityToColorString[std::get<2>(data_tuple)] << ": " << std::get<0>(data_tuple) << std::endl;
+            ss << "[" +  datetime_ms() + "] " << severityToColorString[std::get<1>(data_tuple)] << ": " << std::get<0>(data_tuple) << std::endl;
             return ss;
         }
 
@@ -263,7 +263,7 @@ namespace AppLogger {
 
                 // Check the queue for new messages to log to stdout
                 while (!_ostream_queue.empty()) {
-                    std::tuple<std::string, std::string, SEVERITY> item = _ostream_queue.front();
+                    std::tuple<std::string, SEVERITY> item = _ostream_queue.front();
                     if (_ostream_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(1000))){
                         _ostream_queue.pop();
                         _ostream_sem.release();
@@ -298,7 +298,7 @@ namespace AppLogger {
                     }
 
                     while (!_filestream_queue.empty()) {
-                        std::tuple<std::string, std::string, SEVERITY> item = _filestream_queue.front();
+                        std::tuple<std::string, SEVERITY> item = _filestream_queue.front();
                         _filestream_queue.pop();
 
                         std::stringstream ss = messageFormatHelper(item);
@@ -328,9 +328,9 @@ namespace AppLogger {
         std::binary_semaphore _ostream_sem{1};
         std::binary_semaphore _ostream_data_present_sem{0};
 
-        std::queue<std::tuple<std::string, std::string, SEVERITY>> _ostream_queue;
+        std::queue<std::tuple<std::string, SEVERITY>> _ostream_queue;
 
-        std::queue<std::tuple<std::string, std::string, SEVERITY>> _filestream_queue;
+        std::queue<std::tuple<std::string, SEVERITY>> _filestream_queue;
         ulong _thread_write_period_ns = 5 * 1.0e6; // write to file every 5 seconds
         SEVERITY _verbosity;
 
@@ -347,8 +347,7 @@ namespace AppLogger {
             if (level >= _verbosity){
                 std::string date;
                 if (_ostream_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(200))) {
-                    date = datetime_ms();
-                    _ostream_queue.push({value, date, level});
+                    _ostream_queue.push({value, level});
                     _ostream_sem.release();
                     _ostream_data_present_sem.release(); // Notify thread that data is available
                     return true;

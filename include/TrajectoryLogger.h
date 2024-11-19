@@ -33,9 +33,11 @@ namespace AppLogger{
          * @return
          */
         static bool Log(const RobotPose& value, SEVERITY level = SEVERITY::INFO) {
-            std::string pose_json = to_string(value.global.T[0]) + ", " + to_string(value.global.T[1]) + ", " + to_string(value.global.T[2]);
             Eigen::Vector3d rpy = RotationMatrixToRPY(value.global.R);
-            pose_json += ", " + to_string(rpy[0]) + ", " + to_string(rpy[1]) + ", " + to_string(rpy[2]);
+
+            std::string pose_json = to_string(CurrentTime()) + ", " + to_string(value.global.T[0]) + ", "
+                    + to_string(value.global.T[1]) + ", " + to_string(value.global.T[2])
+                    + ", " + to_string(rpy[0]) + ", " + to_string(rpy[1]) + ", " + to_string(rpy[2]);
 
             return TrajectoryLogger::GetInstance().log(pose_json, level);
         }
@@ -108,8 +110,9 @@ namespace AppLogger{
     protected:
 
         TrajectoryLogger(): Logger() {
-            _filepath = "./ampl_trajectory_log.csv";
+            _filepath = "./ampl_trajectory_log_" + datetime_ms() + ".csv";
             _stdout_enabled = false;
+            log("time_ms, x, y, z, roll, pitch, yaw");
         }
         ~TrajectoryLogger(){
             stop();
@@ -121,11 +124,13 @@ namespace AppLogger{
          * @param data_tuple
          * @return
          */
-        std::stringstream messageFormatHelper(const std::tuple<std::string, std::string, SEVERITY>& data_tuple) override {
+        std::stringstream messageFormatHelper(const std::tuple<std::string, SEVERITY>& data_tuple) override {
             std::stringstream ss;
-            ss << std::get<1>(data_tuple) << ", " << std::get<0>(data_tuple) << std::endl;
+            ss << std::get<0>(data_tuple) << std::endl;
             return ss;
         }
+
+
 
     };
 

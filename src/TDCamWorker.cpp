@@ -41,8 +41,27 @@ void TDCamWorker::Execute() {
         try {
             // Save image to video file
             if (_enable_video_writer){
+                if (!_last_img.empty()){
+                    // We "dropped" a frame, so add more frames to keep up with specified framerate
+                    _leftover_save_time += CurrentTime() - _last_save_time;
+                    if (_leftover_save_time < (1.0e9/_c_params.fps)) _leftover_save_time = 0;
+                    else _leftover_save_time -= 1.0e9/_c_params.fps;
+
+                    int extra_frames = (int)std::round((double)_leftover_save_time / (1.0e9/_c_params.fps));
+
+                    if (extra_frames > 0) {
+                        _leftover_save_time = 0;
+                    }
+                    for (int i=0; i<extra_frames; i++){
+                        SaveImage(_last_img);
+                    }
+                }
                 SaveImage(img);
+                _last_save_time = CurrentTime();
             }
+            _last_img = img.clone();
+
+
 
             TagArray raw_tags = GetTagsFromImage(img);
 

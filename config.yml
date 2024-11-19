@@ -13,7 +13,7 @@
 # rotation: [0, 20, 180] # roll, pitch, yaw
 
 Team number: -1
-Fmap file: ../at14_6.fmap
+Fmap file: ../stereo14_6.fmap
 
 Video recording: true
 Pose logging: true
@@ -28,8 +28,8 @@ Cameras:
     fx: 600
     fy: 600
     # x,y,z
-#    translation: [-0.10, 0, 0]
-    translation: [0, 0, 0]
+    translation: [-0.10, 0, 0]
+#    translation: [0, 0, 0]
     # roll, pitch, yaw
     rotation: [0, 0, 0]
 #    res_x: 640

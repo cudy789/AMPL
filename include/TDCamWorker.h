@@ -59,5 +59,9 @@ protected:
     std::binary_semaphore _annotated_im_sem{1};
     cv::Mat _annotated_im;
 
+    cv::Mat _last_img;
+    ulong _last_save_time;
+    ulong _leftover_save_time = 0;
+
 
 };

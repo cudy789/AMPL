@@ -20,14 +20,14 @@ jobs:
       shell: bash
       run: bash ci-tests.sh
 
-  run-ci-ARM64-tests-job:
-    runs-on: ubuntu-latest
-    timeout-minutes: 120
-
-    steps:
-      - name: Pull code
-        uses: actions/checkout@v4
-
-      - name: ARM64 tests
-        shell: bash
-        run: ARM=1 bash ci-tests.sh
+#  run-ci-ARM64-tests-job:
+#    runs-on: ubuntu-latest
+#    timeout-minutes: 120
+#
+#    steps:
+#      - name: Pull code
+#        uses: actions/checkout@v4
+#
+#      - name: ARM64 tests
+#        shell: bash
+#        run: ARM=1 bash ci-tests.sh

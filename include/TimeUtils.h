@@ -7,8 +7,8 @@
 #include <iomanip>
 
 /**
- * @brief Get the current system time in milliseconds using std::chrono::high_resolution_clock.
- * @return The system time in milliseconds.
+ * @brief Get the current system time in nanoseconds using std::chrono::high_resolution_clock.
+ * @return The system time in nanoseconds.
  */
 inline ulong CurrentTime() {
     using clock = std::chrono::high_resolution_clock;

@@ -27,9 +27,9 @@ public:
      */
     explicit WebServerWorker(unsigned short port);
     /**
-     * @brief Default destructor.
+     *
      */
-    ~WebServerWorker() = default;
+    ~WebServerWorker();
     /**
      * @brief Register the callback function which grabs the latest annotated camera image. All registered functions will
      * be called once an Execute cycle to acquire new camera data.
@@ -55,6 +55,7 @@ private:
 
     unsigned short _port = 8080;
     mg_mgr _mgr;
+    mg_connection* _connection;
 
     std::vector<std::function<cv::Mat()>> _mat_funcs;
 

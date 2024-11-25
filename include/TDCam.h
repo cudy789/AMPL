@@ -42,13 +42,18 @@ public:
      */
     void InitCap();
     /**
+     * @brief Create the cv::VideoCapture from a prerecorded .avi file for evaluation. Opens the file at the specified
+     * frame rate and resolution as configured in the .yml file.
+     */
+    void InitRecordedCap();
+    /**
      * @brief Create the Apriltag detector with the specified detector parameters.
      */
-    void InitDetector();
+    virtual void InitDetector();
     /**
      * @brief Gracefully close the capture device.
      */
-    void CloseCap();
+    virtual void CloseCap();
     /**
      * @brief Get an image frame from the opened capture device. Will block until the capture returns an image.
      * @return An image frame from the capture device.

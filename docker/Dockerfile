@@ -28,3 +28,5 @@ RUN apt-get update && apt-get install -y default-jre default-jdk
 # ============ Install Doxygen & Sphinx ============
 RUN apt-get update && apt-get install -y doxygen python3-sphinx python3-breathe
 RUN pip install sphinx_rtd_theme
+
+RUN apt-get update && apt-get install -y valgrind

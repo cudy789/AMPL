@@ -6,6 +6,10 @@ WebServerWorker::WebServerWorker(unsigned short port) :
         _mgr(mg_mgr())
 {}
 
+WebServerWorker::~WebServerWorker() {
+    delete _connection;
+}
+
 bool WebServerWorker::RegisterMatFunc(const std::function<cv::Mat()>& mat_func) {
     _mat_funcs.emplace_back(mat_func);
     return true;
@@ -15,7 +19,7 @@ void WebServerWorker::Init() {
     mg_mgr_init(&_mgr);
 
     std::string address = "http://0.0.0.0:" + std::to_string(_port);
-    mg_connection* _connection =
+    _connection =
         mg_http_listen(&_mgr, address.c_str(),
            [](mg_connection *conn, int ev, void *ev_data) {
              if (ev == MG_EV_HTTP_MSG) {

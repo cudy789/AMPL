@@ -42,6 +42,35 @@ void TDCam::InitCap() {
                            std::to_string(_cap.get(cv::CAP_PROP_FPS)) + "FPS");
 }
 
+void TDCam::InitRecordedCap() {
+    AppLogger::Logger::Log("Playing back video from file " + _c_params.camera_playback_file);
+
+    ulong start_ns = CurrentTime();
+
+    // Initialize camera
+    _cap = cv::VideoCapture (_c_params.camera_playback_file);
+    if (!_cap.isOpened()) {
+        AppLogger::Logger::Log("Error opening video file " +
+                               _c_params.camera_playback_file, AppLogger::SEVERITY::ERROR);
+    }
+
+    _cap.set(cv::CAP_PROP_FPS, _c_params.fps); // Frame rate
+    _cap.set(cv::CAP_PROP_FRAME_WIDTH, _c_params.rx); // Width
+    _cap.set(cv::CAP_PROP_FRAME_HEIGHT, _c_params.ry); // Height
+//    _cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));
+
+    sleep(2);
+
+
+    ulong end_ns = CurrentTime();
+    AppLogger::Logger::Log("Video playback detector " + _c_params.name +
+                           " initialized in " + std::to_string((end_ns - start_ns) / 1.0e9) + " seconds" );
+
+    AppLogger::Logger::Log(std::to_string(_cap.get(cv::CAP_PROP_FRAME_WIDTH)) + "x" +
+                           std::to_string(_cap.get(cv::CAP_PROP_FRAME_HEIGHT)) + " @" +
+                           std::to_string(_cap.get(cv::CAP_PROP_FPS)) + "FPS");
+}
+
 void TDCam::InitDetector(){
     // Initialize tag detector with options
     _tf = tag36h11_create();
@@ -81,6 +110,13 @@ TDCam::~TDCam() {
 
 cv::Mat TDCam::GetImage() {
     cv::Mat img;
+    if (!_c_params.camera_playback_file.empty()){
+        if (!_cap.read(img)){
+            return {};
+        } else{
+            return img;
+        }
+    }
     _cap >> img;
     return img;
 }
@@ -104,7 +140,9 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
     if (errno == EAGAIN) {
         AppLogger::Logger::Log("Unable to create the " + std::to_string(_tag_detector->nthreads) +
             " threads requested", AppLogger::SEVERITY::ERROR);
-        exit(-1);
+        AppLogger::Logger::Log("Number of threads in workerpool:" + to_string(workerpool_get_nthreads(_tag_detector->wp)));
+//        exit(-1);
+        return detected_tags;
     }
 
     // Iterate through each detection in the frame

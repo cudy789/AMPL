@@ -135,7 +135,7 @@ void workerpool_destroy(workerpool_t *wp)
         return;
 
     // force all worker threads to exit.
-    if (wp->nthreads > 1) {
+    if (wp->nthreads > 0) {
         for (int i = 0; i < wp->nthreads; i++)
             workerpool_add_task(wp, NULL, NULL);
 

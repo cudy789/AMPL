@@ -178,8 +178,8 @@ public:
         }
     };
     /**
-     * @brief Get the desired execution frequency in hertz.
-     * @return The desired execution frequency in hertz.
+     * @brief Get the actual execution frequency in hertz.
+     * @return The actual execution frequency in hertz.
      */
     double GetExecutionFreq(){
         double ret_exec_freq;
@@ -189,6 +189,16 @@ public:
         }
 
         return ret_exec_freq;
+    }
+    /**
+     * @brief Set the desired execution frequency in hertz. Blocks until the frequency is set.
+     * @param freq The desired execution frequency in hertz.
+     */
+
+    void SetExecutionFreq(double freq){
+        _exec_freq_sem.acquire();
+        _exec_freq = freq;
+        _exec_freq_sem.release();
     }
 
 protected:

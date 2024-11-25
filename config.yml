@@ -15,13 +15,15 @@
 Team number: -1
 Fmap file: ../stereo14_6.fmap
 
-Video recording: true
+#Video recording: true
 Pose logging: true
 
 Cameras:
   # front left
   CAM_LEFT:
     camera_id: 4
+#    camera_playback_file: CAM_LEFT_2024-11-21_21:54:10.384.avi
+
     rx: 544
     ry: 288
 
@@ -39,6 +41,7 @@ Cameras:
 
   CAM_RIGHT:
     camera_id: 2
+#    camera_playback_file: CAM_RIGHT_2024-11-21_21:54:10.387.avi
     rx: 544
     ry: 288
     fx: 600
@@ -53,6 +56,7 @@ Cameras:
   # backwards facing cam
   CAM_REAR:
     camera_id: 0
+#    camera_playback_file: CAM_REAR_2024-11-21_21:54:10.387.avi
     rx: 544
     ry: 288
     fx: 600
@@ -63,15 +67,3 @@ Cameras:
     rotation: [0, 0, 180]
     fps: 30.0
     exposure: 1
-
-
-
-#
-#  CAM6:
-#    camera_id: 6
-#    res_x: 640
-#    res_y: 360
-#    fps: 30.0
-#    exposure: 350
-
-

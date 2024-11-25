@@ -17,7 +17,10 @@ struct CamParams{
      * @brief Camera ID, the video number X in /dev/videoX
      */
     int camera_id;
-
+    /**
+     * @brief If playing video back from a file, use this filepath.
+     */
+    std::string camera_playback_file;
     /**
      * @brief Camera resolution x.
      */
@@ -148,12 +151,19 @@ public:
                     float c_fps = it->second["fps"].as<float>();
                     int c_exposure = it->second["exposure"].as<int>();
 
+
+                    std::string camera_playback_file;
+                    if (it->second["camera_playback_file"]){
+                        camera_playback_file = it->second["camera_playback_file"].as<std::string>();
+                    }
+
                     Eigen::Vector3d T_total = Eigen::Vector3d(it->second["translation"].as<std::vector<double>>().data());
                     Eigen::Vector3d c_rotation = Eigen::Vector3d(it->second["rotation"].as<std::vector<double>>().data());
 
                     Eigen::Matrix3d R_total = CreateRotationMatrix((Eigen::Vector3d)c_rotation);
 
-                    cam_p.emplace_back(CamParams{.name=c_name, .camera_id=c_id, .rx=c_rx, .ry=c_ry,
+                    cam_p.emplace_back(CamParams{.name=c_name, .camera_id=c_id, .camera_playback_file=camera_playback_file,
+                                                 .rx=c_rx, .ry=c_ry,
                                                  .fx=c_fx, .fy=c_fy, .fps=c_fps, .exposure=c_exposure,
                                                  .R_camera_robot=R_total, .T_camera_robot=T_total});
 

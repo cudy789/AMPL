@@ -8,7 +8,12 @@ TDCamWorker::TDCamWorker(CamParams& c_params, const std::map<int, Pose_single>& 
           {}
 
 void TDCamWorker::Init() {
-    InitCap();
+    if (!_c_params.camera_playback_file.empty()){
+        InitRecordedCap();
+        SetExecutionFreq(_c_params.fps);
+    } else{
+        InitCap();
+    }
     InitDetector();
 
     if (!_cap.isOpened()){
@@ -95,6 +100,10 @@ void TDCamWorker::Execute() {
             AppLogger::Logger::Log(e.what(), AppLogger::SEVERITY::ERROR);
         }
     } else {
+        if (!_c_params.camera_playback_file.empty()){
+            AppLogger::Logger::Log("Reached the end of the video file " + _c_params.camera_playback_file + ", stopping thread.");
+            Stop();
+        }
         AppLogger::Logger::Log("Error getting img from camera " + _c_params.name, AppLogger::SEVERITY::WARNING);
         Stop(false);
         sleep(5);

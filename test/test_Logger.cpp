@@ -75,7 +75,7 @@ TEST(Logger, HighFreqFileout){
     std::cout << "enqueueing 400,000 log messages took " << duration_ms << " ms, on average " << duration_ms / (n_messages * 4.0) << " ms per message" << std::endl;
     std::cout << "logger frequency: " << logger_freq << "Hz " << std::endl;
     std::cout << "flushing logger..." << std::endl;
-    AppLogger::Logger::Flush(); // make sure stdout and file get flushed before terminating
+    ASSERT_TRUE(AppLogger::Logger::Flush()); // make sure stdout and file get flushed before terminating
 
     ulong end_close_ns = CurrentTime();
     ulong full_duration_ms = (end_close_ns - end_ns) / 1.0e6;

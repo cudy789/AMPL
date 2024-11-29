@@ -1,0 +1,30 @@
+Team Number: 2987
+
+Cameras:
+  CAM_LEFT:
+    camera_id: 0
+    rx: 544
+    ry: 288
+
+    fx: 600
+    fy: 600
+    # x,y,z
+    translation: [ 0, 0, 0 ]
+    # roll, pitch, yaw
+    rotation: [ 0, 0, 0 ]
+    fps: 30.0
+    exposure: 1
+
+  CAM_RIGHT:
+    camera_id: 1
+    rx: 544
+    ry: 288
+
+    fx: 600
+    fy: 600
+    # x,y,z
+    translation: [ 0, 0, 0 ]
+    # roll, pitch, yaw
+    rotation: [ 0, 0, 0 ]
+    fps: 30.0
+    exposure: 1

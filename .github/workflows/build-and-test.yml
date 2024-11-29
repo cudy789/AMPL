@@ -20,7 +20,7 @@ jobs:
       shell: bash
       run: bash ci-tests.sh
   run-ci-ARM64-tests-job:
-    runs-on: applecrisp
+    runs-on: ARM64
     timeout-minutes: 120
   
     steps:

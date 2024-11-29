@@ -29,7 +29,7 @@ docker pull $ARCH rogueraptor7/$IMAGE_NAME:$IMAGE_TAG
 
 echo "Killing any existing ampl containers"
 docker kill ampl-tests
-sleep 2
+sleep 5
 
 echo "./runTests $GTESTFILTER"
 

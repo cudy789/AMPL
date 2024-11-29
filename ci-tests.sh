@@ -27,6 +27,9 @@ echo "Using image rogueraptor7/$IMAGE_NAME:$IMAGE_TAG"
 echo "Pulling latest image"
 docker pull $ARCH rogueraptor7/$IMAGE_NAME:$IMAGE_TAG
 
+echo "Killing any existing ampl containers"
+docker kill ampl
+
 echo "./runTests $GTESTFILTER"
 
 docker run --rm -h $IMAGE_NAME-$HOSTNAME --name ampl --group-add sudo --group-add video --add-host $IMAGE_NAME-$HOSTNAME:127.0.0.1 --network host \

@@ -2,7 +2,8 @@
 FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y vim inetutils-ping net-tools git screen usbutils python3-pip g++ cmake make libgtk2.0-dev pkg-config sudo
+RUN apt-get update && apt-get install -y vim inetutils-ping net-tools git screen usbutils python3-pip g++ cmake make  \
+    libgtk2.0-dev pkg-config sudo ffmpeg libavformat-dev libavcodec-dev libswscale-dev gdb valgrind
 
 # ============ Install OpenCV ============ 
 
@@ -12,13 +13,9 @@ WORKDIR /opencv_install
 RUN git clone https://github.com/opencv/opencv.git
 RUN mkdir build
 WORKDIR build
-RUN cmake WITH_JPEG=OFF ../opencv
+RUN cmake -D WITH_FFMPEG=ON ../opencv
 RUN make -j4
 RUN make install
-
-# ============ Install gdb ============
-
-RUN apt-get update && apt-get install -y gdb
 
 # ============ Install dependencies for NetworkTables ============
 
@@ -28,5 +25,3 @@ RUN apt-get update && apt-get install -y default-jre default-jdk
 # ============ Install Doxygen & Sphinx ============
 RUN apt-get update && apt-get install -y doxygen python3-sphinx python3-breathe
 RUN pip install sphinx_rtd_theme
-
-RUN apt-get update && apt-get install -y valgrind

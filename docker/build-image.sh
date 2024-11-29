@@ -34,5 +34,5 @@ elif [ "$BUILDX86" = "1" ]; then # build only for x86, push image to dockerhub
   docker buildx build $CACHE_FLAG --push --platform linux/amd64 --tag rogueraptor7/$IMAGE_NAME:$IMAGE_TAG .
 else # build for native architecture, don't push to dockerhub
   echo "building rogueraptor7/$IMAGE_NAME:$IMAGE_TAG"
-  docker build --memory-swap=10g -t rogueraptor7/$IMAGE_NAME:$IMAGE_TAG .
+  docker build -t rogueraptor7/$IMAGE_NAME:$IMAGE_TAG .
 fi

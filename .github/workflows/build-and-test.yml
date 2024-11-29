@@ -9,7 +9,7 @@ on:
 
 jobs:
   ci-x86-tests:
-    runs-on: X86
+    runs-on: X64
     timeout-minutes: 20
 
     steps:

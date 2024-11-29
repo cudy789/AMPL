@@ -8,8 +8,8 @@ on:
     branches: [ "main" ]
 
 jobs:
-  run-ci-x86-tests-job:
-    runs-on: ubuntu-latest
+  ci-x86-tests:
+    runs-on: X86
     timeout-minutes: 20
 
     steps:
@@ -19,9 +19,9 @@ jobs:
     - name: x86 tests
       shell: bash
       run: bash ci-tests.sh
-  run-ci-ARM64-tests-job:
+  ci-ARM64-tests:
     runs-on: ARM64
-    timeout-minutes: 120
+    timeout-minutes: 20
   
     steps:
       - name: Pull code
@@ -29,4 +29,4 @@ jobs:
   
       - name: ARM64 tests
         shell: bash
-        run: ARM=1 bash ci-tests.sh
+        run: bash ci-tests.sh

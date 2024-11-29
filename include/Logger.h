@@ -205,25 +205,23 @@ namespace AppLogger {
         }
 
         virtual bool flush(){
-            if (_flush_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(3000))) {
-                _flush = true;
-                _flush_sem.release();
-                _ostream_data_present_sem.release();
+            _flush_sem.acquire();
+            _flush = true;
+            _flush_sem.release();
+            _ostream_data_present_sem.release();
 
-                while (true){
-                    if (_flush_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(1000))){
-                        if (!_flush){
-                            _flush_sem.release();
-                            break;
-                        }
+            while (true){
+                if (_flush_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(1000))){
+                    if (!_flush){
                         _flush_sem.release();
+                        break;
                     }
-                    std::this_thread::yield();
+                    _flush_sem.release();
                 }
-                return true;
-            } else {
-                return false;
+                std::this_thread::yield();
             }
+            return true;
+
         }
         virtual std::stringstream messageFormatHelper(const std::tuple<std::string, SEVERITY>& data_tuple){
             std::stringstream ss;

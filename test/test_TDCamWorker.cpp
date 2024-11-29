@@ -40,7 +40,7 @@ TEST(TDCamWorker, OpenFromYaml){
 
     AMPLParams params = ConfigParser::ParseConfig("../test/test_config.yml");
     std::vector<CamParams>& c_params = params.cam_params;
-    std::map<int, Pose_single> tag_layout = TagLayoutParser::ParseConfig("../test/test_tag_layout.fmap");
+    std::map<int, Pose_single> tag_layout = TagLayoutParser::ParseConfig("../test/stereo14_6.fmap");
 
     AppLogger::Logger::Log("Parsed params from yaml");
 

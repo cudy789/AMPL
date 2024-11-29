@@ -9,6 +9,7 @@ if [ "$ARM" = "1" ] || [ "$( uname -m )" = "aarch64" ]; then
   ARCH="--platform=linux/arm64"
 else
   ARCH="--platform=linux/amd64"
+  IMAGE_TAG="X64"
 fi
 
 # Start this docker container from the specified image, adding a unique hostname and proper networking
@@ -20,11 +21,9 @@ docker run --rm -h $IMAGE_NAME-$HOSTNAME --name ampl --group-add sudo --group-ad
   --user=$(id -u $USER):$(id -g $USER) \
   --volume="/etc/passwd:/etc/passwd:ro" \
   --volume="/etc/shadow:/etc/shadow:ro" \
-  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
-  --volume="/var/run/docker.sock:/var/run/docker.sock" \
-  --env="DISPLAY" \
   --volume="$HOME:$HOME" \
   --workdir="$(pwd)" \
   --privileged \
+  --pids-limit=-1 \
   $ARCH \
   rogueraptor7/$IMAGE_NAME:$IMAGE_TAG /bin/bash -c "$@"

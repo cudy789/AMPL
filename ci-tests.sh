@@ -17,6 +17,7 @@ if [ "$ARM" = "1" ] || [ "$( uname -m )" = "aarch64" ]; then
   fi
 else
   ARCH="--platform=linux/amd64"
+  IMAGE_TAG="X64"
 fi
 
 # Start this docker container from the specified image, adding a unique hostname and proper networking

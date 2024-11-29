@@ -256,7 +256,7 @@ namespace AppLogger {
                     _stop_sem.release();
                 }
                 // Check to see if we should flush all data to the fileout
-                if (_flush_sem.try_acquire()){
+                if (_flush_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(1000))){
                     flush = _flush;
                     _flush_sem.release();
                 }
@@ -309,11 +309,10 @@ namespace AppLogger {
                 }
 
                 if (_filestream_queue.empty()){
-                    if (_flush_sem.try_acquire()){
-                        _flush = false;
-                        _flush_sem.release();
-                        flush = false;
-                    }
+                    _flush_sem.acquire();
+                    _flush = false;
+                    _flush_sem.release();
+                    flush = false;
                 }
             }
         }

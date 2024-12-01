@@ -52,6 +52,10 @@ void AMPL::Start(){
     AppLogger::Logger::Log("All workers have been started");
 }
 
+void AMPL::Calibrate() {
+
+}
+
 RobotPose AMPL::GetRobotPose() {
     return _l_w->GetRobotPose();
 }

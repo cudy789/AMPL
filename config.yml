@@ -22,7 +22,7 @@ Cameras:
   # front left
   CAM_LEFT:
     camera_id: 4
-#    camera_playback_file: CAM_LEFT_2024-11-21_21:54:10.384.avi
+#    camera_playback_file: CAM_LEFT.mp4
 
     rx: 544
     ry: 288
@@ -41,7 +41,7 @@ Cameras:
 
   CAM_RIGHT:
     camera_id: 2
-#    camera_playback_file: CAM_RIGHT_2024-11-21_21:54:10.387.avi
+#    camera_playback_file: CAM_RIGHT.mp4
     rx: 544
     ry: 288
     fx: 600
@@ -56,7 +56,7 @@ Cameras:
   # backwards facing cam
   CAM_REAR:
     camera_id: 0
-#    camera_playback_file: CAM_REAR_2024-11-21_21:54:10.387.avi
+#    camera_playback_file: CAM_REAR.mp4
     rx: 544
     ry: 288
     fx: 600

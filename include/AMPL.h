@@ -54,6 +54,13 @@ public:
     void Start();
 
     /**
+     * @brief Calibrate all cameras by finding the distortion coefficients using a 7x7 checkerboard image. Distortion
+     * coefficients are not directly applied to the cameras, the user must copy the parameters from stdout or the logfile.
+     * Block until calibration is complete.
+     */
+    void Calibrate();
+
+    /**
      * @brief Get the latest RobotPose estimate. The estimate depends on which localization strategy is used.
      * @return A RobotPose object with the global pose position estimate.
      */

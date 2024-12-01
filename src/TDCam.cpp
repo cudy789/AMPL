@@ -4,9 +4,13 @@
 TDCam::TDCam(CamParams& c_params, const std::map<int, Pose_single>& tag_layout, bool enable_video_writer):
         _c_params(c_params), _tag_layout(tag_layout), _enable_video_writer(enable_video_writer){
     if (_enable_video_writer){
-        _writer = cv::VideoWriter(_c_params.name + "_" + datetime_ms() + ".avi", cv::VideoWriter::fourcc('M', 'J', 'P', 'G'),
-                                  _c_params.fps, cv::Size(_c_params.rx, _c_params.ry));
-        AppLogger::Logger::Log("Enabling video recording on camera " + _c_params.name);
+        _writer = new cv::VideoWriter(_c_params.name + "_" + datetime_ms() + ".mp4", cv::VideoWriter::fourcc('m', 'p', '4', 'v'),
+                                  30.0, cv::Size(_c_params.rx, _c_params.ry));
+        if (!_writer->isOpened()){
+            AppLogger::Logger::Log("Error starting video recording on camera " + _c_params.name, AppLogger::SEVERITY::ERROR);
+        } else {
+            AppLogger::Logger::Log("Enabling video recording on camera " + _c_params.name);
+        }
     }
 
 }
@@ -17,7 +21,7 @@ void TDCam::InitCap() {
     ulong start_ns = CurrentTime();
 
     // Initialize camera
-    _cap = cv::VideoCapture (_c_params.camera_id, cv::CAP_V4L);
+    _cap = cv::VideoCapture(_c_params.camera_id, cv::CAP_V4L);
     if (!_cap.isOpened()) {
         AppLogger::Logger::Log("Error enabling video capture on camera " +
                                _c_params.name, AppLogger::SEVERITY::ERROR);
@@ -48,7 +52,7 @@ void TDCam::InitRecordedCap() {
     ulong start_ns = CurrentTime();
 
     // Initialize camera
-    _cap = cv::VideoCapture (_c_params.camera_playback_file);
+    _cap = cv::VideoCapture (_c_params.camera_playback_file, cv::CAP_FFMPEG);
     if (!_cap.isOpened()) {
         AppLogger::Logger::Log("Error opening video file " +
                                _c_params.camera_playback_file, AppLogger::SEVERITY::ERROR);
@@ -57,10 +61,8 @@ void TDCam::InitRecordedCap() {
     _cap.set(cv::CAP_PROP_FPS, _c_params.fps); // Frame rate
     _cap.set(cv::CAP_PROP_FRAME_WIDTH, _c_params.rx); // Width
     _cap.set(cv::CAP_PROP_FRAME_HEIGHT, _c_params.ry); // Height
-//    _cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));
 
     sleep(2);
-
 
     ulong end_ns = CurrentTime();
     AppLogger::Logger::Log("Video playback detector " + _c_params.name +
@@ -100,34 +102,41 @@ void TDCam::CloseCap(){
 }
 
 TDCam::~TDCam() {
-    delete _tag_detector;
-    delete _tf;
+    apriltag_detector_destroy(_tag_detector);
+    tag36h11_destroy(_tf);
 
     if (_enable_video_writer) {
-        _writer.release();
+        _writer->release();
+        delete _writer;
     }
 }
 
 cv::Mat TDCam::GetImage() {
     cv::Mat img;
-    if (!_c_params.camera_playback_file.empty()){
-        if (!_cap.read(img)){
-            return {};
-        } else{
-            return img;
-        }
+    if (!_cap.read(img)){
+        AppLogger::Logger::Log("End of " + _c_params.camera_playback_file + " video file");
+        return {};
     }
-    _cap >> img;
+
+    if (errno == EAGAIN) {
+        do {
+            AppLogger::Logger::Log("Error getting frame from " + _c_params.camera_playback_file + " cap, trying again", AppLogger::SEVERITY::DEBUG);
+            errno=0;
+            if (!_cap.read(img)){
+                AppLogger::Logger::Log("End of " + _c_params.camera_playback_file + " video file");
+                return {};
+            }
+        } while (errno == EAGAIN);
+    }
     return img;
 }
 
 void TDCam::SaveImage(const cv::Mat &img) {
-    _writer.write(img);
+    _writer->write(img);
 }
 
 TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
     TagArray detected_tags;
-
     // Convert img to grayscale
     cv::Mat gray;
     cvtColor(img, gray, cv::COLOR_BGR2GRAY);
@@ -141,7 +150,7 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
         AppLogger::Logger::Log("Unable to create the " + std::to_string(_tag_detector->nthreads) +
             " threads requested", AppLogger::SEVERITY::ERROR);
         AppLogger::Logger::Log("Number of threads in workerpool:" + to_string(workerpool_get_nthreads(_tag_detector->wp)));
-//        exit(-1);
+        errno=0;
         return detected_tags;
     }
 

@@ -46,36 +46,35 @@ void TDCamWorker::Execute() {
         try {
             // Save image to video file
             if (_enable_video_writer){
-                if (!_last_img.empty()){
-                    // We "dropped" a frame, so add more frames to keep up with specified framerate
-                    _leftover_save_time += CurrentTime() - _last_save_time;
-                    if (_leftover_save_time < (1.0e9/_c_params.fps)) _leftover_save_time = 0;
-                    else _leftover_save_time -= 1.0e9/_c_params.fps;
+                if (_start_time == 0) _start_time = CurrentTime();
+                SaveImage(img);
 
-                    int extra_frames = (int)std::round((double)_leftover_save_time / (1.0e9/_c_params.fps));
+                auto period_time = [this]() -> long {return (CurrentTime() - _start_time) % (ulong)1.0e9;};
+                _period_frames_saved++;
 
-                    if (extra_frames > 0) {
-                        _leftover_save_time = 0;
-                    }
+                // Check if we need to save another frame this period, the camera might be running at a lower FPS than
+                // what is specified. We must maintain a constant framerate when writing to a video file.
+                if (_period_frames_saved * _ns_per_frame < period_time()){
+
+                    int extra_frames = std::ceil((period_time() - (_period_frames_saved * _ns_per_frame)) / _ns_per_frame);
+                    AppLogger::Logger::Log(_c_params.name + " needs " + to_string(extra_frames) + " extra frames", AppLogger::SEVERITY::DEBUG);
                     for (int i=0; i<extra_frames; i++){
-                        SaveImage(_last_img);
+                        SaveImage(img);
+                        _period_frames_saved++;
                     }
                 }
-                SaveImage(img);
-                _last_save_time = CurrentTime();
+                if (_period_frames_saved > _c_params.fps) _period_frames_saved=0;
             }
-            _last_img = img.clone();
 
-
-
+            // Find tags in image
             TagArray raw_tags = GetTagsFromImage(img);
 
+            // Draw tags onto image
             cv::Mat box_img = DrawTagBoxesOnImage(raw_tags, img);
 
+            // Put fps in top right corner
             std::stringstream ss;
             ss << std::fixed << std::setprecision(1) << GetExecutionFreq();
-
-            // Put fps in top right corner
             cv::putText(box_img, ss.str(), cv::Point(box_img.size().width - 50, 0 + 20),
                         cv::FONT_HERSHEY_DUPLEX, 0.65, cv::Scalar(0, 255, 0), 2);
 
@@ -101,12 +100,15 @@ void TDCamWorker::Execute() {
         }
     } else {
         if (!_c_params.camera_playback_file.empty()){
-            AppLogger::Logger::Log("Reached the end of the video file " + _c_params.camera_playback_file + ", stopping thread.");
-            Stop();
+            if (errno != EAGAIN){
+                AppLogger::Logger::Log("Reached the end of the video file " + _c_params.camera_playback_file + ", stopping thread.");
+                Stop();
+            }
+        } else{
+            AppLogger::Logger::Log("Error getting img from camera " + _c_params.name, AppLogger::SEVERITY::WARNING);
+            Stop(false);
+            sleep(5);
         }
-        AppLogger::Logger::Log("Error getting img from camera " + _c_params.name, AppLogger::SEVERITY::WARNING);
-        Stop(false);
-        sleep(5);
     }
 
 }

@@ -60,11 +60,26 @@ struct CamParams{
      * @brief Apriltag detector parameters
      */
     struct {
-        float quad_decimate = 2.0; // Decimate input image by this factor
+        /**
+         * @brief Decimate input image by this factor.
+         */
+        float quad_decimate = 3.0;
+        /**
+         * @brief Apply low-pass blur with this sigma value.
+         */
         float quad_sigma = 0.0; // Apply low-pass blur to input
+        /**
+         * Use this many CPU threads for Apriltag detection
+         */
         int nthreads = 1; // Use this many CPU threads for AT detection
-        bool debug = false; // Enable debugging output (slow)
-        bool refine_edges = true; // Spend more time trying to align edges of tags
+        /**
+         * Enable Apriltag library debugging output (slow)
+         */
+        bool debug = false;
+        /**
+         * Spend more time trying to align edges of tags.
+         */
+        bool refine_edges = true;
     } tag_detector;
 
     friend std::ostream& operator <<(std::ostream& os, const CamParams& c_params) {

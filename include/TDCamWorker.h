@@ -60,8 +60,8 @@ protected:
     cv::Mat _annotated_im;
 
     cv::Mat _last_img;
-    ulong _last_save_time;
-    ulong _leftover_save_time = 0;
-
+    int _period_frames_saved = 0;
+    double _ns_per_frame = 1.0e9/_c_params.fps;
+    ulong _start_time = 0;
 
 };

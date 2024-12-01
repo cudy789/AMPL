@@ -3,4 +3,10 @@
 IMAGE_NAME="apriltag-multicam"
 IMAGE_TAG="latest"
 
+if [ "$X64" = "1" ] || [ "$( uname -m )" != "aarch64" ]; then
+  IMAGE_TAG="X64"
+fi
+
+echo "docker pull rogueraptor7/$IMAGE_NAME:$IMAGE_TAG"
+
 docker pull rogueraptor7/$IMAGE_NAME:$IMAGE_TAG

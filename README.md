@@ -21,6 +21,9 @@ setups and aims to minimize the technical barrier of entry for multicamera pose 
 
 View the latest documentation and instructions here.
 
+## Lens distortion correction
+https://docs.opencv.org/4.x/dc/dbb/tutorial_py_calibration.html
+
 # .fmap files
 
 The origin is always at the center of the field with the X axis pointing towards the blue alliance, y pointing down, 

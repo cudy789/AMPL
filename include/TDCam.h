@@ -95,7 +95,7 @@ protected:
     cv::VideoCapture _cap;
 
     bool _enable_video_writer;
-    cv::VideoWriter _writer;
+    cv::VideoWriter* _writer;
 
     apriltag_detector_t* _tag_detector;
     apriltag_family_t* _tf;

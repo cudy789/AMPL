@@ -13,31 +13,31 @@
 # rotation: [0, 20, 180] # roll, pitch, yaw
 
 Team number: -1
-Fmap file: ../stereo14_6.fmap
+Fmap file: ../at14zeroed.fmap
 
 #Video recording: true
 Pose logging: true
 
 Cameras:
   # front left
-  CAM_LEFT:
-    camera_id: 4
-#    camera_playback_file: CAM_LEFT.mp4
-
-    rx: 544
-    ry: 288
-
-    fx: 600
-    fy: 600
-    # x,y,z
-    translation: [-0.10, 0, 0]
-#    translation: [0, 0, 0]
-    # roll, pitch, yaw
-    rotation: [0, 0, 0]
-#    res_x: 640
-#    res_y: 360
-    fps: 30.0
-    exposure: 1
+#  CAM_LEFT:
+#    camera_id: 4
+##    camera_playback_file: CAM_LEFT.mp4
+#
+#    rx: 544
+#    ry: 288
+#
+#    fx: 600
+#    fy: 600
+#    # x,y,z
+#    translation: [-0.10, 0, 0]
+##    translation: [0, 0, 0]
+#    # roll, pitch, yaw
+#    rotation: [0, 0, 0]
+##    res_x: 640
+##    res_y: 360
+#    fps: 30.0
+#    exposure: 1
 
   CAM_RIGHT:
     camera_id: 2
@@ -49,7 +49,7 @@ Cameras:
     # x,y,z
     translation: [0.10, 0, 0]
     # roll, pitch, yaw
-    rotation: [0, 0, 0]
+    rotation: [0, 15, 0]
     fps: 30.0
     exposure: 1
 

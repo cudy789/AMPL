@@ -19,6 +19,7 @@ void AMPL::Setup(const std::string& config_file) {
 
     // Create webserver worker
     WebServerWorker* w_w = new WebServerWorker(8080);
+    w_w->RegisterRobotPoseFunc([this]() -> RobotPose {return _l_w->GetRobotPose();});
     _workers_t.emplace_back(w_w);
 
     // Create NetworkTables worker

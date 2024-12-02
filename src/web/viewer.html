@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>AMPL Pose Vis</title>
+    <style>
+        body {
+         margin: 0;
+         overflow: hidden;
+        }
+        #info {
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #00FF00;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            z-index: 100;
+        }
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        }
+      }
+    </script>
+</head>
+<body>
+<div id="info">x: 0, y: 0, z: 0, roll: 0, pitch: 0, yaw: 0</div>
+<script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // const geometry = new THREE.BoxGeometry(0.25, 0.25, 0.25);
+    const cube = new THREE.AxesHelper( 1 );
+    // const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    // const cube = new THREE.Mesh(geometry.geometry, material);
+    scene.add(cube);
+
+    const gridHelper = new THREE.GridHelper(20, 20);
+    scene.add(gridHelper);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    camera.position.z = 2;
+    camera.position.y = 2;
+    camera.position.x = 2;
+    camera.rotation.set(Math.PI/2.0, Math.PI/2.0, Math.PI/2.0);
+
+
+    controls.update();
+
+    // Webpage coord display
+    const infoDiv = document.getElementById('info');
+
+    // WebSocket connection
+    const socket = new WebSocket('ws://10.0.0.97:8082');
+
+    socket.onopen = () => {
+        console.log('WebSocket connection established');
+    };
+
+    socket.onmessage = (event) => {
+        try {
+            const data = JSON.parse(event.data);
+            if ('x' in data && 'y' in data && 'z' in data &&
+                'roll' in data && 'pitch' in data && 'yaw' in data) {
+
+                // Update cube's position
+                cube.position.set(data.x, data.y, data.z);
+
+                // Update cube's rotation (roll, pitch, yaw in radians)
+                cube.rotation.set(data.pitch/180 * Math.PI, data.yaw/180 * Math.PI, data.roll/180 * Math.PI);
+
+                infoDiv.textContent = `x: ${data.x.toFixed(2)}, y: ${data.y.toFixed(2)}, z: ${data.z.toFixed(2)}, ` +
+                    `roll: ${(data.roll/180*Math.PI).toFixed(2)}, pitch: ${(data.pitch/180*Math.PI).toFixed(2)}, yaw: ${(data.yaw/180*Math.PI).toFixed(2)}`;
+            }
+        } catch (error) {
+            console.error('Error parsing WebSocket message:', error);
+        }
+    };
+
+    socket.onerror = (error) => {
+        console.error('WebSocket error:', error);
+    };
+
+    socket.onclose = () => {
+        console.log('WebSocket connection closed');
+    };
+
+    function animate() {
+        controls.update();
+        renderer.render(scene, camera);
+    }
+
+    renderer.setAnimationLoop(animate);
+</script>
+</body>
+</html>

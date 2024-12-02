@@ -10,6 +10,7 @@
 #include "mongoose.h"
 
 #include "Worker.h"
+#include "Pose.h"
 
 /**
  * @brief The threaded webserver which serves a simple MJPEG stream of all annotated camera images to clients. Runs on t
@@ -38,6 +39,14 @@ public:
      */
     bool RegisterMatFunc(const std::function<cv::Mat()>& mat_func);
 
+    /**
+     * @brief Register the callback function which grabs the latest robot pose. This function will
+     * be called once an Execute cycle to acquire new pose data.
+     * @param mat_func The callback function to execute to acquire the latest robot pose.
+     * @return true if registration succeeds, false otherwise.
+     */
+    bool RegisterRobotPoseFunc(const std::function<RobotPose()>& pose_func);
+
 protected:
     /**
      * @brief Start the webserver and setup the callback function to handle http requests. If the webserver fails to start,
@@ -56,7 +65,10 @@ private:
     unsigned short _port = 8080;
     mg_mgr _mgr;
     mg_connection* _connection;
+    mg_connection* _viewer_connection;
+    mg_connection* _ws_connection;
 
     std::vector<std::function<cv::Mat()>> _mat_funcs;
+    std::function<RobotPose()> _robot_pose_func;
 
 };

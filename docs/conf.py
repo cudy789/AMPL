@@ -6,6 +6,10 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import subprocess
+subprocess.call('doxygen', shell=True)
+html_extra_path = ['build/html']
+
 project = 'AMPL'
 copyright = '2024, Corey Knutson'
 author = 'Corey Knutson'

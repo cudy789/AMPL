@@ -18,10 +18,20 @@ RUN make -j4
 RUN make install
 
 # ============ Install dependencies for NetworkTables ============
-
 # Java JRE/JDK
 RUN apt-get update && apt-get install -y default-jre default-jdk
 
 # ============ Install Doxygen & Sphinx ============
 RUN apt-get update && apt-get install -y doxygen python3-sphinx python3-breathe
 RUN pip install sphinx_rtd_theme
+
+# ============ Build and run AMPL ============
+RUN mkdir /app
+WORKDIR /app
+RUN git clone https://github.com/cudy789/AMPL.git
+WORKDIR AMPL
+RUN mkdir -p build
+WORKDIR build
+RUN cmake .. make -j4
+
+CMD ["./ampl"]

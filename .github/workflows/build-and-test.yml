@@ -22,7 +22,7 @@ jobs:
 
     - name: x86 tests
       shell: bash
-      run: bash ci-tests.sh
+      run: bash scripts/ci-tests.sh
   ci-ARM64-tests:
     runs-on: ARM64
     timeout-minutes: 20
@@ -33,4 +33,4 @@ jobs:
   
       - name: ARM64 tests
         shell: bash
-        run: bash ci-tests.sh
+        run: bash scripts/ci-tests.sh

@@ -6,7 +6,7 @@ docker container prune -f
 docker image prune -f
 
 
-IMAGE_NAME="apriltag-multicam"
+IMAGE_NAME="ampl"
 IMAGE_TAG="latest"
 PLATFORM="linux/arm64"
 

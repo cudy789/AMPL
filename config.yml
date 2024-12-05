@@ -13,7 +13,7 @@
 # rotation: [0, 20, 180] # roll, pitch, yaw
 
 Team number: -1
-Fmap file: ../at14_16_1m.fmap
+Fmap file: ../fmap/at14_16_1m.fmap
 
 #Video recording: true
 Pose logging: true
@@ -86,12 +86,6 @@ Cameras:
     cx: 279.683
     cy: 136.174
     dist_coeffs: [ 0.0814261, -0.0272061, -0.00493096, 0.00292767, 0.799907 ]
-
-
-
-
-
-
 
     # x,y,z
     translation: [0.10, 0, 0]

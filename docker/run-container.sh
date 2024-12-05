@@ -2,7 +2,7 @@
 
 # Corey Knutson, 12/2/2021
 
-IMAGE_NAME="apriltag-multicam"
+IMAGE_NAME="ampl"
 IMAGE_TAG="latest"
 
 # Start this docker container from the specified image, adding a unique hostname and proper networking

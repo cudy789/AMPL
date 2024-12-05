@@ -1,0 +1,10 @@
+name: ampl
+
+services:
+  ampl-service:
+    image: rogueraptor7/ampl:latest
+    volume:
+      - config.yml:/app/AMPL/config.yml
+      - ampl_log.txt:/app/AMPL/build/ampl_log.txt
+    restart: always
+    privileged: true

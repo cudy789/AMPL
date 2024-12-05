@@ -20,7 +20,7 @@ else
   BUILDX=1
 fi
 
-IMAGE_NAME="apriltag-multicam"
+IMAGE_NAME="ampl"
 IMAGE_TAG="latest"
 
 if [ "$BUILDX" = "1" ]; then # build for both arm and x86 architectures, push image to dockerhub

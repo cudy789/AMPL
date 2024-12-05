@@ -7,7 +7,7 @@ if [ -n "$1" ]; then
     GTESTFILTER="--gtest_filter=$1"
 fi
 
-IMAGE_NAME="apriltag-multicam"
+IMAGE_NAME="ampl"
 IMAGE_TAG="latest"
 
 if [ "$ARM" = "1" ] || [ "$( uname -m )" = "aarch64" ]; then

@@ -48,7 +48,10 @@ include_directories(lib/Eigen)
 add_library(mongoose STATIC lib/mongoose/mongoose.c)
 target_include_directories(mongoose PUBLIC lib/mongoose)
 
-configure_file(src/web/viewer.html ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(src/web/index.html ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(src/web/js/three.module.js ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(src/web/js/three.core.js ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+configure_file(src/web/js/OrbitControls.js ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 
 # Add the apriltag library, do not build examples or python wrapper
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)

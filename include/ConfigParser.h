@@ -29,18 +29,35 @@ struct CamParams{
      * @brief Camera resolution y.
      */
     int ry;
-
     // Focal length (in pixels), x and y
     // focalLengthPxX = focalLengthPxY = px/mm * focalLengthMm
     /**
+     * @brief Enable calibration mode on this camera. Use a 9x6 chessboard calibration target to calculate the camera intrinsic matrix
+     * (fx, fy, cx, cy) and the distortion coefficients. If values for fx, fy, cx, and cy are provided in the configuration
+     * file, use these as the initial guess for the camera intrinsic matrix during the calculation. Camera closes after calibration is complete.
+     */
+    bool calibrate;
+    /**
      * @brief Focal length (in pixels) x. fx = pixels/mm & focalLengthMm
      */
-    int fx;
+    double fx;
     /**
      * @brief Focal length (in pixels) y. fy = pixels/mm & focalLengthMm
      */
-    int fy;
+    double fy;
 
+    /**
+     * @brief The center of the image in the x axis (in pixels).
+     */
+    double cx;
+    /**
+    * @brief The center of the image in the y axis (in pixels).
+    */
+    double cy;
+    /**
+     * @brief The distortion coefficients k1, k2, p1, p2, k3
+     */
+    std::vector<double> dist_coeffs;
     /**
      * @brief Desired FPS
      */
@@ -63,7 +80,7 @@ struct CamParams{
         /**
          * @brief Decimate input image by this factor.
          */
-        float quad_decimate = 1.0;
+        float quad_decimate = 3.0;
         /**
          * @brief Apply low-pass blur with this sigma value.
          */
@@ -146,7 +163,7 @@ public:
      * @param cfg_file The path to your config.yaml file.
      * @return A struct of configuration parameters populated by the specified .yaml file.
      */
-    static AMPLParams ParseConfig(std::string cfg_file){
+    static AMPLParams ParseConfig(const std::string& cfg_file){
         AMPLParams params;
         std::vector<CamParams>& cam_p = params.cam_params;
 
@@ -155,22 +172,26 @@ public:
             if (parser["Cameras"]) {
                 YAML::Node cameras_yml = parser["Cameras"];
                 for (YAML::const_iterator it = cameras_yml.begin(); it != cameras_yml.end(); ++it) {
-
+                    double c_cx, c_cy, c_fx, c_fy = 0;
+                    std::vector<double> c_dist_coeffs;
+                    std::string camera_playback_file;
+                    bool c_calibrate = false;
 
                     std::string c_name = it->first.as<std::string>();
                     int c_id = it->second["camera_id"].as<int>();
+
                     int c_rx = it->second["rx"].as<int>();
                     int c_ry = it->second["ry"].as<int>();
-                    int c_fx = it->second["fx"].as<int>();
-                    int c_fy = it->second["fy"].as<int>();
+                    if (it->second["calibrate"]) c_calibrate = it->second["calibrate"].as<bool>();
+                    if (it->second["cx"]) c_cx = it->second["cx"].as<double>();
+                    if (it->second["cy"]) c_cy = it->second["cy"].as<double>();
+                    if (it->second["fx"]) c_fx = it->second["fx"].as<double>();
+                    if (it->second["fy"]) c_fy = it->second["fy"].as<double>();
+                    if (it->second["dist_coeffs"]) c_dist_coeffs = it->second["dist_coeffs"].as<std::vector<double>>();
+
                     float c_fps = it->second["fps"].as<float>();
                     int c_exposure = it->second["exposure"].as<int>();
-
-
-                    std::string camera_playback_file;
-                    if (it->second["camera_playback_file"]){
-                        camera_playback_file = it->second["camera_playback_file"].as<std::string>();
-                    }
+                    if (it->second["camera_playback_file"]) camera_playback_file = it->second["camera_playback_file"].as<std::string>();
 
                     Eigen::Vector3d T_total = Eigen::Vector3d(it->second["translation"].as<std::vector<double>>().data());
                     Eigen::Vector3d c_rotation = Eigen::Vector3d(it->second["rotation"].as<std::vector<double>>().data());
@@ -178,8 +199,9 @@ public:
                     Eigen::Matrix3d R_total = CreateRotationMatrix((Eigen::Vector3d)c_rotation);
 
                     cam_p.emplace_back(CamParams{.name=c_name, .camera_id=c_id, .camera_playback_file=camera_playback_file,
-                                                 .rx=c_rx, .ry=c_ry,
-                                                 .fx=c_fx, .fy=c_fy, .fps=c_fps, .exposure=c_exposure,
+                                                 .rx=c_rx, .ry=c_ry, .calibrate=c_calibrate,
+                                                 .fx=c_fx, .fy=c_fy, .cx=c_cx, .cy=c_cy, .dist_coeffs=c_dist_coeffs,
+                                                 .fps=c_fps, .exposure=c_exposure,
                                                  .R_camera_robot=R_total, .T_camera_robot=T_total});
 
                     AppLogger::Logger::Log("created rotation matrix " + to_string(R_total));
@@ -216,6 +238,10 @@ public:
             throw(e);
         }
         return params;
+    }
+
+    static void WriteConfig(const AMPLParams& params, const std::string& cfg_file){
+
     }
 
 

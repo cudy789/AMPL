@@ -1,4 +1,5 @@
 #include "AMPL.h"
+#include "CalibrationCamWorker.h"
 
 void AMPL::Setup(const std::string& config_file) {
     AppLogger::Logger::SetVerbosity(AppLogger::INFO);
@@ -33,10 +34,16 @@ void AMPL::Setup(const std::string& config_file) {
 
     // Create camera workers
     for (CamParams& p: c_params){
-        TDCamWorker* this_cam_worker = new TDCamWorker(p, tag_layout, [this](TagArray& raw_tags) -> bool {return _l_w->QueueTags(raw_tags);},
-                                                       params.video_recording);
-        _workers_t.emplace_back(this_cam_worker);
-        w_w->RegisterMatFunc([this_cam_worker]() -> cv::Mat {return this_cam_worker->GetAnnotatedIm();});
+        if (p.calibrate){
+            CalibrationCamWorker* this_cam_worker = new CalibrationCamWorker(p);
+            w_w->RegisterMatFunc([this_cam_worker]() -> cv::Mat {return this_cam_worker->GetAnnotatedIm();});
+            _workers_t.emplace_back(this_cam_worker);
+        } else{
+            TDCamWorker* this_cam_worker = new TDCamWorker(p, tag_layout, [this](TagArray& raw_tags) -> bool {return _l_w->QueueTags(raw_tags);},
+                                                           params.video_recording);
+            w_w->RegisterMatFunc([this_cam_worker]() -> cv::Mat {return this_cam_worker->GetAnnotatedIm();});
+            _workers_t.emplace_back(this_cam_worker);
+        }
     }
 }
 

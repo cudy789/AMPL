@@ -90,7 +90,7 @@ void WebServerWorker::Execute() {
             if (new_frame.rows != merged_frame.rows){// TODO allow multiple camera image sizes
                 continue;
             }
-            cv::hconcat(merged_frame, new_frame, merged_frame);
+            cv::vconcat(merged_frame, new_frame, merged_frame);
         }
         if (!merged_frame.empty()) {
             std::vector<uchar> buf;

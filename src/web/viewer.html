@@ -30,8 +30,37 @@
     </script>
 </head>
 <body>
-<div id="info">x: 0, y: 0, z: 0, roll: 0, pitch: 0, yaw: 0</div>
+<div id="info">No connection...</div>
+<img id="mjpeg-stream" alt="MJPEG Stream" style="position: absolute; top: 5%; left: 0; z-index: 200; border: 2px solid white;">
 <script type="module">
+    const mjpegStream = document.getElementById('mjpeg-stream');
+    const streamUrl = 'http://10.0.0.99:8080'; // Replace with your MJPEG stream URL
+    let reconnectInterval = 200; // Reconnection attempt interval in milliseconds
+
+    // function connectMjpegStream() {
+        mjpegStream.src = streamUrl;
+
+        mjpegStream.onload = () => {
+            console.log('MJPEG stream connected');
+            const naturalWidth = mjpegStream.naturalWidth;
+            const naturalHeight = mjpegStream.naturalHeight;
+
+            // Set the size of the image element dynamically
+            mjpegStream.style.width = `${naturalWidth}px`;
+            mjpegStream.style.height = `${naturalHeight}px`;
+            console.log(`MJPEG Stream Resolution: ${naturalWidth}x${naturalHeight}`);
+        };
+
+        mjpegStream.onerror = () => {
+            console.warn('MJPEG stream disconnected. Attempting to reconnect...');
+            // setTimeout(connectMjpegStream, reconnectInterval); // Retry after interval
+        };
+    // }
+
+    // Initialize MJPEG stream connection
+    // connectMjpegStream();
+
+
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
@@ -63,40 +92,57 @@
     // Webpage coord display
     const infoDiv = document.getElementById('info');
 
-    // WebSocket connection
-    const socket = new WebSocket('ws://10.0.0.97:8082');
+    // let socket; // Declare socket outside to reuse
 
-    socket.onopen = () => {
-        console.log('WebSocket connection established');
-    };
+    // function connectWebSocket() {
 
-    socket.onmessage = (event) => {
-        try {
-            const data = JSON.parse(event.data);
-            if ('x' in data && 'y' in data && 'z' in data &&
-                'roll' in data && 'pitch' in data && 'yaw' in data) {
+        // WebSocket connection
+        const socket = new WebSocket('ws://10.0.0.99:8082');
 
-                // Update cube's position
-                cube.position.set(data.x, data.y, data.z);
+        socket.onopen = () => {
+            console.log('WebSocket connection established');
+            infoDiv.textContent = 'Connected'
 
-                // Update cube's rotation (roll, pitch, yaw in radians)
-                cube.rotation.set(data.pitch/180 * Math.PI, data.yaw/180 * Math.PI, data.roll/180 * Math.PI);
+        };
 
-                infoDiv.textContent = `x: ${data.x.toFixed(2)}, y: ${data.y.toFixed(2)}, z: ${data.z.toFixed(2)}, ` +
-                    `roll: ${(data.roll/180*Math.PI).toFixed(2)}, pitch: ${(data.pitch/180*Math.PI).toFixed(2)}, yaw: ${(data.yaw/180*Math.PI).toFixed(2)}`;
+        socket.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if ('x' in data && 'y' in data && 'z' in data &&
+                    'roll' in data && 'pitch' in data && 'yaw' in data) {
+
+                    // Update cube's position
+                    cube.position.set(data.x, data.z, data.y);
+
+                    // Update cube's rotation (roll, pitch, yaw in radians)
+                    cube.rotation.set(data.pitch / 180 * Math.PI, data.yaw / 180 * Math.PI, data.roll / 180 * Math.PI);
+
+                    infoDiv.textContent = `x: ${data.x.toFixed(2)}, y: ${data.y.toFixed(2)}, z: ${data.z.toFixed(2)} \n` +
+                        `roll: ${(data.roll / 180 * Math.PI).toFixed(2)}, pitch: ${(data.pitch / 180 * Math.PI).toFixed(2)}, yaw: ${(data.yaw / 180 * Math.PI).toFixed(2)}`;
+                }
+            } catch (error) {
+                console.error('Error parsing WebSocket message:', error);
             }
-        } catch (error) {
-            console.error('Error parsing WebSocket message:', error);
-        }
-    };
+        };
 
-    socket.onerror = (error) => {
-        console.error('WebSocket error:', error);
-    };
+        socket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
 
-    socket.onclose = () => {
-        console.log('WebSocket connection closed');
-    };
+        socket.onclose = () => {
+            console.log('WebSocket connection closed');
+            infoDiv.textContent = 'Lost connection, attempting to reconnect...'
+            // setTimeout(connectWebSocket, reconnectInterval); // Attempt reconnection
+        };
+    // }
+    // Initial WebSocket connection
+    // connectWebSocket();
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix(); // Update the camera projection
+        renderer.setSize(window.innerWidth, window.innerHeight); // Update renderer size
+    });
 
     function animate() {
         controls.update();

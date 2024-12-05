@@ -13,6 +13,16 @@ TDCam::TDCam(CamParams& c_params, const std::map<int, Pose_single>& tag_layout, 
         }
     }
 
+    if (_c_params.dist_coeffs.size() == 5){
+        _dist_coeffs = cv::Mat(_c_params.dist_coeffs).reshape(1,1);
+    if (_c_params.fx !=0 && _c_params.fy !=0 && _c_params.cx !=0 && _c_params.cy !=0)
+        _camera_matrix = (cv::Mat_<double>(3,3) <<
+                _c_params.fx, 0.0,          _c_params.cx,
+                0.0,          _c_params.fy, _c_params.cy,
+                0.0,          0.0,          1.0
+        );
+    }
+
 }
 
 void TDCam::InitCap() {
@@ -128,11 +138,17 @@ cv::Mat TDCam::GetImage() {
             }
         } while (errno == EAGAIN);
     }
+
     return img;
 }
 
 void TDCam::SaveImage(const cv::Mat &img) {
     _writer->write(img);
+}
+
+void TDCam::Undistort(cv::Mat &img){
+    cv::Mat input = img.clone();
+    cv::undistort(input, img, _camera_matrix, _dist_coeffs);
 }
 
 TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
@@ -168,14 +184,14 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
 
         apriltag_detection_info_t info;
         info.det = det;
-        info.tagsize = 0.165; // in meters
+        info.tagsize = 0.1651; // in meters
         // Camera params from https://horus.readthedocs.io/en/release-0.2/source/scanner-components/camera.html
 
         info.fx = _c_params.fx;
         info.fy = _c_params.fy;
 
-        info.cx = _c_params.rx/2;
-        info.cy = _c_params.ry/2;
+        info.cx = _c_params.cx;
+        info.cy = _c_params.cy;
 
         // Calculate the tag's pose, return an error value as well
         double err1, err2;
@@ -201,20 +217,22 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
             // ==================== AT -> Camera ====================
 
             // Construct matrices for the rotation (R) and translation (T) of the tag from the tag frame to the camera frame.
-            // This is the rotation and position of the tag relative to the camera.
-            Eigen::Matrix3d T_transform {{1, 0, 0},
-                                         {0, 0, 1},
-                                         {0, -1, 0}}; // Transform the translation correctly
+//            Eigen::Matrix3d T_transform {{1, 0, 0},
+//                                         {0, 0, 1},
+//                                         {0, -1, 0}}; // Transform the translation correctly
+//
+//            Eigen::Vector3d T_tag_camera = T_transform * Array2EM<double, 3, 1>(pose->t->data);
+//            // The rotation matrix comes out PYR ordering, need to convert to RPY
+//            Eigen::Matrix3d R_tag_camera_unordered = Array2EM<double, 3, 3>(pose->R->data);
+//            Eigen::Vector3d v_unordered = RotationMatrixToRPY(R_tag_camera_unordered);
+//            Eigen::Matrix3d R_tag_camera = CreateRotationMatrix({v_unordered[2], v_unordered[0], -v_unordered[1]});
 
-            Eigen::Vector3d T_tag_camera = T_transform * Array2EM<double, 3, 1>(pose->t->data);
-
-            // The rotation matrix comes out PYR ordering, need to convert to RPY
-            Eigen::Matrix3d R_tag_camera_unordered = Array2EM<double, 3, 3>(pose->R->data);
-            Eigen::Vector3d v_unordered = RotationMatrixToRPY(R_tag_camera_unordered);
-            Eigen::Matrix3d R_tag_camera = CreateRotationMatrix({v_unordered[2], v_unordered[0], -v_unordered[1]});
+            Eigen::Vector3d T_tag_camera = Array2EM<double, 3, 1>(pose->t->data);
+            Eigen::Matrix3d R_tag_camera = Array2EM<double, 3, 3>(pose->R->data);
 
 
             // ==================== Camera -> Robot ====================
+            // The geometric center of the robot
 
             Eigen::Matrix3d R_camera_robot = _c_params.R_camera_robot * R_tag_camera;
 
@@ -236,15 +254,17 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
                 AppLogger::Logger::Log("Cannot find tag ID " + to_string(det->id) + " in .fmap file", AppLogger::SEVERITY::WARNING);
             }
 
-            Eigen::Vector3d T_robot_global = Pose_AG.T - CreateRotationMatrix({0, 0, 90}) * Pose_AG.R * R_camera_robot.transpose() * T_camera_robot;
             Eigen::Matrix3d R_robot_global = Pose_AG.R * R_camera_robot.transpose();
+            Eigen::Vector3d T_robot_global = Pose_AG.T - R_robot_global * T_camera_robot;
+
+
 
             // ==================== Now make the Pose_t object ====================
 
             Pose new_tag;
             new_tag.cam_id = _c_params.camera_id;
             new_tag.tag_id = det->id;
-            new_tag.err = err;
+            new_tag.err = err * 1e5;
             // Tag frame
             new_tag.tag.R = Eigen::Matrix3d::Constant(0);
             new_tag.tag.T = Eigen::Vector3d::Constant(0);

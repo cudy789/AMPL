@@ -31,6 +31,9 @@ TEST(TrajectoryLogger, SeparateInstances){
     SetupTrajectoryLogger(test_name);
     SetupLogger(test_name);
 
+    AppLogger::Logger::Flush();
+    AppLogger::TrajectoryLogger::Flush();
+
     ASSERT_NE(AppLogger::Logger::GetFilePath(), AppLogger::TrajectoryLogger::GetFilePath());
 
 }

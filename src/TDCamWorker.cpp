@@ -23,6 +23,9 @@ void TDCamWorker::Init() {
 
     } else{
         AppLogger::Logger::Log("Starting tag detector for cam " + std::to_string(_c_params.camera_id));
+        if (_camera_matrix.empty()){
+            AppLogger::Logger::Log("No distortion matrix was found, not undistorting images before processing", AppLogger::SEVERITY::WARNING);
+        }
     }
 }
 
@@ -64,6 +67,11 @@ void TDCamWorker::Execute() {
                     }
                 }
                 if (_period_frames_saved > _c_params.fps) _period_frames_saved=0;
+            }
+
+            // Undistort the image
+            if (!_camera_matrix.empty()){
+                Undistort(img);
             }
 
             // Find tags in image

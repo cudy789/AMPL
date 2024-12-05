@@ -3,6 +3,39 @@
 #include "Localization.h"
 #include "Logger.h"
 
+void MeanLocalizationStrategy::MaxRateChange(const Pose_single& a, Pose_single& b, double d_angular, double d_linear){
+//    Pose_single ret_pose = b;
+    if (a.T[0] - b.T[0] > d_linear) b.T[0] += d_linear; // increasing
+    else if (b.T[0] - a.T[0] > d_linear) b.T[0] -= d_linear; // decreasing
+    else b.T[0] = a.T[0];
+
+    if (a.T[1] - b.T[1] > d_linear) b.T[1] += d_linear; // increasing
+    else if (b.T[1] - a.T[1] > d_linear) b.T[1] -= d_linear; // decreasing
+    else b.T[1] = a.T[1];
+
+    if (a.T[2] - b.T[2] > d_linear) b.T[2] += d_linear; // increasing
+    else if (b.T[2] - a.T[2] > d_linear) b.T[2] -= d_linear; // decreasing
+    else b.T[2] = a.T[2];
+
+    Eigen::Vector3d a_rpy = RotationMatrixToRPY(a.R);
+    Eigen::Vector3d b_rpy = RotationMatrixToRPY(b.R);
+
+    if (a_rpy[0] - b_rpy[0] > d_angular) b_rpy[0] += d_angular; // increasing
+    else if (b_rpy[0] - a_rpy[0] > d_angular) b_rpy[0] -= d_angular; // decreasing
+    else b_rpy[0] = a_rpy[0];
+
+    if (a_rpy[1] - b_rpy[1] > d_angular) b_rpy[1] += d_angular; // increasing
+    else if (b_rpy[1] - a_rpy[1] > d_angular) b_rpy[1] -= d_angular; // decreasing
+    else b_rpy[1] = a_rpy[1];
+
+    if (a_rpy[2] - b_rpy[2] > d_angular) b_rpy[2] += d_angular; // increasing
+    else if (b_rpy[2] - a_rpy[2] > d_angular) b_rpy[2] -= d_angular; // decreasing
+    else b_rpy[2] = a_rpy[2];
+
+    b.R = CreateRotationMatrix(b_rpy);
+
+}
+
 bool MeanLocalizationStrategy::Compute(TagArray &fresh_poses, RobotPose &filtered_pose) {
     // Compute the mean of the global poses for each tag
     Pose_single avg_filtered_pose;
@@ -24,7 +57,10 @@ bool MeanLocalizationStrategy::Compute(TagArray &fresh_poses, RobotPose &filtere
 
         // find the min error pose for each camera
         for (Pose& p: v){
-            if (p.err < cam_pose_err[p.cam_id]->err){
+            // smallest error and smallest roll value
+            Eigen::Vector3d p_rpy = RotationMatrixToRPY(p.global.R);
+            Eigen::Vector3d cam_pose_err_rpy = RotationMatrixToRPY(cam_pose_err[p.cam_id]->global.R);
+            if (p.err < cam_pose_err[p.cam_id]->err && std::fabs(p_rpy[0]) < std::fabs(cam_pose_err_rpy[0])){
                 cam_pose_err[p.cam_id] = &p;
             }
         }
@@ -41,12 +77,12 @@ bool MeanLocalizationStrategy::Compute(TagArray &fresh_poses, RobotPose &filtere
     if (num_poses > 0) {
         avg_filtered_pose /= num_poses;
     } else{
-        filtered_pose.global = avg_filtered_pose;
-        return false;
+        avg_filtered_pose = filtered_pose.global;
     }
 
+    MaxRateChange(avg_filtered_pose, filtered_pose.global, 1, 0.01);
 
-    filtered_pose.global = avg_filtered_pose;
+//    if (num_poses > 0) return true;
 
     return true;
 }

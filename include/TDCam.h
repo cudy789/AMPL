@@ -64,6 +64,13 @@ public:
      */
     void SaveImage(const cv::Mat& img);
     /**
+     * @brief Undistort an image using the provided camera intrinsic parameters and distortion coefficients. Retains original
+     * image resolution.
+     * @param img [input:output] The image to undistort.
+     */
+    void Undistort(cv::Mat &img);
+
+    /**
      * @brief Run the Apriltag detector on an input image and find all possible tag poses for all tags in the image. Calculates
      * the pose for each tag in four frames: tag, tag w.r.t. camera, tag w.r.t. robot, and robot w.r.t. world. Organizes
      * these detections by tag ID into the TagArray object.
@@ -90,6 +97,10 @@ public:
 
 protected:
     CamParams _c_params;
+
+    cv::Mat _dist_coeffs;
+    cv::Mat _camera_matrix;
+
     std::map<int, Pose_single> _tag_layout;
 
     cv::VideoCapture _cap;

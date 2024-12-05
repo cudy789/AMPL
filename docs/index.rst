@@ -6,6 +6,10 @@
 AMPL documentation
 ==================
 
+.. warning::
+    This project is under active development, use at your own risk!
+
+.. image:: res/crappy_recording_athome.gif
 
 .. toctree::
    :maxdepth: 1

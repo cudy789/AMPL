@@ -4,5 +4,17 @@ Pose
 .. toctree::
    :maxdepth: 1
 
-.. doxygenfile: Pose
+.. doxygenstruct:: Pose
    :project: AMPL
+   :members:
+.. doxygenstruct:: Pose_single
+   :project: AMPL
+   :members:
+
+.. doxygenstruct:: RobotPose
+  :project: AMPL
+  :members:
+
+.. doxygenstruct:: TagArray
+  :project: AMPL
+  :members:

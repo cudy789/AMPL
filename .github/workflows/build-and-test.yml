@@ -4,8 +4,12 @@ name: Run tests
 on:
   push:
     branches: [ "main" ]
+    paths: [ "include/**", "src/**", "lib/**", "test/**", "CMakeLists.txt", ".github/workflows/build-and-test.yml" ]
+
   pull_request:
     branches: [ "main" ]
+    paths: [ "include/**", "src/**", "lib/**", "test/**", "CMakeLists.txt", ".github/workflows/build-and-test.yml" ]
+
 
 jobs:
   ci-x86-tests:

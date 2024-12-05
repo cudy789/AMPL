@@ -9,6 +9,7 @@
 import subprocess
 subprocess.call('doxygen', shell=True)
 html_extra_path = ['build/html']
+html_extra_path = ['build/xml']
 
 project = 'AMPL'
 copyright = '2024, Corey Knutson'

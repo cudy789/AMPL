@@ -2,6 +2,8 @@
 
 [![Documentation Status](https://readthedocs.org/projects/ampl-frc/badge/?version=latest)](https://ampl-frc.readthedocs.io/en/latest/?badge=latest)
 
+## #Nearing completion, check back soon!# 
+
 ## What is AMPL?
 Apriltag multicamera pose localization (AMPL) is a position estimator that uses the known location of Apriltag fiducials 
 to calculate the exact orientation (or pose) in 3D space. Multiple cameras are used to increase pose accuracy 
@@ -13,15 +15,15 @@ setups and aims to minimize the technical barrier of entry for multicamera pose 
 
 ## Hardware
 
-| CoProcessor          | Num Cameras   | FPS |
-|----------------------|---------------|-----|
-| Raspberry Pi 4 - 4GB | 3 @ 544 x 288 | 30  |
-|                      |               |     |
+| CoProcessor          | Cameras                                    | FPS |
+|----------------------|--------------------------------------------|-----|
+| Raspberry Pi 4 - 4GB | 3 Logitech C270 USB 2.0 @ 544 x 288        | 30  |
+|                      |                                            |     |
 
 
-## Setup instructions
+## Setup
 
-View the latest documentation and instructions here.
+[View the latest documentation and instructions here.](https://ampl-frc.readthedocs.io)
 
 ## Lens distortion correction
 https://docs.opencv.org/4.x/dc/dbb/tutorial_py_calibration.html

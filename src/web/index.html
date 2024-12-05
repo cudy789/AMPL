@@ -26,22 +26,25 @@
 <div id="info">No connection...</div>
 <img id="mjpeg-stream" alt="MJPEG Stream" style="position: absolute; top: 5%; left: 0; z-index: 200; border: 2px solid white;">
 <script type="module">
+
     const mjpegStream = document.getElementById('mjpeg-stream');
-    const streamUrl = 'http://10.0.0.99:8080'; // Replace with your MJPEG stream URL
+
+    const webSocketUrl = `ws://${window.location.hostname}:8082`;
+    const streamUrl = `http://${window.location.hostname}:8081`;
     let reconnectInterval = 200; // Reconnection attempt interval in milliseconds
 
     // function connectMjpegStream() {
         mjpegStream.src = streamUrl;
 
         mjpegStream.onload = () => {
-            console.log('MJPEG stream connected');
+            // console.log('MJPEG stream connected');
             const naturalWidth = mjpegStream.naturalWidth;
             const naturalHeight = mjpegStream.naturalHeight;
 
             // Set the size of the image element dynamically
             mjpegStream.style.width = `${naturalWidth}px`;
             mjpegStream.style.height = `${naturalHeight}px`;
-            console.log(`MJPEG Stream Resolution: ${naturalWidth}x${naturalHeight}`);
+            // console.log(`MJPEG Stream Resolution: ${naturalWidth}x${naturalHeight}`);
         };
 
         mjpegStream.onerror = () => {
@@ -90,7 +93,11 @@
     // function connectWebSocket() {
 
         // WebSocket connection
-        const socket = new WebSocket('ws://10.0.0.99:8082');
+        // const socket = new WebSocket('ws://10.0.0.99:8082');
+
+
+
+        const socket = new WebSocket(webSocketUrl);
 
         socket.onopen = () => {
             console.log('WebSocket connection established');
@@ -111,7 +118,7 @@
                     cube.rotation.set(data.pitch / 180 * Math.PI, data.yaw / 180 * Math.PI, data.roll / 180 * Math.PI);
 
                     infoDiv.textContent = `x: ${data.x.toFixed(2)}, y: ${data.y.toFixed(2)}, z: ${data.z.toFixed(2)} \n` +
-                        `roll: ${(data.roll / 180 * Math.PI).toFixed(2)}, pitch: ${(data.pitch / 180 * Math.PI).toFixed(2)}, yaw: ${(data.yaw / 180 * Math.PI).toFixed(2)}`;
+                        `roll: ${(data.roll).toFixed(2)}, pitch: ${(data.pitch).toFixed(2)}, yaw: ${(data.yaw).toFixed(2)}`;
                 }
             } catch (error) {
                 console.error('Error parsing WebSocket message:', error);

@@ -12,7 +12,7 @@
 # translation: [0, -0.5, 0.25] # x,y,z
 # rotation: [0, 20, 180] # roll, pitch, yaw
 
-Team number: -1
+Team number: 2987
 Fmap file: ../fmap/at14_16_1m.fmap
 
 #Video recording: true
@@ -101,8 +101,14 @@ Cameras:
 ##    camera_playback_file: CAM_REAR.mp4
 #    rx: 544
 #    ry: 288
-#    fx: 600
-#    fy: 600
+#
+#    #    fx: 600
+#    #    fy: 600
+#    fx: 590.588
+#    fy: 543.682
+#    cx: 279.683
+#    cy: 136.174
+#    dist_coeffs: [ 0.0814261, -0.0272061, -0.00493096, 0.00292767, 0.799907 ]
 #    # x,y,z
 #    translation: [-0.02, -0.305, 0]
 #    # roll, pitch, yaw

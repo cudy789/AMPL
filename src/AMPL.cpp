@@ -25,7 +25,7 @@ void AMPL::Setup(const std::string& config_file) {
 
     // Create NetworkTables worker
     if (params.team_num > 0){
-        NTWorker* w_nt = new NTWorker;
+        NTWorker* w_nt = new NTWorker(params.team_num);
         _workers_t.emplace_back(w_nt);
         w_nt->RegisterPoseCallback([this]() -> RobotPose {return _l_w->GetRobotPose();});
     } else{

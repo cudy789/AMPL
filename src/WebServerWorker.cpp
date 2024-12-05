@@ -25,7 +25,7 @@ bool WebServerWorker::RegisterRobotPoseFunc(const std::function<RobotPose()>& po
 void WebServerWorker::Init() {
     mg_mgr_init(&_mgr);
 
-    std::string address = "http://0.0.0.0:" + std::to_string(_port);
+    std::string address = "http://0.0.0.0:" + std::to_string(_port+1);
     _connection =
         mg_http_listen(&_mgr, address.c_str(),
            [](mg_connection *conn, int ev, void *ev_data) {
@@ -46,7 +46,7 @@ void WebServerWorker::Init() {
         Stop(false);
     }
 
-    std::string viewer_address = "http://0.0.0.0:" + std::to_string(_port+1);
+    std::string viewer_address = "http://0.0.0.0:" + std::to_string(_port);
 
     _viewer_connection =
         mg_http_listen(&_mgr, viewer_address.c_str(),
@@ -87,7 +87,7 @@ void WebServerWorker::Execute() {
             const cv::Mat& new_frame = _mat_funcs[i]();
             if (merged_frame.empty()) merged_frame = new_frame;
             if (new_frame.empty()) continue;
-            if (new_frame.rows != merged_frame.rows){// TODO allow multiple camera image sizes
+            if (new_frame.cols != merged_frame.cols){// TODO allow multiple camera image sizes
                 continue;
             }
             cv::vconcat(merged_frame, new_frame, merged_frame);

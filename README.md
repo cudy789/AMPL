@@ -67,3 +67,8 @@ default to a higher exposure, locking it in at a lower FPS. Need to figure out h
 
 `v4l2-ctl --device /dev/video0 --all` <- list camera information, including exposure and auto exposure settings
 `v4l2-ctl --device /dev/video0 --list-formats-ext` <- list camera resolution & framerates in all video formats
+
+
+## Latency
+
+~ 300ms of latency end to end. Not great...

@@ -32,6 +32,6 @@ RUN git clone https://github.com/cudy789/AMPL.git
 WORKDIR AMPL
 RUN mkdir -p build
 WORKDIR build
-RUN cmake .. make -j4
+RUN cmake .. && make -j4
 
 CMD ["./ampl"]

@@ -34,4 +34,4 @@ RUN mkdir -p build
 WORKDIR build
 RUN cmake .. && make -j4
 
-CMD ["./ampl"]
+CMD ["./ampl 2>&1 | grep -v 'Corrupt JPEG data'"]

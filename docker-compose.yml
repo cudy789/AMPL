@@ -17,6 +17,3 @@ services:
     networks:
       mynetwork:
         ipv4_address: 10.29.87.16
-
-    command:
-      - /app/ampl

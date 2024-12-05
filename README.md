@@ -1,5 +1,7 @@
 # AMPL: Apriltag Multicamera Pose Localization 
 
+[![Documentation Status](https://readthedocs.org/projects/ampl-frc/badge/?version=latest)](https://ampl-frc.readthedocs.io/en/latest/?badge=latest)
+
 ## What is AMPL?
 Apriltag multicamera pose localization (AMPL) is a position estimator that uses the known location of Apriltag fiducials 
 to calculate the exact orientation (or pose) in 3D space. Multiple cameras are used to increase pose accuracy 

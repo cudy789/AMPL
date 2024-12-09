@@ -1,0 +1,39 @@
+# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
+name: Build Docker images nightly
+
+on:
+  schedule:
+    - cron: '0 1 * * *'
+
+jobs:
+  build-docker-image-ARM64:
+    runs-on: ARM64
+    steps:
+    - name: Pull code
+      uses: actions/checkout@v4
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build image
+      shell: bash
+      run: cd docker; NOCACHE=1 bash ci-build-image.sh
+
+  build-docker-image-X64:
+    runs-on: X64
+    steps:
+      - name: Pull code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build image
+        shell: bash
+        run: cd docker; NOCACHE=1 BUILDX64=1 bash ci-build-image.sh

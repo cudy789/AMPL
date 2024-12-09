@@ -14,6 +14,11 @@ if [ "$BUILDX64" = "1" ]; then # build only for x86_64
   PLATFORM="linux/amd64"
 fi
 
+BUILDCACHE=""
+if [ "$NOCACHE" = "1" ]; then
+  BUILDCACHE="--no-cache"
+fi
+
 # No cross compilation
-docker build --platform $PLATFORM --tag rogueraptor7/$IMAGE_NAME:$IMAGE_TAG .
+docker build --platform $PLATFORM $BUILDCACHE --tag rogueraptor7/$IMAGE_NAME:$IMAGE_TAG .
 docker push rogueraptor7/$IMAGE_NAME:$IMAGE_TAG

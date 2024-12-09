@@ -67,40 +67,41 @@ void TDCamWorker::Execute() {
                     }
                 }
                 if (_period_frames_saved > _c_params.fps) _period_frames_saved=0;
-            }
+            } else {
 
-            // Undistort the image
-            if (!_camera_matrix.empty()){
-                Undistort(img);
-            }
+                // Undistort the image
+                if (!_camera_matrix.empty()) {
+                    Undistort(img);
+                }
 
-            // Find tags in image
-            TagArray raw_tags = GetTagsFromImage(img);
+                // Find tags in image
+                TagArray raw_tags = GetTagsFromImage(img);
 
-            // Draw tags onto image
-            cv::Mat box_img = DrawTagBoxesOnImage(raw_tags, img);
+                // Draw tags onto image
+                cv::Mat box_img = DrawTagBoxesOnImage(raw_tags, img);
 
-            // Put fps in top right corner
-            std::stringstream ss;
-            ss << std::fixed << std::setprecision(1) << GetExecutionFreq();
-            cv::putText(box_img, ss.str(), cv::Point(box_img.size().width - 50, 0 + 20),
-                        cv::FONT_HERSHEY_DUPLEX, 0.65, cv::Scalar(0, 255, 0), 2);
+                // Put fps in top right corner
+                std::stringstream ss;
+                ss << std::fixed << std::setprecision(1) << GetExecutionFreq();
+                cv::putText(box_img, ss.str(), cv::Point(box_img.size().width - 50, 0 + 20),
+                            cv::FONT_HERSHEY_DUPLEX, 0.65, cv::Scalar(0, 255, 0), 2);
 
-            // Put camera name in top left corner
-            cv::putText(box_img, _c_params.name, cv::Point(10, 0 + 20),
-                        cv::FONT_HERSHEY_DUPLEX, 0.65, cv::Scalar(0, 255, 0), 2);
+                // Put camera name in top left corner
+                cv::putText(box_img, _c_params.name, cv::Point(10, 0 + 20),
+                            cv::FONT_HERSHEY_DUPLEX, 0.65, cv::Scalar(0, 255, 0), 2);
 
-            // Update latest annotated image
-            if (_annotated_im_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(100))) {
-                _annotated_im = box_img;
-                _annotated_im_sem.release();
-            }
+                // Update latest annotated image
+                if (_annotated_im_sem.try_acquire_for(std::chrono::duration<ulong, std::milli>(100))) {
+                    _annotated_im = box_img;
+                    _annotated_im_sem.release();
+                }
 
-            bool success = _queue_tags_callback(raw_tags);
-            if (!success) {
-                AppLogger::Logger::Log("Camera " + std::to_string(_c_params.camera_id) +
-                                       " error acquiring lock to add tags to processing queue",
-                                       AppLogger::SEVERITY::WARNING);
+                bool success = _queue_tags_callback(raw_tags);
+                if (!success) {
+                    AppLogger::Logger::Log("Camera " + std::to_string(_c_params.camera_id) +
+                                           " error acquiring lock to add tags to processing queue",
+                                           AppLogger::SEVERITY::WARNING);
+                }
             }
         } catch(cv::Exception& e)
         {

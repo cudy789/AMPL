@@ -283,10 +283,10 @@ private:
                         if (_debug_v <= AppLogger::DEBUG) {
                             AppLogger::Logger::Log(
                                     "Average " + _thread_name + " execution ms: " + std::to_string(avg_exec_ms),
-                                    AppLogger::DEBUG);
+                                    AppLogger::INFO);
                             AppLogger::Logger::Log("\t Max: " + std::to_string(
                                                            *std::max_element(runtimes.begin(), runtimes.end()) / 1.0e6) + "ms",
-                                                   AppLogger::DEBUG);
+                                                   AppLogger::INFO);
                         }
                         last_log_time_ns = CurrentTime();
                         runtimes.clear();

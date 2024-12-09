@@ -2,7 +2,7 @@
 
 TDCamWorker::TDCamWorker(CamParams& c_params, const std::map<int, Pose_single>& tag_layout,
                          std::function<bool(TagArray&)> queue_tags_callback, bool record_video)
-        : Worker{"TDCamWorker " + c_params.name, true, 50},
+        : Worker{"TDCamWorker " + c_params.name, true, 100, AppLogger::SEVERITY::DEBUG},
           TDCam{c_params, tag_layout, record_video},
           _queue_tags_callback{std::move(queue_tags_callback)}
           {}

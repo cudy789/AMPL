@@ -5,7 +5,7 @@
 #include "MatrixHelpers.h"
 #include "TrajectoryLogger.h"
 
-LocalizationWorker::LocalizationWorker(bool pose_logging) : Worker{"Localization worker", AppLogger::SEVERITY::DEBUG},
+LocalizationWorker::LocalizationWorker(bool pose_logging) : Worker{"Localization worker", true, 50.0, AppLogger::SEVERITY::DEBUG},
         Localization{new MeanLocalizationStrategy()},
         _pose_logging(pose_logging)
 {}

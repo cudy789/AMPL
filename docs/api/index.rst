@@ -1,6 +1,9 @@
 API Documentation
 =================
 
+`View the source code on GitHub <https://github.com/cudy789/AMPL>`_
+
+
 .. toctree::
    :maxdepth: 1
 

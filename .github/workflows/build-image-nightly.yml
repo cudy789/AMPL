@@ -3,10 +3,10 @@ name: Build Docker images nightly
 
 on:
   schedule:
-    - cron: '23 20 * * *'
+    - cron: '33 20 * * *'
 
 jobs:
-  build-docker-image-ARM64:
+  build-nocache-ARM64:
     runs-on: ARM64
     steps:
     - name: Pull code
@@ -22,7 +22,7 @@ jobs:
       shell: bash
       run: cd docker; NOCACHE=1 bash ci-build-image.sh
 
-  build-docker-image-X64:
+  build-nocache-X64:
     runs-on: X64
     steps:
       - name: Pull code

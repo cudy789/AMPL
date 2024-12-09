@@ -1,19 +1,13 @@
 name: ampl
 
-networks:
-  mynetwork:
-    ipam:
-      config:
-        - subnet: 10.29.87.0/24
-
 services:
-  ampl-service:
+  ampl:
     image: rogueraptor7/ampl:latest
     volumes:
       - ./config.yml:/app/AMPL/config.yml
       - ./ampl_log.txt:/app/AMPL/build/ampl_log.txt
     restart: always
     privileged: true
-    networks:
-      mynetwork:
-        ipv4_address: 10.29.87.16
+    network_mode: host
+    command:
+      - ./ampl

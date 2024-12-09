@@ -72,6 +72,7 @@ wget https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/config.yml
 wget https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/docker-compose.yml
 
 # Setup the static IP
-curl -fsSL https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/install.sh | sh
+wget https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/set-ip.sh
+bash set-ip.sh
 
 echo "Installation complete! Modify your config.yml file for your specific setup, then run 'docker compose up -d' to start AMPL."

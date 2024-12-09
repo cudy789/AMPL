@@ -75,7 +75,11 @@ wget https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/docker-compo
 docker compose pull
 
 # Setup the static IP
-wget https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/set-ip.sh
-sudo bash -i set-ip.sh
+if [[ -z "$SKIP_STATIC_IP" ]]; then
+  wget https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/set-ip.sh
+  sudo bash -i set-ip.sh
+else
+  echo "Skipping static IP configuration"
+fi
 
 echo "Installation complete! Modify your config.yml file for your specific setup, then run 'docker compose up -d' to start AMPL."

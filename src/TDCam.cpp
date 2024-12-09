@@ -254,8 +254,16 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
                 AppLogger::Logger::Log("Cannot find tag ID " + to_string(det->id) + " in .fmap file", AppLogger::SEVERITY::WARNING);
             }
 
-            Eigen::Matrix3d R_robot_global = Pose_AG.R * R_camera_robot.transpose();
-            Eigen::Vector3d T_robot_global = Pose_AG.T - R_robot_global * T_camera_robot;
+//            Eigen::Matrix3d T_transform {{0, 1, 0},
+//                                         {0, 0, 1},
+//                                         {1, 0, 0}}; // Transform the translation correctly
+
+            Eigen::Matrix3d R_robot_global_unordered = Pose_AG.R * R_camera_robot.transpose();
+            Eigen::Vector3d T_robot_global_unordered = Pose_AG.T - R_robot_global_unordered * T_camera_robot;
+            Eigen::Vector3d rpy_unordered = RotationMatrixToRPY(R_robot_global_unordered);
+
+            Eigen::Matrix3d R_robot_global = CreateRotationMatrix({rpy_unordered[2], rpy_unordered[0], rpy_unordered[1]});
+            Eigen::Vector3d T_robot_global = {T_robot_global_unordered[0], T_robot_global_unordered[2], -T_robot_global_unordered[1]};
 
 
 

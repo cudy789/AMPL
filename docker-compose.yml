@@ -5,7 +5,7 @@ services:
     image: rogueraptor7/ampl:latest
     volumes:
       - ./config.yml:/app/AMPL/config.yml
-      - ./ampl_logs:/app/AMPL/build/logs
+      - ./logs:/app/AMPL/build/logs
     restart: always
     privileged: true
     network_mode: host

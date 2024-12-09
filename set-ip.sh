@@ -28,7 +28,7 @@ configure_static_ip() {
     sudo nmcli con mod "$connection_name" \
         ipv4.addresses "$ip/24" \
         ipv4.gateway "${STATIC_IP%.*}.1" \
-        ipv4.dns "8.8.8.8,8.8.4.4" \
+        ipv4.dns "" \
         ipv4.method manual
 
     echo "Restarting NetworkManager connection..."

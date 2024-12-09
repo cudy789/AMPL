@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#!/bin/bash
-
 # Function to check if a command exists
 command_exists() {
     command -v "$1" &> /dev/null
@@ -78,6 +76,6 @@ docker compose pull
 
 # Setup the static IP
 wget https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/set-ip.sh
-bash -i set-ip.sh
+sudo bash -i set-ip.sh
 
 echo "Installation complete! Modify your config.yml file for your specific setup, then run 'docker compose up -d' to start AMPL."

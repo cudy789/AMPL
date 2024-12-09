@@ -5,7 +5,7 @@
 #include "MatrixHelpers.h"
 #include "TrajectoryLogger.h"
 
-LocalizationWorker::LocalizationWorker(bool pose_logging) : Worker{"Localization worker"},
+LocalizationWorker::LocalizationWorker(bool pose_logging) : Worker{"Localization worker", AppLogger::SEVERITY::DEBUG},
         Localization{new MeanLocalizationStrategy()},
         _pose_logging(pose_logging)
 {}
@@ -116,7 +116,8 @@ void LocalizationWorker::Execute() {
 
     if ((CurrentTime() - _last_log_time_ns) > _log_period_ns){
         if (_log_stats){
-            AppLogger::Logger::Log("Robot pose: " + to_string(GetRobotPose()), AppLogger::DEBUG);
+//            AppLogger::Logger::Log("Robot pose: " + to_string(GetRobotPose()), AppLogger::DEBUG);
+            AppLogger::Logger::Log("")
         }
         _last_log_time_ns = CurrentTime();
     }

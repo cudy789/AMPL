@@ -74,4 +74,5 @@ cd /home/"$USER"/AMPL
 wget https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/config.yml
 wget https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/docker-compose.yml
 
-echo "Installation complete."
+echo "Installation complete! Modify your config.yml file for your specific setup, then run 'docker compose up -d' to
+start AMPL."

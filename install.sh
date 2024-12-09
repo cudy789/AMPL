@@ -65,11 +65,16 @@ else
     fi
 fi
 
+# Make config directory
 mkdir -p /home/"$USER"/ampl-config
 cd /home/"$USER"/ampl-config
 
+# Get config files
 wget https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/config.yml
 wget https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/docker-compose.yml
+
+# Download latest docker images
+docker compose pull
 
 # Setup the static IP
 wget https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/set-ip.sh

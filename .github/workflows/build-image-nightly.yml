@@ -3,7 +3,7 @@ name: Build Docker images nightly
 
 on:
   schedule:
-    - cron: '0 1 * * *'
+    - cron: '20 14 * * *'
 
 jobs:
   build-docker-image-ARM64:

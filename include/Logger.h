@@ -138,7 +138,7 @@ namespace AppLogger {
          */
         Logger() {
             _worker_t = new std::thread([this]() { this->Run(); });
-            _filepath = "./ampl_log.txt";
+            _filepath = "./logs/ampl_log.txt";
             _verbosity = INFO;
             _stdout_enabled.store(true);
             _fileout_enabled.store(true);

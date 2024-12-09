@@ -96,22 +96,22 @@ Cameras:
     exposure: 1
 
   # backwards facing cam
-#  CAM_REAR:
-#    camera_id: 0
-##    camera_playback_file: CAM_REAR.mp4
-#    rx: 544
-#    ry: 288
-#
-#    #    fx: 600
-#    #    fy: 600
-#    fx: 590.588
-#    fy: 543.682
-#    cx: 279.683
-#    cy: 136.174
-#    dist_coeffs: [ 0.0814261, -0.0272061, -0.00493096, 0.00292767, 0.799907 ]
-#    # x,y,z
-#    translation: [-0.02, -0.305, 0]
-#    # roll, pitch, yaw
-#    rotation: [0, 0, 180]
-#    fps: 30.0
-#    exposure: 1
+  CAM_REAR:
+    camera_id: 0
+#    camera_playback_file: CAM_REAR.mp4
+    rx: 544
+    ry: 288
+
+    #    fx: 600
+    #    fy: 600
+    fx: 590.588
+    fy: 543.682
+    cx: 279.683
+    cy: 136.174
+    dist_coeffs: [ 0.0814261, -0.0272061, -0.00493096, 0.00292767, 0.799907 ]
+    # x,y,z
+    translation: [-0.02, -0.305, 0]
+    # roll, pitch, yaw
+    rotation: [0, 0, 180]
+    fps: 30.0
+    exposure: 1

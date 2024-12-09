@@ -68,8 +68,8 @@ else
     fi
 fi
 
-mkdir -p "$USER"/AMPL
-cd "$USER"/AMPL
+mkdir -p /home/"$USER"/AMPL
+cd /home/"$USER"/AMPL
 
 wget https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/config.yml
 wget https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/docker-compose.yml

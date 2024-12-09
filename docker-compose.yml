@@ -5,10 +5,9 @@ services:
     image: rogueraptor7/ampl:latest
     volumes:
       - ./config.yml:/app/AMPL/config.yml
-      - ./ampl_log.txt:/app/AMPL/build/ampl_log.txt
+      - ./ampl_logs:/app/AMPL/build/logs
     restart: always
     privileged: true
     network_mode: host
     tty: true
-    command:
-      - ./ampl 2>&1 | grep -v "Corrupt JPEG data"
+    command: bash -c "./ampl 2>&1 | grep -v \"Corrupt JPEG data\""

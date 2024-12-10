@@ -74,13 +74,14 @@
     scene.add(cube);
 
     const gridHelper = new THREE.GridHelper(20, 20);
+
     scene.add(gridHelper);
 
     const controls = new OrbitControls(camera, renderer.domElement);
+    camera.position.x = 0;
+    camera.position.y = 0;
     camera.position.z = 2;
-    camera.position.y = 2;
-    camera.position.x = 2;
-    camera.rotation.set(Math.PI/2.0, Math.PI/2.0, Math.PI/2.0);
+    // camera.rotation.x = Math.PI/2;
 
 
     controls.update();
@@ -112,10 +113,10 @@
                     'roll' in data && 'pitch' in data && 'yaw' in data) {
 
                     // Update cube's position
-                    cube.position.set(data.x, data.z, data.y);
+                    cube.position.set(data.y, data.z, data.x);
 
                     // Update cube's rotation (roll, pitch, yaw in radians)
-                    cube.rotation.set(data.pitch / 180 * Math.PI, data.yaw / 180 * Math.PI, data.roll / 180 * Math.PI);
+                    cube.rotation.set(data.roll / 180 * Math.PI, -data.yaw / 180 * Math.PI, data.pitch / 180 * Math.PI);
 
                     infoDiv.textContent = `x: ${data.x.toFixed(2)}, y: ${data.y.toFixed(2)}, z: ${data.z.toFixed(2)} \n` +
                         `roll: ${(data.roll).toFixed(2)}, pitch: ${(data.pitch).toFixed(2)}, yaw: ${(data.yaw).toFixed(2)}`;

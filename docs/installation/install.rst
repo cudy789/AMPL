@@ -60,13 +60,13 @@ Installation
 
       docker-compose pull
 
-   .. image:: /res/installation/putty-composed-finished-pull.png
+   .. image:: /res/installation/putty-compose-finished-pull.png
 
 Now you're ready to configure your cameras!
 
 Advanced
 =========
-To skip network configuration altogether, run the script with the following bash variable
+To skip network configuration altogether, run the script with ``SKIP_STATIC_IP=1``
 
 .. code-block:: bash
 

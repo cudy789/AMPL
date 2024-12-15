@@ -1,11 +1,6 @@
 #!/bin/bash
 
-# Function to check if a command exists
-command_exists() {
-    command -v "$1" &> /dev/null
-}
-
-echo "Installing Docker and Docker Compose"
+echo "Installing Docker and docker-compose"
 
 # Update package index
 sudo apt update
@@ -26,7 +21,7 @@ wget https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/config.yml
 wget https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/docker-compose.yml
 
 # Download latest docker images
-docker compose pull
+docker-compose pull
 
 # Setup the static IP
 if [[ -z "$SKIP_STATIC_IP" ]]; then

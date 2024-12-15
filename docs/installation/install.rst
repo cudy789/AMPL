@@ -1,57 +1,115 @@
 Installing AMPL
 ###################
 
-Use the installation script to download and install AMPL. By default, the script will attempt to configure your network
-interface ``eth0`` with a static IP following the format ``10.TE.AM.15`` using `NetworkManager`. If you do not want to set a static IP during installation,
-or your Linux distribution doesn't use NetworkManager, run the script with ``SKIP_STATIC_IP=1``
+This section describes how to use the installation script to download and install AMPL. This script will make a directory (or folder)
+called ``ampl-config`` in your user's home directory with a ``docker-compose.yml`` and a ``config.yml`` file. The ``config.yml``
+file contains all of the parameters and settings for AMPL and will be modified in future sections.
+
+.. warning::
+   By default, the script will attempt to configure your ethernet network interface ``eth0`` with a static IP following
+   the format ``10.TE.AM.15`` using `NetworkManager`. **Your terminal will get disconnected if this is interface you using
+   for SSH.** If you want to modify or disable network configuration, see the `Advanced`_ section below.
+
+.. note::
+   Installation may take over 1 hour depending on your internet speed since you must pull the necessary Docker image (~1.5GB)
 
 If you run the script multiple times, your config.yml and docker-compose.yml files will not be overwritten.
 
-.. code-block:: bash
+Installation
+=============
 
-   # Download the install script
-   wget -O install-ampl.sh https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/install.sh
-   # Run installation
-   bash install-ampl.sh
-   # Optionally skip static IP assigment
-   # SKIP_STATIC_IP=1 bash install-ampl.sh
+1. Copy & paste (right click to paste in PuTTY) the following line into your terminal connected to your Raspberry Pi (or other device)
+   to download the installation script. Press enter to run the command.
 
-This script will make a directory called ``ampl-config`` in your user's home directory with a ``docker-compose.yml`` and
-a ``config.yml`` file.
+   .. code-block:: bash
+
+      wget -O install-ampl.sh https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/install.sh
+
+   .. image:: /res/installation/putty-download-ampl.png
+
+2. Run the installation script using the following command
+
+   .. code-block:: bash
+
+      bash install-ampl.sh
+
+3. The installation script will ask you to enter your team number to set a static IP address. Type your team number into
+   the terminal, then hit enter.
+
+   .. image:: /res/installation/putty-team-number.png
+
+4. The script will ask you to confirm your entry. Type ``y``, then press enter.
+
+   .. image:: /res/installation/putty-team-number-confirm.png
+
+5. You will see the following once the script has finished running
+
+   .. image:: /res/installation/putty-finished-installing-ampl.png
+
+6. Logout of the Raspberry Pi (close PuTTY) and log back in
+
+7. Change directory (``cd``) to the new folder with the AMPL configuration files
+
+   .. code-block:: bash
+
+      cd ~/ampl-config
+
+8. Run ``docker-compose pull``. This will take a few minutes to complete.
+
+   .. code-block:: bash
+
+      docker-compose pull
+
+   .. image:: /res/installation/putty-composed-finished-pull.png
+
+Now you're ready to configure your cameras!
 
 Advanced
 =========
-You can override ``STATIC_IP`` and ``INTERFACE`` in the CLI to change the IP address and interface. You can run the
-downloaded ``set-ip.sh`` script at any time to change your static IP configuration.
+To skip network configuration altogether, run the script with the following bash variable
+
+.. code-block:: bash
+
+   # Skip static IP assigment
+   SKIP_STATIC_IP=1 bash install-ampl.sh
+
+You can override the ``STATIC_IP`` and ``INTERFACE`` bash environment variables as well to change the IP address and interface.
+
+.. code-block:: bash
+
+   # Specify static IP and interface
+   STATIC_IP=192.168.1.13 INTERFACE=eth1 bash install-ampl.sh
+
+.. warning::
+   `FRC FMS has a reserved IP range for teams to use for static IPs. <https://docs.wpilib.org/en/stable/docs/networking/networking-introduction/ip-configurations.html#on-the-field-static-configuration>`_
+   Make sure your static IP choice falls within this allowed range.
+
+You can run the downloaded ``set-ip.sh`` script at any time to change your static IP configuration.
+
 
 Removing a static IP
-====================
+~~~~~~~~~~~~~~~~~~~~~
 
 If you accidentally set a static IP on the wrong interface or want to remove the static IP for any reason, use the following commands.
 
-1. Find your connection name that you want to reset
+1. Find your connection name that you want to delete
 
    .. code-block:: bash
 
-      sudo nmcli con show
+      $ sudo nmcli con show
 
       NAME                UUID                                  TYPE      DEVICE
-      Wired connection 1  355f3a45-d689-36fa-9190-f0fe8b042f93  ethernet  eth0
-      -SSID-              56ac3123-dc7f-423b-b7e1-5530c6253199  wifi      wlan0
-      lo                  3035e750-2c09-403f-afca-6069d8105155  loopback  lo
-      docker0             10ca8bdc-12e3-48dd-afe2-67ee966efd6a  bridge    docker0
+      AMPL connection     5146a95d-45b9-4606-b6b7-37a22b284d20  ethernet  eth0
+      preconfigured       6fb8db51-35b6-42bb-ad87-a34a5530efed  wifi      wlan0
+      lo                  42ff8627-9480-4911-86ac-d41aea7838aa  loopback  lo
+      Wired connection 1  2fc4b307-c88d-3f00-93f0-ea4c3759dec8  ethernet  --
 
-2. Reset the connection to use DHCP
 
-   .. code-block:: bash
-
-      sudo nmcli con mod "Wired connection 1" ipv4.method auto ipv4.addresses "" ipv4.gateway "" ipv4.dns ""
-
-3. Apply changes
+2. Delete the connection
 
    .. code-block:: bash
 
-      sudo nmcli con up "Wired connection 1"
+      sudo nmcli con delete "AMPL connection"
 
 
 .. toctree::

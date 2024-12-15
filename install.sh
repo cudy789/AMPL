@@ -12,6 +12,9 @@ sudo apt install -y docker.io docker-compose
 sudo systemctl enable docker
 sudo systemctl start docker
 
+# Add user to docker group
+sudo usermod -aG docker "$USER"
+
 # Make config directory
 mkdir -p /home/"$USER"/ampl-config
 cd /home/"$USER"/ampl-config

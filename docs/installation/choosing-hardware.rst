@@ -83,7 +83,7 @@ Example Configurations
 
     * - Raspberry Pi 4 - 4GB
       - 3 Logitech C270 USB 2.0 @ 544 x 288
-      - 30
+      - 3 @ 30
 
 
 .. toctree::

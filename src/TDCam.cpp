@@ -215,18 +215,6 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
 
 
             // ==================== AT -> Camera ====================
-
-            // Construct matrices for the rotation (R) and translation (T) of the tag from the tag frame to the camera frame.
-//            Eigen::Matrix3d T_transform {{1, 0, 0},
-//                                         {0, 0, 1},
-//                                         {0, -1, 0}}; // Transform the translation correctly
-//
-//            Eigen::Vector3d T_tag_camera = T_transform * Array2EM<double, 3, 1>(pose->t->data);
-//            // The rotation matrix comes out PYR ordering, need to convert to RPY
-//            Eigen::Matrix3d R_tag_camera_unordered = Array2EM<double, 3, 3>(pose->R->data);
-//            Eigen::Vector3d v_unordered = RotationMatrixToRPY(R_tag_camera_unordered);
-//            Eigen::Matrix3d R_tag_camera = CreateRotationMatrix({v_unordered[2], v_unordered[0], -v_unordered[1]});
-
             Eigen::Vector3d T_tag_camera = Array2EM<double, 3, 1>(pose->t->data);
             Eigen::Matrix3d R_tag_camera = Array2EM<double, 3, 3>(pose->R->data);
 
@@ -234,14 +222,16 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
             // ==================== Camera -> Robot ====================
             // The geometric center of the robot
 
-            Eigen::Matrix3d R_camera_robot = _c_params.R_camera_robot * R_tag_camera;
+//            Eigen::Matrix3d R_camera_robot = _c_params.R_camera_robot * R_tag_camera;
+            Eigen::Matrix3d R_camera_robot = R_tag_camera;
 
             AppLogger::Logger::Log("_c_params.R_camera_robot: " + to_string(_c_params.R_camera_robot)
                 + ", R_tag_camera matrix: " + to_string(R_tag_camera) + ", as euler angles: "
                 + to_string(RotationMatrixToRPY(R_tag_camera)), AppLogger::SEVERITY::DEBUG);
 
             // Translate AprilTag from the camera frame into the robot's coordinate frame
-            Eigen::Vector3d T_camera_robot = _c_params.R_camera_robot * T_tag_camera + _c_params.T_camera_robot;
+//            Eigen::Vector3d T_camera_robot = _c_params.R_camera_robot * T_tag_camera + _c_params.T_camera_robot;
+            Eigen::Vector3d T_camera_robot = T_tag_camera;
 
 
             // ==================== Robot -> World ====================
@@ -254,17 +244,16 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
                 AppLogger::Logger::Log("Cannot find tag ID " + to_string(det->id) + " in .fmap file", AppLogger::SEVERITY::WARNING);
             }
 
-//            Eigen::Matrix3d T_transform {{0, 1, 0},
-//                                         {0, 0, 1},
-//                                         {1, 0, 0}}; // Transform the translation correctly
+            Eigen::Matrix3d R_robot_global_unordered_1 = Pose_AG.R * R_camera_robot.transpose();
+            Eigen::Vector3d T_robot_global_unordered_1 = Pose_AG.T - R_robot_global_unordered_1 * T_camera_robot;
 
-            Eigen::Matrix3d R_robot_global_unordered = Pose_AG.R * R_camera_robot.transpose();
-            Eigen::Vector3d T_robot_global_unordered = Pose_AG.T - R_robot_global_unordered * T_camera_robot;
+            Eigen::Matrix3d R_robot_global_unordered = R_robot_global_unordered_1 * _c_params.R_camera_robot.transpose();
+            Eigen::Vector3d T_robot_global_unordered = T_robot_global_unordered_1 - R_robot_global_unordered * _c_params.T_camera_robot;
+
             Eigen::Vector3d rpy_unordered = RotationMatrixToRPY(R_robot_global_unordered);
 
             Eigen::Matrix3d R_robot_global = CreateRotationMatrix({rpy_unordered[2], rpy_unordered[0], rpy_unordered[1]});
             Eigen::Vector3d T_robot_global = {T_robot_global_unordered[0], T_robot_global_unordered[2], -T_robot_global_unordered[1]};
-
 
 
             // ==================== Now make the Pose_t object ====================

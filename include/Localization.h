@@ -30,7 +30,7 @@ public:
  */
 class MeanLocalizationStrategy: public ILocalizationStrategy{
 public:
-    void MaxRateChange(const Pose_single& a, Pose_single& b, double d_angular, double d_linear);
+    void MaxRateChange(const Pose_single& a, Pose_single& b, double d_rot, double d_linear);
 
     bool Compute(TagArray& fresh_poses, RobotPose& filtered_pose) override;
 };

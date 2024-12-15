@@ -3,7 +3,7 @@
 #include "Localization.h"
 #include "Logger.h"
 
-void MeanLocalizationStrategy::MaxRateChange(const Pose_single& a, Pose_single& b, double d_angular, double d_linear){
+void MeanLocalizationStrategy::MaxRateChange(const Pose_single& a, Pose_single& b, double d_rot, double d_linear){
 //    Pose_single ret_pose = b;
     if (a.T[0] - b.T[0] > d_linear) b.T[0] += d_linear; // increasing
     else if (b.T[0] - a.T[0] > d_linear) b.T[0] -= d_linear; // decreasing
@@ -17,22 +17,13 @@ void MeanLocalizationStrategy::MaxRateChange(const Pose_single& a, Pose_single& 
     else if (b.T[2] - a.T[2] > d_linear) b.T[2] -= d_linear; // decreasing
     else b.T[2] = a.T[2];
 
-    Eigen::Vector3d a_rpy = RotationMatrixToRPY(a.R);
-    Eigen::Vector3d b_rpy = RotationMatrixToRPY(b.R);
-
-    if (a_rpy[0] - b_rpy[0] > d_angular) b_rpy[0] += d_angular; // increasing
-    else if (b_rpy[0] - a_rpy[0] > d_angular) b_rpy[0] -= d_angular; // decreasing
-    else b_rpy[0] = a_rpy[0];
-
-    if (a_rpy[1] - b_rpy[1] > d_angular) b_rpy[1] += d_angular; // increasing
-    else if (b_rpy[1] - a_rpy[1] > d_angular) b_rpy[1] -= d_angular; // decreasing
-    else b_rpy[1] = a_rpy[1];
-
-    if (a_rpy[2] - b_rpy[2] > d_angular) b_rpy[2] += d_angular; // increasing
-    else if (b_rpy[2] - a_rpy[2] > d_angular) b_rpy[2] -= d_angular; // decreasing
-    else b_rpy[2] = a_rpy[2];
-
-    b.R = CreateRotationMatrix(b_rpy);
+    for (int i=0; i<3; ++i){
+        for (int j=0; j<3; ++j){
+            if (a.R(i, j) - b.R(i,j) > d_rot) b.R(i,j) += d_rot; // increasing
+            else if (b.R(i,j) - a.R(i,j) > d_rot) b.R(i,j) -= d_rot; // decreasing
+            else b.R(i,j) = a.R(i,j);
+        }
+    }
 
 }
 
@@ -80,8 +71,9 @@ bool MeanLocalizationStrategy::Compute(TagArray &fresh_poses, RobotPose &filtere
         avg_filtered_pose = filtered_pose.global;
     }
 
-    MaxRateChange(avg_filtered_pose, filtered_pose.global, 1, 0.01);
+    MaxRateChange(avg_filtered_pose, filtered_pose.global, 0.05, 0.05);
 
+//    AppLogger::Logger::Log("filtered pose: " + to_string(filtered_pose.global));
 //    if (num_poses > 0) return true;
 
     return true;

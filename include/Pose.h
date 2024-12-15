@@ -23,7 +23,7 @@ struct Pose_single {
         Pose_single diff;
 
         diff.T = T - o.T;
-        diff.R = R - o.R;
+        diff.R = R * o.R;
 
         return diff;
     }
@@ -31,7 +31,7 @@ struct Pose_single {
         Pose_single sum;
 
         sum.T = T + o.T;
-        sum.R = R + o.R;
+        sum.R = o.R * R;
 
         return sum;
     }

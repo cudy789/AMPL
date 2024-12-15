@@ -17,11 +17,15 @@ validate_ip() {
 configure_static_ip() {
     local ip="$1"
     local interface="$2"
-    local connection_name=$(nmcli -t -f NAME,DEVICE con show | grep ":$interface" | cut -d: -f1)
+    local connection_name="AMPL connection"
+    local detected_connection_name=$(nmcli -t -f NAME,DEVICE con show | grep "$connection_name" | cut -d: -f1)
 
-    if [[ -z "$interface" || -z "$connection_name" ]]; then
-        echo "Error: Could not detect active network interface or connection."
+    if [[ -z "$interface" ]]; then
+        echo "Error: Could not detect active network interface."
         exit 1
+    elif [[ -z "$detected_connection_name" ]]; then
+        echo "Adding $connection_name to interface $interface"
+        sudo nmcli con add type ethernet con-name "$connection_name" ifname "$interface"
     fi
 
     echo "Configuring static IP $ip on interface $interface (connection: $connection_name)..."
@@ -73,7 +77,7 @@ else
     fi
 
     if validate_ip "$STATIC_IP"; then
-        read -p "$STATIC_IP will be set on interface eth0, are you sure you want to continue (y/N)? " set_static_ip
+        read -p "$STATIC_IP will be set on interface $INTERFACE, are you sure you want to continue (y/N)? " set_static_ip
         if [[ "$set_static_ip" != "y" ]]; then
           echo "Operation canceled by user."
           exit 0

@@ -20,9 +20,6 @@ cd /home/"$USER"/ampl-config
 wget https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/config.yml
 wget https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/docker-compose.yml
 
-# Download latest docker images
-docker-compose pull
-
 # Setup the static IP
 if [[ -z "$SKIP_STATIC_IP" ]]; then
   wget https://raw.githubusercontent.com/cudy789/AMPL/refs/heads/main/set-ip.sh
@@ -31,4 +28,17 @@ else
   echo "Skipping static IP configuration"
 fi
 
-echo "Installation complete! Modify your config.yml file for your specific setup, then run 'docker compose up -d' to start AMPL."
+echo "############ Installation is almost complete! ############
+
+To finish the installation:
+
+1. Log out of your terminal and log back in
+2. Go to the ~/ampl-config directory and run 'docker-compose pull'
+
+Then, to configure and start AMPL:
+
+1. Modify your ~/ample-config/config.yml file for your specific camera setup
+2. Run 'docker-compose up -d' to start AMPL
+
+##########################################################
+"

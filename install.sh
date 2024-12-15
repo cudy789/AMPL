@@ -5,58 +5,17 @@ command_exists() {
     command -v "$1" &> /dev/null
 }
 
-echo "Checking for Docker installation..."
+echo "Installing Docker and Docker Compose"
 
-# Check if Docker is installed
-if command_exists docker; then
-    echo "Docker is already installed."
-else
-    echo "Docker is not installed. Proceeding with installation..."
+# Update package index
+sudo apt update
 
-    # Update package index
-    sudo apt update
+# Install Docker Engine and Docker Compose
+sudo apt install -y docker.io docker-compose
 
-    # Install prerequisites
-    sudo apt install -y \
-        apt-transport-https \
-        ca-certificates \
-        curl \
-        software-properties-common
-
-    # Update package index again
-    sudo apt update
-
-    # Install Docker Engine
-    sudo apt install -y docker.io
-
-    # Enable and start Docker service
-    sudo systemctl enable docker
-    sudo systemctl start docker
-
-    echo "Docker has been installed successfully."
-fi
-
-echo "Checking for Docker Compose installation..."
-
-# Check if Docker Compose is installed
-if command_exists docker compose; then
-    echo "Docker Compose is already installed."
-else
-    echo "Docker Compose is not installed. Proceeding with installation..."
-
-    # Update package index
-    sudo apt update
-
-    # Install docker compose
-    sudo apt install docker-compose
-
-    # Verify installation
-    if command_exists docker compose; then
-        echo "Docker Compose has been installed successfully."
-    else
-        echo "There was an issue installing Docker Compose."
-    fi
-fi
+# Enable and start Docker service
+sudo systemctl enable docker
+sudo systemctl start docker
 
 # Make config directory
 mkdir -p /home/"$USER"/ampl-config

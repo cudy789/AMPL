@@ -12,106 +12,131 @@
 # translation: [0, -0.5, 0.25] # x,y,z
 # rotation: [0, 20, 180] # roll, pitch, yaw
 
-Team number: 2987
-Fmap file: ../fmap/at14_16_1m.fmap
+team_number: 2987
 
-#Video recording: true
-Pose logging: true
+# Do not change this path. Change the contents of field.fmap on the host machine.
 
-Cameras:
-  # front left
-  CAM_LEFT:
-    camera_id: 4
-#    camera_playback_file: CAM_LEFT.mp4
+#video_recording: true
+pose_logging: true
 
-    rx: 544
-    ry: 288
+cameras:
+#  # front left
+#  CAM_LEFT:
+#    camera_id: 4
+##    camera_playback_file: CAM_LEFT.mp4
+#
+#    rx: 544
+#    ry: 288
+#
+##    fx: 600
+##    fy: 600
+#    fx: 590.588
+#    fy: 543.682
+#    cx: 279.683
+#    cy: 136.174
+#    dist_coeffs: [ 0.0814261, -0.0272061, -0.00493096, 0.00292767, 0.799907 ]
+#    # x,y,z
+#    translation: [-0.10, 0, 0]
+##    translation: [0, 0, 0]
+#    # roll, pitch, yaw
+#    rotation: [0, 0, 0]
+##    res_x: 640
+##    res_y: 360
+#    fps: 30.0
+#    exposure: 1
+#
+#  CAM_RIGHT:
+#    camera_id: 2
+##    camera_playback_file: CAM_RIGHT.mp4
+#    rx: 544
+#    ry: 288
+#
+##    calibrate: true
+#
+##    fx: 576.401
+##    fy: 518.809
+##    cx: 274.677
+##    cy: 135.944
+##    dist_coeffs: [ 0.0547323, -0.192355, -0.00343067, 0.0007713, 4.02394 ]
+##    fx: 588.934
+##    fy: 508.341
+##    cx: 267.113
+##    cy: 144.259
+##    dist_coeffs: [ 0.1298, -2.1539, -0.00260149, 0.00319527, 15.3579 ]
+##    fx: 636.559
+##    fy: 587.997
+##    cx: 267.383
+##    cy: 139.136
+#
+##    fx: 600
+##    fy: 600
+##    cx: 272
+##    cy: 144
+##    dist_coeffs: [0.0989902, -1.39707, 0.000295945, 0.00464756, 7.56006]
+#
+## this was good except the distance was off by 20cm or so
+##    fx: 556.316
+##    fy: 519.565
+##    cx: 277.239
+##    cy: 180.825
+##    dist_coeffs: [ -0.0816218, 1.46758, 0.0137425, 0.00236742, -3.4844 ]
+#
+## this is very very good.
+#    fx: 590.588
+#    fy: 543.682
+#    cx: 279.683
+#    cy: 136.174
+#    dist_coeffs: [ 0.0814261, -0.0272061, -0.00493096, 0.00292767, 0.799907 ]
+#
+#    # x,y,z
+#    translation: [0.10, 0, 0]
+##    translation: [0, 0, 0]
+#    # roll, pitch, yaw
+#    rotation: [0, 0, 0]
+#    fps: 30.0
+#    exposure: 1
+#
+#  # backwards facing cam
+#  CAM_REAR:
+#    camera_id: 0
+##    camera_playback_file: CAM_REAR.mp4
+#    rx: 544
+#    ry: 288
+#
+#    #    fx: 600
+#    #    fy: 600
+#    fx: 590.588
+#    fy: 543.682
+#    cx: 279.683
+#    cy: 136.174
+#    dist_coeffs: [ 0.0814261, -0.0272061, -0.00493096, 0.00292767, 0.799907 ]
+#    # x,y,z
+##    translation: [-0.02, -0.305, 0]
+#    translation: [0, -0.305, 0]
+#    # roll, pitch, yaw
+#    rotation: [0, 178, 0]
+#    fps: 30.0
+#    exposure: 1
 
-#    fx: 600
-#    fy: 600
-    fx: 590.588
-    fy: 543.682
-    cx: 279.683
-    cy: 136.174
-    dist_coeffs: [ 0.0814261, -0.0272061, -0.00493096, 0.00292767, 0.799907 ]
-    # x,y,z
-    translation: [-0.10, 0, 0]
-#    translation: [0, 0, 0]
-    # roll, pitch, yaw
-    rotation: [0, 0, 0]
-#    res_x: 640
-#    res_y: 360
-    fps: 30.0
-    exposure: 1
 
-  CAM_RIGHT:
-    camera_id: 2
-#    camera_playback_file: CAM_RIGHT.mp4
-    rx: 544
-    ry: 288
+    CAM_REAR:
+      camera_id: 6
+      calibrate: true
+      #    camera_playback_file: CAM_REAR.mp4
+      rx: 640
+      ry: 480
 
-#    calibrate: true
-
-#    fx: 576.401
-#    fy: 518.809
-#    cx: 274.677
-#    cy: 135.944
-#    dist_coeffs: [ 0.0547323, -0.192355, -0.00343067, 0.0007713, 4.02394 ]
-#    fx: 588.934
-#    fy: 508.341
-#    cx: 267.113
-#    cy: 144.259
-#    dist_coeffs: [ 0.1298, -2.1539, -0.00260149, 0.00319527, 15.3579 ]
-#    fx: 636.559
-#    fy: 587.997
-#    cx: 267.383
-#    cy: 139.136
-
-#    fx: 600
-#    fy: 600
-#    cx: 272
-#    cy: 144
-#    dist_coeffs: [0.0989902, -1.39707, 0.000295945, 0.00464756, 7.56006]
-
-# this was good except the distance was off by 20cm or so
-#    fx: 556.316
-#    fy: 519.565
-#    cx: 277.239
-#    cy: 180.825
-#    dist_coeffs: [ -0.0816218, 1.46758, 0.0137425, 0.00236742, -3.4844 ]
-
-# this is very very good.
-    fx: 590.588
-    fy: 543.682
-    cx: 279.683
-    cy: 136.174
-    dist_coeffs: [ 0.0814261, -0.0272061, -0.00493096, 0.00292767, 0.799907 ]
-
-    # x,y,z
-    translation: [0.10, 0, 0]
-#    translation: [0, 0, 0]
-    # roll, pitch, yaw
-    rotation: [0, 0, 0]
-    fps: 30.0
-    exposure: 1
-
-  # backwards facing cam
-  CAM_REAR:
-    camera_id: 0
-#    camera_playback_file: CAM_REAR.mp4
-    rx: 544
-    ry: 288
-
-    #    fx: 600
-    #    fy: 600
-    fx: 590.588
-    fy: 543.682
-    cx: 279.683
-    cy: 136.174
-    dist_coeffs: [ 0.0814261, -0.0272061, -0.00493096, 0.00292767, 0.799907 ]
-    # x,y,z
-    translation: [-0.02, -0.305, 0]
-    # roll, pitch, yaw
-    rotation: [0, 0, 180]
-    fps: 30.0
-    exposure: 1
+      #    fx: 600
+      #    fy: 600
+#      fx: 590.588
+#      fy: 543.682
+#      cx: 279.683
+#      cy: 136.174
+#      dist_coeffs: [ 0.0814261, -0.0272061, -0.00493096, 0.00292767, 0.799907 ]
+      # x,y,z
+      #    translation: [-0.02, -0.305, 0]
+      translation: [ 0, 0, 0 ]
+      # roll, pitch, yaw
+      rotation: [ 0, 0, 0 ]
+      fps: 100.0
+      exposure: 50

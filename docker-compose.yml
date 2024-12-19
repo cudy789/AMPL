@@ -5,6 +5,7 @@ services:
     volumes:
       - ./config.yml:/app/AMPL/config.yml
       - ./logs:/app/AMPL/build/logs
+      - ./field.fmap:/app/AMPL/fmap/field.fmap
     restart: always
     privileged: true
     network_mode: host

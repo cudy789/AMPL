@@ -169,8 +169,8 @@ public:
 
         try {
             YAML::Node parser = YAML::LoadFile(cfg_file);
-            if (parser["Cameras"]) {
-                YAML::Node cameras_yml = parser["Cameras"];
+            if (parser["cameras"]) {
+                YAML::Node cameras_yml = parser["cameras"];
                 for (YAML::const_iterator it = cameras_yml.begin(); it != cameras_yml.end(); ++it) {
                     double c_cx, c_cy, c_fx, c_fy = 0;
                     std::vector<double> c_dist_coeffs;
@@ -208,26 +208,30 @@ public:
 
                 }
             }
-            if (parser["Team number"]){
-                params.team_num = parser["Team number"].as<int>();
-                AppLogger::Logger::Log("Team number " + to_string(params.team_num));
+            if (parser["team_number"]){
+                params.team_num = parser["team_number"].as<int>();
+                AppLogger::Logger::Log("team_number " + to_string(params.team_num));
             }
             else {
-                AppLogger::Logger::Log("No Team number found", AppLogger::SEVERITY::WARNING);
+                AppLogger::Logger::Log("No team_number found", AppLogger::SEVERITY::WARNING);
                 params.team_num = -1;
             }
             // Expect an fmap file, throw an exception otherwise
-            params.fmap_file = parser["Fmap file"].as<std::string>();
-            AppLogger::Logger::Log("Fmap file: " + params.fmap_file);
+            if (parser["fmap_file"]){
+                params.fmap_file = parser["fmap_file"].as<std::string>();
+            } else{
+                params.fmap_file="../fmap/field.fmap";
+            }
+            AppLogger::Logger::Log("fmap_file: " + params.fmap_file);
 
-            if (parser["Pose logging"]){
-                params.pose_logging = parser["Pose logging"].as<bool>();
+            if (parser["pose_logging"]){
+                params.pose_logging = parser["pose_logging"].as<bool>();
             } else{
                 params.pose_logging = false;
             }
 
-            if (parser["Video recording"]){
-                params.video_recording = parser["Video recording"].as<bool>();
+            if (parser["video_recording"]){
+                params.video_recording = parser["video_recording"].as<bool>();
             } else{
                 params.video_recording = false;
             }
@@ -238,10 +242,6 @@ public:
             throw(e);
         }
         return params;
-    }
-
-    static void WriteConfig(const AMPLParams& params, const std::string& cfg_file){
-
     }
 
 

@@ -19,12 +19,29 @@
             font-size: 14px;
             z-index: 100;
         }
+        /*style="position: absolute; top: 5%; left: 0; z-index: 200; border: 2px solid white*/
+        #mjpeg-container {
+            position: absolute;
+            top: 5%;
+            left: 0;
+            height: 90%; /* Adjust as needed */
+            overflow-y: auto;
+            z-index: 200;
+            border: 2px solid white;
+            background-color: black;
+        }
+        #mjpeg-stream {
+            display: block;
+            margin: 0 auto;
+        }
     </style>
 <!--    <script src="/three.module.js"></script>-->
 </head>
 <body>
 <div id="info">No connection...</div>
-<img id="mjpeg-stream" alt="MJPEG Stream" style="position: absolute; top: 5%; left: 0; z-index: 200; border: 2px solid white;">
+<div id="mjpeg-container">
+    <img id="mjpeg-stream" alt="MJPEG Stream">
+</div>
 <script type="module">
 
     const mjpegStream = document.getElementById('mjpeg-stream');

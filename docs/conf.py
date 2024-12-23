@@ -28,6 +28,10 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
+# add custom css for tables, etc.
+html_css_files = [
+    "css/tables.css"
+]
 
 extensions = ["breathe", "sphinx.ext.autosectionlabel"]
 breathe_projects = {

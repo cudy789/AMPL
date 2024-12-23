@@ -4,13 +4,13 @@ Setup your system
 In this section, we will go through setting up a Raspberry Pi 4 to be used with AMPL. If you're able to setup a Raspberry Pi Bookworm 64-bit Lite OS
 (or similar Linux OS) on your system and configure SSH & internet connectivity on your own, you can skip to :doc:`install`.
 
-**You will need internet on your system when you boot it up, so either configure WiFi or plugin an ethernet cable**
+**You will need internet on your system when you boot it up, so either configure WiFi or plugin an ethernet cable.**
 
 
 Imaging your Raspberry Pi
 ===========================
 
-1. Download the latest version of the `Raspberry Pi Imager Tool <https://www.raspberrypi.com/software/>`_
+1. Download the latest version of the `Raspberry Pi Imager Tool <https://www.raspberrypi.com/software/>`_.
 2. Plug your microSD card into your computer and open the RPi Imager tool.
 
    .. image:: /res/installation/rpi-imager.png
@@ -21,6 +21,7 @@ Imaging your Raspberry Pi
    .. image:: /res/installation/rpi-imager-select-os.gif
 
 4. Click "Next", then select "Edit Settings".
+
    .. image:: /res/installation/rpi-imager-edit-settings.png
 
    Set the hostname to ``ampl``, user to ``pi``, and choose a password for the user. Choose the wireless LAN (WiFI) that you
@@ -33,11 +34,11 @@ Imaging your Raspberry Pi
 
    .. image:: /res/installation/rpi-imager-ssh.png
 
-
 6. Click "Save" at the bottom of the customization menu.
+
    .. image:: /res/installation/rpi-imager-save.png
 
-7. Click "Yes" to apply OS Customisation settings
+7. Click "Yes" to apply OS Customisation settings.
 
    .. image:: /res/installation/rpi-imager-yes.png
 
@@ -94,7 +95,7 @@ This section is assuming you are trying to connect to your Raspberry Pi using a 
       The letters will not show up as you type them in, this is to keep  your password a secret from people looking at your screen.
 
    Now you should see the following screen. This is a "terminal" connected to your Raspberry Pi. We will be using the terminal
-   in the next steps to install and configure AMPL
+   in the next steps to install and configure AMPL.
 
    .. image:: /res/installation/putty-logged-in.png
 

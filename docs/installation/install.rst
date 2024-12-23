@@ -1,7 +1,7 @@
 Installing AMPL
 ###################
 
-This section describes how to use the installation script to download and install AMPL. This script will make a directory (or folder)
+This section describes how to use the installation script to download and install AMPL. This script will make a folder
 called ``ampl-config`` in your user's home directory with a ``docker-compose.yml`` and a ``config.yml`` file. The ``config.yml``
 file contains all of the parameters and settings for AMPL and will be modified in future sections.
 
@@ -13,7 +13,8 @@ file contains all of the parameters and settings for AMPL and will be modified i
 .. note::
    Installation may take over 1 hour depending on your internet speed since you must pull the necessary Docker image (~1.5GB)
 
-If you run the script multiple times, your config.yml and docker-compose.yml files will not be overwritten.
+.. note::
+   If you run the script multiple times, your config.yml and docker-compose.yml files will not be overwritten.
 
 Installation
 =============

@@ -1,14 +1,20 @@
-Choosing your computer and cameras
+Choosing your coprocessor and cameras
 ###################################
 
 Choosing your computer
 ====================
 
-System requirements:
+Minimum system requirements:
 
-* >= Raspberry Pi 4 4GB (or equivalent)
-* Raspberry Pi OS Bookworm (or equivalent)
-* >= 32GB storage
+* Raspberry Pi 4 4GB (or equivalent)
+* Raspberry Pi OS (64-bit) (or equivalent)
+* 32GB storage
+
+Recommended system requirements:
+
+* Raspberry Pi 5 8GB w/active cooling
+* Raspberry Pi OS Bookworm Lite (64-bit)
+* 128GB high endurance microSD card
 
 AMPL was developed to run on low power ARM single board computers. We recommend using a Raspberry
 Pi 4 or newer with a high read/write endurance microSD card, adequate cooling (active coolers are preferred), and a

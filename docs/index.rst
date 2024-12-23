@@ -28,7 +28,7 @@ Features
 * Web UI camera and pose visualization
 * Camera distortion correction
 * Onboard pose trajectory logging
-* Compatable with Limelight `fmap` Apriltag field layout files
+* Compatable with Limelight ``fmap`` Apriltag field layout files
 * Easy installation with Docker compose
 * FRC getting started code examples
 * Fully documented API
@@ -59,4 +59,5 @@ Detection and Estimation Methods
 
    self
    installation/index
+   calibration
    api/index

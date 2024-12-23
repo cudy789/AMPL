@@ -184,6 +184,11 @@ maps to the correct camera.
 
 Repeat this process for each camera.
 
+.. tip::
+   Right click to pan, left click to rotate, and scroll to zoom in the 3D visualizer.
+
+   Scroll through the video feeds on the left to see each camera's live stream.
+
 .. image:: ../res/configuration/at-home-4cams.gif
 
 
@@ -208,7 +213,8 @@ Each camera in the ``config.yml`` file must have a translation and rotation set 
 figuring out the translation and rotation of a camera in a few examples.
 
 The image below describes the **robot frame**, which is at the center of the robot. A "frame" is a point of view and we
-setup an axis system (x, y, z here) at the center of the frame. We will make all measurements relative to this frame of reference.
+setup an axis system (x, y, z here) at the center of the frame. We use the "right hand rule" or "north east down" (NED) naming
+convention to define the positive directions of the x, y, and z axis. We will make all measurements relative to the robot frame of reference.
 
 .. image:: ../res/configuration/robot-frames-xyz-rpy.png
 

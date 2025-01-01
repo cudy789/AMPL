@@ -1,26 +1,25 @@
 Choosing your coprocessor and cameras
-###################################
+#######################################
 
-Choosing your computer
-====================
+Choosing your coprocessor
+============================
 
-Minimum system requirements:
-
-* Raspberry Pi 4 4GB (or equivalent)
-* Raspberry Pi OS (64-bit) (or equivalent)
-* 32GB storage
-
-Recommended system requirements:
+If you are building a setup from scratch, the **recommended** system requirements are
 
 * Raspberry Pi 5 8GB w/active cooling
 * Raspberry Pi OS Bookworm Lite (64-bit)
 * 128GB high endurance microSD card
 
-AMPL was developed to run on low power ARM single board computers. We recommend using a Raspberry
-Pi 4 or newer with a high read/write endurance microSD card, adequate cooling (active coolers are preferred), and a
-high quality power supply.
+If you have components on hand, the **minimum** system requirements are
 
-AMPL can run also run on X86_64 CPUs.
+* Raspberry Pi 4 4GB (or equivalent)
+* Raspberry Pi OS (64-bit) (or equivalent)
+* 32GB storage
+
+A high read/write endurance microSD card, adequate cooling (active coolers are preferred), and a
+high quality power supply are **highly recommended**.
+
+AMPL was developed to run on low power ARM single board computers but can also run on x86 machines.
 
 Ensure your system has enough IO for all of your cameras.
 
@@ -29,8 +28,10 @@ Choosing your cameras
 There are many factors to consider when choosing your cameras for AMPL. You can mix and match your camera models, resolutions,
 framerates, etc., to fit your use case.
 
-USB 2.0/3.0 and CSI webcams are supported. Ensure your computer has fast enough IO to handle higher speed devices and you don't
-exceed the USB 2.0/3.0 controller bandwidth limit.
+If you are building a setup from scratch, **we recommend 3 high framerate global shutter Arducam modules**, such as the
+`OV9281 640p 100FPS monochrome global shutter camera. <https://www.arducam.com/product/arducam-100fps-global-shutter-usb-camera-board-1mp-720p-ov9281-uvc-webcam-module-with-low-distortion-m12-lens-without-microphones-for-computer-laptop-android-device-and-raspberry-pi/>`_
+
+If you have cameras on hand, all USB 2.0/3.0 and CSI cameras are supported. See the important factors below when choosing your cameras.
 
 Important factors
 *******************
@@ -52,16 +53,23 @@ Number of cameras
 
 Lens
 
-* Currently, fisheye lenses are not supported in AMPL, but distortion correction for pinhole cameras is available.
+* Currently, fisheye lenses are not supported in AMPL, but distortion correction for pinhole cameras is available. Cameras
+  with advertised low distortion lenses can be desirable and remove the need to perform any distortion correction in software,
+  which will **dramatically increase performance**.
+
+Global vs. rolling shutter
+
+* Global shutter cameras read an image from all of the camera's pixels at once, reducing motion blur and distortion affects
+  on objects that are moving quickly. Global shutter cameras are preferred but not necessary.
 
 Power
 
 * Using many high current draw cameras on a single board computer can cause the system to brownout or
-  restart.
+  restart. For the Raspberry Pi 4/5, use a >=20watt USB-C power supply. You can also power the Raspberry Pi via the GPIO pins.
 
 Driver compatibility
 
-* Arducam cameras tend to behave better with OpenCV and how Linux handles UVC devices.
+* Arducam cameras tend to behave better with OpenCV and how Linux handles UVC devices. Arducam devies are preferred.
 
 .. warning::
     Cameras with known issues:
@@ -73,11 +81,11 @@ Less important factors
 
 Sensor size
 
-* Larger sensors will have better low light performance, which may be important for some applications
+* Larger sensors will have better low light performance, which may be important for some applications.
 
 
 Example Configurations
-=======================
+=========================
 
 .. list-table::
     :widths: 25 25 50

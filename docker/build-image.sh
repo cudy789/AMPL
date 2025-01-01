@@ -14,12 +14,6 @@ else
   CACHE_FLAG=""
 fi
 
-if [ "$BUILDX" = "0" ]; then
-  BUILDX=0
-else
-  BUILDX=1
-fi
-
 IMAGE_NAME="ampl"
 IMAGE_TAG="latest"
 

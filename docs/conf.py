@@ -33,10 +33,13 @@ html_css_files = [
     "css/tables.css"
 ]
 
-extensions = ["breathe", "sphinx.ext.autosectionlabel"]
+extensions = ["breathe", "sphinx.ext.autosectionlabel", "sphinx_tabs.tabs"]
 breathe_projects = {
     'AMPL': './xml'
 }
 
 # Breathe configuration
 breathe_default_project = "AMPL"
+
+# Tabs for code, prevent tab from closing
+sphinx_tabs_disable_tab_closing = True

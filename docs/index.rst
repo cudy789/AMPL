@@ -1,8 +1,3 @@
-.. AMPL documentation master file, created by
-   sphinx-quickstart on Wed Nov 13 23:26:55 2024.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Overview
 ###########
 
@@ -45,17 +40,22 @@ Installation
 4. :doc:`installation/configure`
 5. :doc:`installation/run`
 
-:doc:`./updating`
 
 FAQ
 ====
+
+ | Can I blank?
+
+Yes!
+
 
 Detection and Estimation Methods
 =================================
 
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
+   :hidden:
 
    self
    installation/index

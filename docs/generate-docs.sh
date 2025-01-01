@@ -9,7 +9,7 @@ echo "Killing any existing ampl containers"
 docker kill ampl-docs
 sleep 5
 
-docker run --rm -h $IMAGE_NAME-$HOSTNAME -it --name ampl-docs --group-add sudo --add-host $IMAGE_NAME-$HOSTNAME:127.0.0.1 --network host \
+docker run --rm -h $IMAGE_NAME-$HOSTNAME --name ampl-docs --group-add sudo --add-host $IMAGE_NAME-$HOSTNAME:127.0.0.1 --network host \
   --user=$(id -u $USER):$(id -g $USER) \
   --volume="/etc/passwd:/etc/passwd:ro" \
   --volume="/etc/shadow:/etc/shadow:ro" \

@@ -4,11 +4,7 @@
 
 ## What is AMPL?
 
-
-
-<div align="center">
-    <img src="./res/crappy_recording_athome.gif">
-</div>
+![](./docs/res/crappy_recording_athome.gif)
 
 Apriltag multicamera pose localization (AMPL) is a position estimator that uses the known location of 
 [Apriltag](https://github.com/AprilRobotics/apriltag) fiducials 

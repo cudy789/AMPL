@@ -74,33 +74,79 @@
     // connectMjpegStream();
 
 
-    import * as THREE from '/three.module.js';
-    import { OrbitControls } from '/OrbitControls.js';
+    import * as THREE from './js/three.module.js';
+    import { OrbitControls } from './js/OrbitControls.js';
+    import { GLTFLoader } from './js/GLTFLoader.js';
+    import { DRACOLoader } from './js/DRACOLoader.js';
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.toneMappingExposure = 1;
+    renderer.toneMapping = THREE.LinearToneMapping;
     document.body.appendChild(renderer.domElement);
+
+    // Add lighting
+    const light = new THREE.AmbientLight( 0xffffff, 1.5 );
+    scene.add( light );
+    const directionalLightTop = new THREE.DirectionalLight( 0xffffff, 2.5 );
+    scene.add( directionalLightTop );
+    const directionalLightLeft = new THREE.DirectionalLight( 0xffffff, 2.5 );
+    directionalLightLeft.position.set(-100, 0, 0);
+    scene.add( directionalLightLeft );
+    const directionalLightRight= new THREE.DirectionalLight( 0xffffff, 2.5 );
+    directionalLightRight.position.set(100, 0, 0);
+    scene.add( directionalLightRight );
+
+    scene.background = new THREE.Color( 0x191919 );
+
+    let robot_model;
+    const robot_group = new THREE.Group();
+
+    const loader = new GLTFLoader();
+
+    loader.load( './js/drone_low_poly.glb', function ( gltf ) {
+
+            robot_model = gltf.scene;
+            robot_model.scale.set(0.005, 0.005, 0.005);
+            // robot_model.position.set(0, -0.09, 0);
+            robot_model.rotation.set(Math.PI/2, Math.PI, 0);
+            robot_group.add(robot_model);
+            scene.add( robot_group );
+
+        },
+        function ( xhr ) {
+
+            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+        },
+        function ( error ) {
+
+            console.error( error );
+
+    } );
 
     // const geometry = new THREE.BoxGeometry(0.25, 0.25, 0.25);
     const cube = new THREE.AxesHelper( 1 );
     // const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     // const cube = new THREE.Mesh(geometry.geometry, material);
-    scene.add(cube);
+    // scene.add(cube);
+    robot_group.add(cube);
 
     const gridHelper = new THREE.GridHelper(20, 20);
 
     scene.add(gridHelper);
 
     const controls = new OrbitControls(camera, renderer.domElement);
+    controls.minDistance = 0.1;
+    controls.maxDistance = 10;
+
     camera.position.x = 0;
     camera.position.y = 0;
     camera.position.z = 2;
     // camera.rotation.x = Math.PI/2;
-
-
     controls.update();
 
     // Webpage coord display
@@ -115,43 +161,47 @@
 
 
 
-        const socket = new WebSocket(webSocketUrl);
+    const socket = new WebSocket(webSocketUrl);
 
-        socket.onopen = () => {
-            console.log('WebSocket connection established');
-            infoDiv.textContent = 'Connected'
+    socket.onopen = () => {
+        console.log('WebSocket connection established');
+        infoDiv.textContent = 'Connected'
 
-        };
+    };
 
-        socket.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                if ('x' in data && 'y' in data && 'z' in data &&
-                    'roll' in data && 'pitch' in data && 'yaw' in data) {
+    socket.onmessage = (event) => {
+        try {
+            const data = JSON.parse(event.data);
+            if ('x' in data && 'y' in data && 'z' in data &&
+                'roll' in data && 'pitch' in data && 'yaw' in data) {
 
-                    // Update cube's position
-                    cube.position.set(data.y, data.z, data.x);
+                // // Update cube's position
+                robot_group.position.set(data.y, data.z, data.x);
+                // if (robot_model) robot_model.position.set(data.y, data.z -0.09, data.x);
+                // if (robot_model) robot_model.position.set(data.y, data.z, data.x);
+                //
+                // // Update cube's rotation (roll, pitch, yaw in radians) x y z
+                // cube.rotation.set(data.roll / 180 * Math.PI, -data.yaw / 180 * Math.PI, data.pitch / 180 * Math.PI);
+                // if (robot_model) robot_model.rotation.set(data.roll / 180 * Math.PI + Math.PI/2, -data.yaw / 180 * Math.PI + Math.PI, data.pitch / 180 * Math.PI);
+                // if (robot_model) robot_model.rotation.set(data.roll / 180 * Math.PI + Math.PI/2, -data.yaw / 180 * Math.PI + Math.PI, data.pitch / 180 * Math.PI);
 
-                    // Update cube's rotation (roll, pitch, yaw in radians)
-                    cube.rotation.set(data.roll / 180 * Math.PI, -data.yaw / 180 * Math.PI, data.pitch / 180 * Math.PI);
-
-                    infoDiv.textContent = `x: ${data.x.toFixed(2)}, y: ${data.y.toFixed(2)}, z: ${data.z.toFixed(2)} \n` +
-                        `roll: ${(data.roll).toFixed(2)}, pitch: ${(data.pitch).toFixed(2)}, yaw: ${(data.yaw).toFixed(2)}`;
-                }
-            } catch (error) {
-                console.error('Error parsing WebSocket message:', error);
+                infoDiv.textContent = `x: ${data.x.toFixed(2)}, y: ${data.y.toFixed(2)}, z: ${data.z.toFixed(2)} \n` +
+                    `roll: ${(data.roll).toFixed(2)}, pitch: ${(data.pitch).toFixed(2)}, yaw: ${(data.yaw).toFixed(2)}`;
             }
-        };
+        } catch (error) {
+            console.error('Error parsing WebSocket message:', error);
+        }
+    };
 
-        socket.onerror = (error) => {
-            console.error('WebSocket error:', error);
-        };
+    socket.onerror = (error) => {
+        console.error('WebSocket error:', error);
+    };
 
-        socket.onclose = () => {
-            console.log('WebSocket connection closed');
-            infoDiv.textContent = 'Lost connection, attempting to reconnect...'
-            // setTimeout(connectWebSocket, reconnectInterval); // Attempt reconnection
-        };
+    socket.onclose = () => {
+        console.log('WebSocket connection closed');
+        infoDiv.textContent = 'Lost connection, attempting to reconnect...'
+        // setTimeout(connectWebSocket, reconnectInterval); // Attempt reconnection
+    };
     // }
     // Initial WebSocket connection
     // connectWebSocket();
@@ -164,10 +214,12 @@
 
     function animate() {
         controls.update();
+        controls.target.set(controls.target.x, 0, controls.target.z);
         renderer.render(scene, camera);
     }
 
     renderer.setAnimationLoop(animate);
 </script>
+
 </body>
 </html>

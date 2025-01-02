@@ -2,7 +2,7 @@ Overview
 ###########
 
 .. important::
-    This project is under active development, use at your own risk!
+    This project is under active development!
 
 Apriltag multicamera pose localization (AMPL) is a position estimator that uses the known location of
 `Apriltag <https://github.com/AprilRobotics/apriltag>`_ fiducials
@@ -15,6 +15,9 @@ competitions, but can be configured for general Apriltag localization applicatio
 
 Compared to existing FRC camera solutions (such as `Limelight <https://docs.limelightvision.io/>`_ or `PhotonVision <https://docs.photonvision.org>`_), AMPL is designed specifically for multicamera
 setups and aims to minimize the technical barrier of entry for multicamera pose localization.
+
+Bring your own hardware, or use the recommended specs (3 cameras, RPi 5, totalling <$300).
+
 
 Features
 =========
@@ -44,13 +47,19 @@ Installation
 FAQ
 ====
 
- | Can I blank?
+Q: How many cameras can AMPL handle at once?
 
-Yes!
+    A: There are no hard limits within AMPL. On a Raspberry Pi 5 8GB AMPL can process 4 cameras at 640p @ 60FPS in realtime.
 
 
-Detection and Estimation Methods
-=================================
+Q: What cameras and computer should I use?
+
+    A: See the discussion on :doc:`installation/choosing-hardware` to pick the cameras and coprocessor to best suit your needs.
+
+Q: Why should I use this instead of Limelight or PhotonVision?
+
+    A: AMPL is designed for high performance multi-camera pose estimation without sacrificing ease of use or accuracy. Limelight
+    and PhotonVision are focused on single-camera Apriltag pose estimation.
 
 
 .. toctree::

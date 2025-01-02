@@ -53,7 +53,7 @@ void WebServerWorker::Init() {
            [](mg_connection *conn, int ev, void *ev_data) {
                if (ev == MG_EV_HTTP_MSG) {
                    struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-                   struct mg_http_serve_opts opts = { .root_dir = "./" };
+                   struct mg_http_serve_opts opts = { .root_dir = "./web/" };
 
                    mg_http_serve_dir(conn, hm, &opts);
                    AppLogger::Logger::Log("Client connected to viewer");

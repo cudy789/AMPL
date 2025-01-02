@@ -48,10 +48,41 @@ include_directories(lib/Eigen)
 add_library(mongoose STATIC lib/mongoose/mongoose.c)
 target_include_directories(mongoose PUBLIC lib/mongoose)
 
-configure_file(src/web/index.html ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-configure_file(src/web/js/three.module.js ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-configure_file(src/web/js/three.core.js ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-configure_file(src/web/js/OrbitControls.js ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+# Recursively copy all web files (html, js, models) to build directory
+
+set(WEB_FILE_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/web")
+
+set(WEB_FILE_DST "${CMAKE_CURRENT_BINARY_DIR}")
+
+file(COPY ${WEB_FILE_SRC} DESTINATION ${WEB_FILE_DST})
+#file(GLOB_RECURSE WEB_FILES "${WEB_FILE_SRC}/*")
+#
+## Iterate over each file
+#foreach(WEB_FILE ${WEB_FILES})
+#    # Get the relative path of the file w.r.t the source directory
+#    file(RELATIVE_PATH REL_PATH "${WEB_FILE_SRC}" "${WEB_FILE}")
+#
+#    # Determine the output path, preserving the directory structure
+#    set(OUTPUT_FILE "${WEB_FILE_DST}/${REL_PATH}")
+#
+#    # Create the output directory structure if needed
+#    get_filename_component(OUTPUT_DIR_FOR_FILE "${OUTPUT_FILE}" DIRECTORY)
+#    file(MAKE_DIRECTORY "${OUTPUT_DIR_FOR_FILE}")
+#
+#    # Copy the file
+#    configure_file(
+#            "${CONFIG_FILE}" # Input file
+#            "${OUTPUT_FILE}" # Output file
+#    )
+#endforeach()
+
+#configure_file(src/web/index.html ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+#configure_file(src/web/js/three.module.js ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+#configure_file(src/web/js/three.core.js ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+#configure_file(src/web/js/OrbitControls.js ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+#configure_file(src/web/js/GLTFLoader.js ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+#configure_file(src/web/js/BufferGeometryUtils.js ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+#configure_file(src/web/js/quadcopter.gltf ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 
 # Add the apriltag library, do not build examples or python wrapper
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)

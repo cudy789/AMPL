@@ -27,7 +27,7 @@ RUN pip install sphinx_rtd_theme sphinx-tabs pexpect
 
 # ============ Install Open3D for test video generation ============
 
-RUN pip install open3d-cpu
+RUN pip install numpy scipy pybullet
 
 # ============ Build and run AMPL ============
 RUN mkdir /app

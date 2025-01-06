@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<robot name="apriltag_model">
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <mesh filename="at.obj" scale="1 1 1"/>
+      </geometry>
+      <material name="apriltag_texture">
+        <texture filename="at_objs/apriltag-imgs/tag36h11/tag36_11_00001-big-cleaned.png"/>
+      </material>
+    </visual>
+  </link>
+</robot>

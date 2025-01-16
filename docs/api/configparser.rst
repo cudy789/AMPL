@@ -5,5 +5,5 @@ ConfigParser
    :maxdepth: 1
 
 .. doxygenclass:: ConfigParser
-   :project: AMPL
+   :project: MAPLE
    :members:

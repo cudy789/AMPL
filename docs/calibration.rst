@@ -3,7 +3,7 @@ Camera lens distortion and calibration
 
 Most camera lenses introduce visual distortions into the image as they're recording and should be corrected when you are
 trying to make accurate measurements using cameras. `OpenCV's page on Camera Calibration <https://docs.opencv.org/4.x/dc/dbb/tutorial_py_calibration.html>`_
-has an excellent description of what kinds of distortion are found in pinhole cameras and how to correct for it. AMPL corrects
+has an excellent description of what kinds of distortion are found in pinhole cameras and how to correct for it. MAPLE corrects
 for radial and tangential distortions using these methods when the user provides ``dist_coeffs`` in their ``config.yml`` file.
 
 .. note::
@@ -11,22 +11,22 @@ for radial and tangential distortions using these methods when the user provides
    in the configuration file and this will skip the undistort step when detecting Apriltags. You can see up to >2x speed improvement,
    which is very helpful for high FPS cameras.
 
-How to calibrate your cameras in AMPL
+How to calibrate your cameras in MAPLE
 ======================================
 
 .. note::
 
    If you have estimates for your ``fx``, ``fy``, ``cx``, or ``cy`` parameters, populate these values in your ``config.yml``.
-   AMPL will use these for its starting point when calculating the distortion coefficients. **Leave these parameters blank otherwise.**
+   MAPLE will use these for its starting point when calculating the distortion coefficients. **Leave these parameters blank otherwise.**
 
 
-1. Print out the `9x6 checkerboard calibration target <https://github.com/cudy789/AMPL/blob/main/calibration/9x6checkerboardcalibrationpattern.png>`_
+1. Print out the `9x6 checkerboard calibration target <https://github.com/cudy789/MAPLE/blob/main/calibration/9x6checkerboardcalibrationpattern.png>`_
    onto a piece of paper and tape it down completely flat onto a clipboard. The exact size of the checkerboard doesn't
    matter, what's important is that the paper is completely flat.
 2. Edit your ``config.yml`` file and add ``calibrate: true`` to your first camera you want to calibrate.
-3. Restart AMPL.
-4. Refresh the AMPL webUI. Your camera viewer should now say ``[CALIBRATING 0/20]`` in the top left corner.
-5. Hold the calibration target close to the camera so that it takes up as much of the frame as possible. AMPL will start
+3. Restart MAPLE.
+4. Refresh the MAPLE webUI. Your camera viewer should now say ``[CALIBRATING 0/20]`` in the top left corner.
+5. Hold the calibration target close to the camera so that it takes up as much of the frame as possible. MAPLE will start
    taking still frames **every 0.5 seconds** and will overlay detections when it correctly identifies the checkerboard pattern.
    Slowly move and rotate the checkerboard in view of the camera until all 20 calibration images are acquired.
 

@@ -110,7 +110,7 @@ namespace AppLogger{
     protected:
 
         TrajectoryLogger(): Logger() {
-            _filepath = "./logs/ampl_trajectory_log_" + datetime_ms() + ".csv";
+            _filepath = "./logs/maple_trajectory_log_" + datetime_ms() + ".csv";
             _stdout_enabled = false;
             log("time_ms, x, y, z, roll, pitch, yaw");
         }

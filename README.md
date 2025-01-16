@@ -1,18 +1,18 @@
-# AMPL: Apriltag Multicamera Pose Localization 
+# MAPLE: Multicamera Apriltag Pose Localization and Estimation
 
-[![Documentation Status](https://readthedocs.org/projects/ampl-frc/badge/?version=latest)](https://ampl-frc.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/maple-frc/badge/?version=latest)](https://ampl-frc.readthedocs.io/en/latest/?badge=latest)
 
-## What is AMPL?
+## What is MAPLE?
 
 ![](./docs/res/crappy_recording_athome.gif)
 
-Apriltag multicamera pose localization (AMPL) is a position estimator that uses the known location of 
+Multicamera Apriltag Pose Localization and Estimation (MAPLE) is a position estimator that uses the known location of 
 [Apriltag](https://github.com/AprilRobotics/apriltag) fiducials 
 to estimate the orientation (or pose) of a robot in 3D space. Multiple cameras are used to increase pose accuracy 
 and reduce blindspots as the cameras move around in the world. This software stack is geared towards FRC FIRST robotics 
 competitions, but can be configured for general Apriltag localization applications.
 
-Compared to existing FRC camera solutions (such as [Limelight](https://docs.limelightvision.io/) or [PhotonVision](https://docs.photonvision.org)), AMPL is designed specifically for multicamera
+Compared to existing FRC camera solutions (such as [Limelight](https://docs.limelightvision.io/) or [PhotonVision](https://docs.photonvision.org)), MAPLE is designed specifically for multicamera
 setups and aims to minimize the technical barrier of entry for multicamera pose localization.
 
 Bring your own hardware, or use the recommended specs listed below (3 cameras, RPi 5, totalling <$300)
@@ -38,7 +38,7 @@ Bring your own hardware, or use the recommended specs listed below (3 cameras, R
 
 ## Installation
 
-[View the latest documentation and instructions here.](https://ampl-frc.readthedocs.io)
+[View the latest documentation and instructions here.](https://maple-frc.readthedocs.io)
 
 
 

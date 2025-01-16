@@ -5,5 +5,5 @@ TDCamWorker
    :maxdepth: 1
 
 .. doxygenclass:: TDCamWorker
-   :project: AMPL
+   :project: MAPLE
    :members:

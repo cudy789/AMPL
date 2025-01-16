@@ -4,7 +4,7 @@ NTWorker::NTWorker() :
         Worker{"NetworkTables worker"},
         _nt_instance{nt::NetworkTableInstance::GetDefault()} {
 
-    _nt_table = _nt_instance.GetTable("AMPL");
+    _nt_table = _nt_instance.GetTable("MAPLE");
 
     _position = _nt_table->GetDoubleArrayTopic("position").Publish();
     _orientation = _nt_table->GetDoubleArrayTopic("orientation").Publish();
@@ -23,7 +23,7 @@ bool NTWorker::IsConnected(){
 }
 
 void NTWorker::Init() {
-    _nt_instance.StartClient4("AMPL client");
+    _nt_instance.StartClient4("MAPLE client");
 
     if (_team_num != -1){
         AppLogger::Logger::Log("NTWorker connecting using team number " + to_string(_team_num));

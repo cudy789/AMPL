@@ -1,13 +1,13 @@
 
 services:
-  ampl:
-    image: rogueraptor7/ampl:latest
+  maple:
+    image: rogueraptor7/maple:latest
     volumes:
-      - ./config.yml:/app/AMPL/config.yml
-      - ./logs:/app/AMPL/build/logs
-      - ./field.fmap:/app/AMPL/fmap/field.fmap
+      - ./config.yml:/app/MAPLE/config.yml
+      - ./logs:/app/MAPLE/build/logs
+      - ./field.fmap:/app/MAPLE/fmap/field.fmap
     restart: always
     privileged: true
     network_mode: host
     tty: true
-    command: bash -c "./ampl 2>&1 | grep -v \"Corrupt JPEG data\""
+    command: bash -c "./maple 2>&1 | grep -v \"Corrupt JPEG data\""

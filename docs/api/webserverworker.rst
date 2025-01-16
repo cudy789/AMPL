@@ -5,5 +5,5 @@ WebServerWorker
    :maxdepth: 1
 
 .. doxygenclass:: WebServerWorker
-   :project: AMPL
+   :project: MAPLE
    :members:

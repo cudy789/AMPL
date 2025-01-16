@@ -5,5 +5,5 @@ TDCam
    :maxdepth: 1
 
 .. doxygenclass:: TDCam
-   :project: AMPL
+   :project: MAPLE
    :members:

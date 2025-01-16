@@ -5,7 +5,7 @@
 docker container prune -f
 docker image prune -f
 
-IMAGE_NAME="ampl"
+IMAGE_NAME="maple"
 IMAGE_TAG="latest"
 PLATFORM="linux/arm64"
 

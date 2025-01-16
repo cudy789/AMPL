@@ -4,7 +4,7 @@ Overview
 .. important::
     This project is under active development!
 
-Apriltag multicamera pose localization (AMPL) is a position estimator that uses the known location of
+Multicamera Apriltag Pose Localization and Estimation (MAPLE) is a position estimator that uses the known location of
 `Apriltag <https://github.com/AprilRobotics/apriltag>`_ fiducials
 to estimate the orientation (or pose) of a robot in 3D space. Multiple cameras are used to increase pose accuracy
 and reduce blindspots as the cameras move around in the world. This software stack is geared towards FRC FIRST robotics

@@ -5,5 +5,5 @@ NTWorker
    :maxdepth: 1
 
 .. doxygenclass:: NTWorker
-   :project: AMPL
+   :project: MAPLE
    :members:

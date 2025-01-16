@@ -5,5 +5,5 @@ LocalizationWorker
    :maxdepth: 1
 
 .. doxygenclass:: LocalizationWorker
-   :project: AMPL
+   :project: MAPLE
    :members:

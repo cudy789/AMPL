@@ -1,9 +1,9 @@
-CamParams
+MAPLEParams
 =================
 
 .. toctree::
    :maxdepth: 1
 
-.. doxygenstruct:: CamParams
+.. doxygenstruct:: MAPLEParams
    :project: MAPLE
    :members:

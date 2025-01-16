@@ -1,7 +1,7 @@
 Setup your system
 ###################
 
-In this section, we will go through setting up a Raspberry Pi 4 to be used with AMPL. If you're able to setup a Raspberry Pi Bookworm 64-bit Lite OS
+In this section, we will go through setting up a Raspberry Pi 4 to be used with MAPLE. If you're able to setup a Raspberry Pi Bookworm 64-bit Lite OS
 (or similar Linux OS) on your system and configure SSH & internet connectivity on your own, you can skip to :doc:`install`.
 
 **You will need internet on your system when you boot it up, so either configure WiFi or plugin an ethernet cable.**
@@ -24,7 +24,7 @@ Imaging your Raspberry Pi
 
    .. image:: /res/installation/rpi-imager-edit-settings.png
 
-   Set the hostname to ``ampl``, user to ``pi``, and choose a password for the user. Choose the wireless LAN (WiFI) that you
+   Set the hostname to ``maple``, user to ``pi``, and choose a password for the user. Choose the wireless LAN (WiFI) that you
    will connect to and set the password. Make sure to choose the proper country as well. In the locale settings, select your
    timezone.
 
@@ -77,7 +77,7 @@ This section is assuming you are trying to connect to your Raspberry Pi using a 
    .. image:: /res/installation/putty.png
 
 4. To connect to your Raspberry Pi over the network, type in the IP address or hostname of the Pi. We set this earlier
-   to be ``ampl.local``. Make sure the "Connection type" is set to "SSH", then click "Open".
+   to be ``maple.local``. Make sure the "Connection type" is set to "SSH", then click "Open".
 
    .. note::
       Your computer and Raspberry Pi must be connected to the same network in order to use SSH.
@@ -95,7 +95,7 @@ This section is assuming you are trying to connect to your Raspberry Pi using a 
       The letters will not show up as you type them in, this is to keep  your password a secret from people looking at your screen.
 
    Now you should see the following screen. This is a "terminal" connected to your Raspberry Pi. We will be using the terminal
-   in the next steps to install and configure AMPL.
+   in the next steps to install and configure MAPLE.
 
    .. image:: /res/installation/putty-logged-in.png
 

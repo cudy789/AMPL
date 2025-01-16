@@ -5,5 +5,5 @@ ILocalizationStrategy
    :maxdepth: 1
 
 .. doxygenclass:: ILocalizationStrategy
-   :project: AMPL
+   :project: MAPLE
    :members:

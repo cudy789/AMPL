@@ -5,5 +5,5 @@ KMeansLocalizationStrategy
    :maxdepth: 1
 
 .. doxygenclass:: KMeansLocalizationStrategy
-   :project: AMPL
+   :project: MAPLE
    :members:

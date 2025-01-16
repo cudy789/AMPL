@@ -4,3 +4,5 @@ where h=image height in pixels
 With 60* FOV and 640x480 image:
 
 f = 480 / (2 * np.tan(60*np.pi/180.0/2)) = **415.69**
+
+**BUT** iterating on the value we find that the optimal number is **428**

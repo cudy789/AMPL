@@ -5,5 +5,5 @@ Logger
    :maxdepth: 1
 
 .. doxygenclass:: AppLogger::Logger
-   :project: AMPL
+   :project: MAPLE
    :members:

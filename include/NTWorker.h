@@ -14,8 +14,8 @@
  * connect to instead, i.e. 127.0.0.1, 192.168.1.213, etc..
  *
  * Other clients connected to the same NetworkTables server will see data being published at:
- * * AMPL/location: double[pos_x, pos_y, pos_z] in meters
- * * AMPL/orientation: double[roll, pitch, yaw] in degrees
+ * * MAPLE/location: double[pos_x, pos_y, pos_z] in meters
+ * * MAPLE/orientation: double[roll, pitch, yaw] in degrees
  *
  * Compatible with NetworkTables 4.
  */

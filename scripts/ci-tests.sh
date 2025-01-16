@@ -7,7 +7,7 @@ if [ -n "$1" ]; then
     GTESTFILTER="--gtest_filter=$1"
 fi
 
-IMAGE_NAME="ampl"
+IMAGE_NAME="maple"
 IMAGE_TAG="latest"
 
 if [ "$ARM" = "1" ] || [ "$( uname -m )" = "aarch64" ]; then
@@ -28,13 +28,13 @@ echo "Using image rogueraptor7/$IMAGE_NAME:$IMAGE_TAG"
 echo "Pulling latest image"
 docker pull $ARCH rogueraptor7/$IMAGE_NAME:$IMAGE_TAG
 
-echo "Killing any existing ampl containers"
-docker kill ampl-tests
+echo "Killing any existing maple containers"
+docker kill maple-tests
 sleep 5
 
 echo "./runTests $GTESTFILTER"
 
-docker run --rm -h $IMAGE_NAME-$HOSTNAME --name ampl-tests --group-add sudo --group-add video --add-host $IMAGE_NAME-$HOSTNAME:127.0.0.1 --network host \
+docker run --rm -h $IMAGE_NAME-$HOSTNAME --name maple-tests --group-add sudo --group-add video --add-host $IMAGE_NAME-$HOSTNAME:127.0.0.1 --network host \
   --user=$(id -u $USER):$(id -g $USER) \
   --volume="/etc/passwd:/etc/passwd:ro" \
   --volume="/etc/shadow:/etc/shadow:ro" \

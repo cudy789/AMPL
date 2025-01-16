@@ -16,40 +16,40 @@
 
 
 /**
- * @brief The Apriltag multicamera pose localization (AMPL) class is a singleton object with with individual Worker
+ * @brief The Apriltag multicamera pose localization (MAPLE) class is a singleton object with with individual Worker
  * threads for each camera, the localization computation, the webserver, the NetworkTables client, and the logger.
  *
- * First, the config.yml configuration file is read to determine AMPLParams and setup the TDCamWorker Workers.
+ * First, the config.yml configuration file is read to determine MAPLEParams and setup the TDCamWorker Workers.
  * Next, the .fmap file is parsed to configure global locations of the Apriltags.
  * All Worker threads are spun up and process data in realtime. Most Worker threads are marked as 'stay alive', which
- * will attempt to restart the Worker in case of an exception. AMPL will only exit on a CTRL-C interrupt.
+ * will attempt to restart the Worker in case of an exception. MAPLE will only exit on a CTRL-C interrupt.
  *
  * The latest robot pose in the global frame is available using GetRobotPose(), and is measured in position x,y,z in
  * meters, and orientation roll, pitch, yaw in degrees.
  *
  */
-class AMPL{
+class MAPLE{
 
 public:
     /**
      * @brief No copy constructor allowed for the singleton.
      */
-    AMPL (AMPL const&) = delete;
+    MAPLE (MAPLE const&) = delete;
 
     /**
-     * @brief Return the singleton instance of the AMPL object. Create a new static instance if none exists.
+     * @brief Return the singleton instance of the MAPLE object. Create a new static instance if none exists.
      */
-    static AMPL& GetInstance();
+    static MAPLE& GetInstance();
 
     /**
      * @brief Read configuration parameters from the specified config yaml file. Create all Worker threads after
      * files are loaded.
-     * @param config_file The .yaml configuration file path, relative to AMPL.cpp
+     * @param config_file The .yaml configuration file path, relative to MAPLE.cpp
      */
     void Setup(const std::string& config_file);
 
     /**
-     * @brief Start all Worker threads, which starts the AMPL system.
+     * @brief Start all Worker threads, which starts the MAPLE system.
      */
     void Start();
 
@@ -91,11 +91,11 @@ public:
     void SignalCallback(int signum);
 
 private:
-    AMPL() = default;
+    MAPLE() = default;
 
     LocalizationWorker* _l_w;
     std::vector<Worker*> _workers_t;
 
-    AMPLParams _params;
+    MAPLEParams _params;
 
 };

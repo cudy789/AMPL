@@ -1,12 +1,12 @@
-Run AMPL and get pose data
+Run MAPLE and get pose data
 ############################
 
-AMPL runs in a Docker container which makes it easy to deploy on different hardware and software environments. You can `learn
+MAPLE runs in a Docker container which makes it easy to deploy on different hardware and software environments. You can `learn
 more about Docker here <https://www.docker.com/>`_.
 
 Starting and stopping
 =======================
-Navigate to the directory with your ``docker-compose.yml`` file in it (``~/ampl-config`` by default).
+Navigate to the directory with your ``docker-compose.yml`` file in it (``~/maple-config`` by default).
 
 Start in background
 ~~~~~~~~~~~~~~~~~~~~
@@ -15,7 +15,7 @@ Start in background
 
    docker-compose up -d
 
-AMPL starts in the background, attempts to restart if it fails, and will automatically start when the coprocessor is powered on.
+MAPLE starts in the background, attempts to restart if it fails, and will automatically start when the coprocessor is powered on.
 
 Start in foreground
 ~~~~~~~~~~~~~~~~~~~~~
@@ -24,7 +24,7 @@ Start in foreground
 
    docker-compose up
 
-AMPL starts in the foreground, displays logs to the terminal, and can be stopped by pressing ``ctrl-c``. Useful when configuring
+MAPLE starts in the foreground, displays logs to the terminal, and can be stopped by pressing ``ctrl-c``. Useful when configuring
 and calibrating cameras. Will not automatically restart if it fails or start when coprocessor is powered on.
 
 Stop
@@ -34,22 +34,22 @@ Stop
 
    docker-compose down
 
-Stops AMPL running in the background. Will disable AMPL from starting when coprocessor is powered on.
+Stops MAPLE running in the background. Will disable MAPLE from starting when coprocessor is powered on.
 
 
 Logging
 =========
 
-A running log file of all AMPL info, warning, and error messages is available in ``~/ampl-config/logs/ampl_log.txt``. If
-trajectory logging is enabled, a new logfile will be created in ``~/ampl-config/logs`` each time AMPL is started.
+A running log file of all MAPLE info, warning, and error messages is available in ``~/maple-config/logs/maple_log.txt``. If
+trajectory logging is enabled, a new logfile will be created in ``~/maple-config/logs`` each time MAPLE is started.
 
 Pose data on Network Tables
 ============================
 
-If a team number is set in the ``config.yml`` file, AMPL will attempt to `connect to the Network Tables server
+If a team number is set in the ``config.yml`` file, MAPLE will attempt to `connect to the Network Tables server
 using the team number <https://docs.wpilib.org/en/stable/docs/software/networktables/client-side-program.html>`_.
 
-Pose data is available on the table **AMPL** on topics **position** and **orientation**.
+Pose data is available on the table **MAPLE** on topics **position** and **orientation**.
 
 .. list-table::
     :widths: 20 80
@@ -81,7 +81,7 @@ Access the position and orientation arrays from NetworkTables like any other arr
         void Robot::RobotInit() override {
 
           // Add to your RobotInit, Command, or Subsystem
-          auto table = nt::NetworkTableInstance::GetDefault().GetTable("AMPL");
+          auto table = nt::NetworkTableInstance::GetDefault().GetTable("MAPLE");
           positionSub = table->GetDoubleArrayTopic("position").Subscribe({});
           orientationSub = table->GetDoubleArrayTopic("orientation").Subscribe({});
         }
@@ -115,7 +115,7 @@ Access the position and orientation arrays from NetworkTables like any other arr
         public void robotInit() {
 
           // Add to your robotInit, Command, or Subsystem
-          NetworkTable table = NetworkTableInstance.getDefault().getTable("AMPL");
+          NetworkTable table = NetworkTableInstance.getDefault().getTable("MAPLE");
           positionSub = table.getDoubleArrayTopic("position").subscribe(new double[] {});
           orientationSub = table.getDoubleArrayTopic("orientation").subscribe(new double[] {});
         }
@@ -146,7 +146,7 @@ Access the position and orientation arrays from NetworkTables like any other arr
         def robotInit(self):
 
             # Add to your robotInit, Command, or Subsystem
-            table = ntcore.NetworkTableInstance.getDefault().getTable("AMPL")
+            table = ntcore.NetworkTableInstance.getDefault().getTable("MAPLE")
             self.positionSub = table.getDoubleArrayTopic("position").subscribe([])
             self.orientationSub = table.getDoubleArrayTopic("orientation").subscribe([])
 
@@ -160,7 +160,7 @@ Access the position and orientation arrays from NetworkTables like any other arr
             print("position XYZ: ", position)
             print("orientation RPY: ", orientation)
 
-Updating AMPL
+Updating MAPLE
 ===============
 
 Navigate to the directory with your ``docker-compose.yml`` file in it and run the following command

@@ -37,7 +37,7 @@ TEST(NetworkTablesWorker, NTServer){
     AppLogger::Logger::Log("Started NetworkTables test server");
 
     // Verify that nothing has been published to the topic yet
-    std::shared_ptr<nt::NetworkTable> table = inst.GetTable("AMPL");
+    std::shared_ptr<nt::NetworkTable> table = inst.GetTable("MAPLE");
     nt::DoubleArraySubscriber position_sub = table->GetDoubleArrayTopic("position").Subscribe({});
 
 

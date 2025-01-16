@@ -5,5 +5,5 @@ TagLayoutParser
    :maxdepth: 1
 
 .. doxygenclass:: TagLayoutParser
-   :project: AMPL
+   :project: MAPLE
    :members:

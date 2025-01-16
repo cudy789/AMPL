@@ -1,12 +1,12 @@
-#include "AMPL.h"
+#include "MAPLE.h"
 #include "CalibrationCamWorker.h"
 
-void AMPL::Setup(const std::string& config_file) {
+void MAPLE::Setup(const std::string& config_file) {
     AppLogger::Logger::SetVerbosity(AppLogger::INFO);
-    AppLogger::Logger::Log("Starting Apriltag Multicam Pose Localization", AppLogger::INFO);
+    AppLogger::Logger::Log("Starting Multicamera Apriltag Pose Localization and Estimation (MAPLE)", AppLogger::INFO);
 
     // Register signal handler
-    signal(SIGINT, AMPL::AMPL::StaticSignalCallback);
+    signal(SIGINT, MAPLE::MAPLE::StaticSignalCallback);
 
     // Parse map and configuration files
     _params = ConfigParser::ParseConfig(config_file);
@@ -47,12 +47,12 @@ void AMPL::Setup(const std::string& config_file) {
     }
 }
 
-AMPL &AMPL::GetInstance() {
-    static AMPL instance; // instantiated on first call, guaranteed to be destroyed
+MAPLE &MAPLE::GetInstance() {
+    static MAPLE instance; // instantiated on first call, guaranteed to be destroyed
     return instance;
 }
 
-void AMPL::Start(){
+void MAPLE::Start(){
     // Start all workers
     for (Worker* w: _workers_t){
         w->Start();
@@ -60,15 +60,15 @@ void AMPL::Start(){
     AppLogger::Logger::Log("All workers have been started");
 }
 
-void AMPL::Calibrate() {
+void MAPLE::Calibrate() {
 
 }
 
-RobotPose AMPL::GetRobotPose() {
+RobotPose MAPLE::GetRobotPose() {
     return _l_w->GetRobotPose();
 }
 
-void AMPL::Join(){
+void MAPLE::Join(){
     // Wait until the tag detection threads are finished
     for (Worker* w: _workers_t){
         w->Join();
@@ -77,7 +77,7 @@ void AMPL::Join(){
     AppLogger::Logger::Log("All workers finished");
 }
 
-bool AMPL::Stop(){
+bool MAPLE::Stop(){
     bool all_stopped = true;
     for (Worker* w: _workers_t){
         all_stopped = w->Stop();
@@ -85,11 +85,11 @@ bool AMPL::Stop(){
     return all_stopped;
 }
 
-void AMPL::StaticSignalCallback(int signum) {
+void MAPLE::StaticSignalCallback(int signum) {
     GetInstance().SignalCallback(signum);
 }
 
-void AMPL::SignalCallback(int signum) {
+void MAPLE::SignalCallback(int signum) {
     AppLogger::Logger::Log("Caught CTRL-C, exiting...");
     for (Worker* t: _workers_t){
         t->Stop();

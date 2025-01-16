@@ -1,21 +1,21 @@
 #include <gtest/gtest.h>
 
 #include "common.h"
-#include "AMPL.h"
+#include "MAPLE.h"
 
 TEST(IntegrationTests, ThreeCameras){
     SetupLogger("IntegrationTests_ThreeCameras");
 
-//    AMPL &m_ample = AMPL::GetInstance();
+//    MAPLE &m_maple = MAPLE::GetInstance();
 //
-//    m_ample.Setup("../test/integration_config.yml");
+//    m_maple.Setup("../test/integration_config.yml");
 //
-//    m_ample.Start();
+//    m_maple.Start();
 //
 //    // Get the estimated robot pose
-//    // m_ample.GetRobotPose();
+//    // m_maple.GetRobotPose();
 //
-//    m_ample.Join();
+//    m_maple.Join();
 //
 //    AppLogger::Logger::Flush();
 }

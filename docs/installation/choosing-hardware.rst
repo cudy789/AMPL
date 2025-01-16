@@ -19,13 +19,13 @@ If you have components on hand, the **minimum** system requirements are
 A high read/write endurance microSD card, adequate cooling (active coolers are preferred), and a
 high quality power supply are **highly recommended**.
 
-AMPL was developed to run on low power ARM single board computers but can also run on x86 machines.
+MAPLE was developed to run on low power ARM single board computers but can also run on x86 machines.
 
 Ensure your system has enough IO for all of your cameras.
 
 Choosing your cameras
 =======================
-There are many factors to consider when choosing your cameras for AMPL. You can mix and match your camera models, resolutions,
+There are many factors to consider when choosing your cameras for MAPLE. You can mix and match your camera models, resolutions,
 framerates, etc., to fit your use case.
 
 If you are building a setup from scratch, **we recommend 3 high framerate global shutter Arducam modules**, such as the
@@ -53,7 +53,7 @@ Number of cameras
 
 Lens
 
-* Currently, fisheye lenses are not supported in AMPL, but distortion correction for pinhole cameras is available. Cameras
+* Currently, fisheye lenses are not supported in MAPLE, but distortion correction for pinhole cameras is available. Cameras
   with advertised low distortion lenses can be desirable and remove the need to perform any distortion correction in software,
   which will **dramatically increase performance**.
 
@@ -74,7 +74,7 @@ Driver compatibility
 .. warning::
     Cameras with known issues:
 
-    * **Logitech C270** Exposure and framerate cannot be directly set. The brighter the scene is when AMPL starts up, the higher the framerate the camera will be locked into.
+    * **Logitech C270** Exposure and framerate cannot be directly set. The brighter the scene is when MAPLE starts up, the higher the framerate the camera will be locked into.
 
 Less important factors
 **********************************************

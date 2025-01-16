@@ -17,7 +17,7 @@ validate_ip() {
 configure_static_ip() {
     local ip="$1"
     local interface="$2"
-    local connection_name="AMPL connection"
+    local connection_name="MAPLE connection"
     local detected_connection_name=$(nmcli -t -f NAME,DEVICE con show | grep "$connection_name" | cut -d: -f1)
 
     if [[ -z "$interface" ]]; then

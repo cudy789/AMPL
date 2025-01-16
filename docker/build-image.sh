@@ -14,7 +14,7 @@ else
   CACHE_FLAG=""
 fi
 
-IMAGE_NAME="ampl"
+IMAGE_NAME="maple"
 IMAGE_TAG="latest"
 
 if [ "$BUILDX" = "1" ]; then # build for both arm and x86 architectures, push image to dockerhub

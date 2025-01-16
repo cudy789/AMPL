@@ -5,7 +5,7 @@ Worker
    :maxdepth: 1
 
 .. doxygenclass:: Worker
-   :project: AMPL
+   :project: MAPLE
    :members:
    :protected-members:
    :private-members:

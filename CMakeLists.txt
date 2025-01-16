@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Set the project name
-project(ApriltagMulticameraPoseLocalization)
+project(MAPLE)
 
 # Set the C++ standard
 set(CMAKE_CXX_STANDARD 20)
@@ -15,9 +15,9 @@ endif()
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "RelWithDebInfo" "MinSizeRel")
 
 include_directories(include)
-file(GLOB AMPL_SOURCES "src/*.cpp")
-list(REMOVE_ITEM AMPL_SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp")
-add_executable(ampl ${AMPL_SOURCES} "src/main.cpp")
+file(GLOB MAPLE_SOURCES "src/*.cpp")
+list(REMOVE_ITEM MAPLE_SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp")
+add_executable(maple ${MAPLE_SOURCES} "src/main.cpp")
 
 # Find the NTCore package within allwpilib
 # Set options to disable unnecessary components of allwpilib in NetworkTables
@@ -97,7 +97,7 @@ add_subdirectory(lib/yaml-cpp)
 # Json parser
 add_subdirectory(lib/json)
 
-target_link_libraries(ampl PUBLIC yaml-cpp::yaml-cpp ${OpenCV_LIBS} ntcore apriltag PRIVATE nlohmann_json::nlohmann_json mongoose)
+target_link_libraries(maple PUBLIC yaml-cpp::yaml-cpp ${OpenCV_LIBS} ntcore apriltag PRIVATE nlohmann_json::nlohmann_json mongoose)
 
 # Option to enable or disable tests
 option(ENABLE_TESTS "Enable building tests" OFF)
@@ -121,7 +121,7 @@ if(ENABLE_TESTS)
     file(GLOB TEST_SOURCES "test/*.cpp")
 
     # Create the test executable
-    add_executable(runTests ${TEST_SOURCES} ${AMPL_SOURCES})
+    add_executable(runTests ${TEST_SOURCES} ${MAPLE_SOURCES})
 
     # Link the test executable against gtest and gtest_main
     target_link_libraries(runTests PUBLIC yaml-cpp::yaml-cpp gtest_main ${OpenCV_LIBS} ntcore PRIVATE nlohmann_json::nlohmann_json apriltag mongoose)

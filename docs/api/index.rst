@@ -1,14 +1,14 @@
 API Documentation
 =================
 
-`View the source code on GitHub <https://github.com/cudy789/AMPL>`_
+`View the source code on GitHub <https://github.com/cudy789/MAPLE>`_
 
 
 .. toctree::
    :maxdepth: 1
 
-   ampl
-   amplparams
+   maple
+   mapleparams
    camparams
    configparser
    ilocalizationstrategy

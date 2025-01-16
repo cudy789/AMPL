@@ -38,7 +38,7 @@ TEST(TDCamWorker, HelloWorld){
 TEST(TDCamWorker, OpenFromYaml){
     SetupLogger("TDCamWorker_OpenFromYaml");
 
-    AMPLParams params = ConfigParser::ParseConfig("../test/test_config.yml");
+    MAPLEParams params = ConfigParser::ParseConfig("../test/test_config.yml");
     std::vector<CamParams>& c_params = params.cam_params;
     std::map<int, Pose_single> tag_layout = TagLayoutParser::ParseConfig("../test/stereo14_6.fmap");
 

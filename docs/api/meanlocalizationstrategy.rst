@@ -5,5 +5,5 @@ MeanLocalizationStrategy
    :maxdepth: 1
 
 .. doxygenclass:: MeanLocalizationStrategy
-   :project: AMPL
+   :project: MAPLE
    :members:

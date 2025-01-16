@@ -1,17 +1,17 @@
 Calibrate & configure your cameras
 ####################################
 
-In order for AMPL to calculate the location of your robot in 3D space, it must know exactly where your cameras are located
+In order for MAPLE to calculate the location of your robot in 3D space, it must know exactly where your cameras are located
 on the robot. Additionally, typical camera lenses introduce distortion into your images, and will cause your pose estimates
 to be incorrect if this is not accounted for.
 
 This section goes over the ``config.yml`` file which you will edit to exactly describe where each camera is located on the
 robot, how much distortion there is for each camera, what resolution/framerate to run each camera at, and so on. You will
-have the following ``config.yml`` template in the ``~/ampl-config`` folder on your coprocessor:
+have the following ``config.yml`` template in the ``~/maple-config`` folder on your coprocessor:
 
 .. code-block:: yaml
 
-   # Configuration file for AMPL
+   # Configuration file for MAPLE
 
    team_number: -1
    pose_logging: true
@@ -70,13 +70,13 @@ have the following ``config.yml`` template in the ``~/ampl-config`` folder on yo
 Select camera devices
 ========================
 
-AMPL must know which camera devices that you have plugged into your coprocessor should be used for Apriltag detection.
+MAPLE must know which camera devices that you have plugged into your coprocessor should be used for Apriltag detection.
 
 First, connect all of your cameras to your coprocessor, then reboot the device.
 
 .. warning::
 
-   AMPL uses video device IDs (or names, such as ``/dev/videoXX``) to map cameras for its pose calculations. Video device IDs typically stay
+   MAPLE uses video device IDs (or names, such as ``/dev/videoXX``) to map cameras for its pose calculations. Video device IDs typically stay
    consistent through reboots, but isn't guaranteed.
 
 Next, run the following command in a terminal connected to the coprocessor:
@@ -153,7 +153,7 @@ you may use placeholder ``fx``, ``fy``, ``cx``, and ``cy`` values.
 
 .. code-block:: yaml
 
-   # Configuration file for AMPL
+   # Configuration file for MAPLE
 
    team_number: -1
    pose_logging: true
@@ -173,7 +173,7 @@ you may use placeholder ``fx``, ``fy``, ``cx``, and ``cy`` values.
        cx: 272
        cy: 144
 
-Restart AMPL, then navigate to the webUI at `http://ampl.local:8080 <http://ampl.local:8080>`_.
+Restart MAPLE, then navigate to the webUI at `http://maple.local:8080 <http://maple.local:8080>`_.
 
 .. image:: ../res/configuration/at-home-single.gif
 
@@ -253,7 +253,7 @@ degrees in the roll direction relative to the robot.
 All ``config.yml`` parameters
 ===============
 
-AMPL Parameters
+MAPLE Parameters
 ~~~~~~~~~~~~~~~~~~~~~
 
 .. list-table::
@@ -267,7 +267,7 @@ AMPL Parameters
       - Default value
 
     * - team_number - ``int``
-      - The FRC team number. Used to connect AMPL to NetworkTables. If no number is supplied, AMPL will not attempt to
+      - The FRC team number. Used to connect MAPLE to NetworkTables. If no number is supplied, MAPLE will not attempt to
         connect to NetworkTables.
       - N
       - ``-1``
@@ -289,7 +289,7 @@ Camera Parameters
 .. warning::
 
    Some cameras have firmware that do not let you manually set FPS and/or exposure. In these cases, the FPS/exposure will depend
-   on the lighting conditions when AMPL first starts. See :doc:`./choosing-hardware` for details.
+   on the lighting conditions when MAPLE first starts. See :doc:`./choosing-hardware` for details.
 
 .. list-table::
     :widths: 25 55 5 15

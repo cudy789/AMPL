@@ -11,7 +11,7 @@ subprocess.call('doxygen', shell=True)
 html_extra_path = ['build/html']
 html_extra_path = ['build/xml']
 
-project = 'AMPL'
+project = 'MAPLE'
 copyright = '2024, Corey Knutson'
 author = 'Corey Knutson'
 release = '0.1.0'
@@ -35,11 +35,11 @@ html_css_files = [
 
 extensions = ["breathe", "sphinx.ext.autosectionlabel", "sphinx_tabs.tabs"]
 breathe_projects = {
-    'AMPL': './xml'
+    'MAPLE': './xml'
 }
 
 # Breathe configuration
-breathe_default_project = "AMPL"
+breathe_default_project = "MAPLE"
 
 # Tabs for code, prevent tab from closing
 sphinx_tabs_disable_tab_closing = True

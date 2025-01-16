@@ -2,7 +2,7 @@
 
 # Corey Knutson, 12/2/2021
 
-IMAGE_NAME="ampl"
+IMAGE_NAME="maple"
 IMAGE_TAG="latest"
 
 if [ "$ARM" = "1" ] || [ "$( uname -m )" = "aarch64" ]; then
@@ -17,7 +17,7 @@ fi
 
 echo "Using image rogueraptor7/$IMAGE_NAME:$IMAGE_TAG"
 
-docker run --rm -h $IMAGE_NAME-$HOSTNAME --name ampl --group-add sudo --group-add video --add-host $IMAGE_NAME-$HOSTNAME:127.0.0.1 --network host -it \
+docker run --rm -h $IMAGE_NAME-$HOSTNAME --name maple --group-add sudo --group-add video --add-host $IMAGE_NAME-$HOSTNAME:127.0.0.1 --network host -it \
   --user=$(id -u $USER):$(id -g $USER) \
   --volume="/etc/passwd:/etc/passwd:ro" \
   --volume="/etc/shadow:/etc/shadow:ro" \

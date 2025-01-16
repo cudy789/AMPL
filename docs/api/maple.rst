@@ -1,9 +1,9 @@
-AMPLParams
+MAPLE
 =================
 
 .. toctree::
    :maxdepth: 1
 
-.. doxygenstruct:: AMPLParams
-   :project: AMPL
+.. doxygenclass:: MAPLE
+   :project: MAPLE
    :members:

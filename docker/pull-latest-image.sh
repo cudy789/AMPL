@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IMAGE_NAME="ampl"
+IMAGE_NAME="maple"
 IMAGE_TAG="latest"
 
 if [ "$X64" = "1" ] || [ "$( uname -m )" != "aarch64" ]; then

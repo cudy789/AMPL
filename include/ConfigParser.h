@@ -5,7 +5,7 @@
 #include "Logger.h"
 
 /**
- * @brief A struct containing the unique camera parameters for each camera connected to AMPL.
+ * @brief A struct containing the unique camera parameters for each camera connected to MAPLE.
  */
 struct CamParams{
 
@@ -112,11 +112,11 @@ struct CamParams{
 
 };
 /**
- * @brief Global AMPL parameters, including the FRC team number and all camera parameter structs.
+ * @brief Global MAPLE parameters, including the FRC team number and all camera parameter structs.
  */
-struct AMPLParams {
+struct MAPLEParams {
     /**
-     * @brief The FRC team number. Used to set static IP of the AMPL client and connect to NetworkTables.
+     * @brief The FRC team number. Used to set static IP of the MAPLE client and connect to NetworkTables.
      */
     int team_num;
 
@@ -140,7 +140,7 @@ struct AMPLParams {
      */
     std::vector<CamParams> cam_params;
 
-    friend std::ostream& operator <<(std::ostream& os, const AMPLParams& param) {
+    friend std::ostream& operator <<(std::ostream& os, const MAPLEParams& param) {
         os << "team_num: : " << param.team_num << ", camera parameters:";
 
         for (const auto& c: param.cam_params){
@@ -151,20 +151,20 @@ struct AMPLParams {
 };
 
 /**
- * @brief The .yaml configuration parser. Parses all AMPLParams and CamParams parameters.
+ * @brief The .yaml configuration parser. Parses all MAPLEParams and CamParams parameters.
  */
 class ConfigParser{
 public:
     ConfigParser() = delete;
 
     /**
-     * @brief Parse the configuration .yaml file for AMPL parameters, including FRC team number, .fmap file,
+     * @brief Parse the configuration .yaml file for MAPLE parameters, including FRC team number, .fmap file,
      * and camera parameters.
      * @param cfg_file The path to your config.yaml file.
      * @return A struct of configuration parameters populated by the specified .yaml file.
      */
-    static AMPLParams ParseConfig(const std::string& cfg_file){
-        AMPLParams params;
+    static MAPLEParams ParseConfig(const std::string& cfg_file){
+        MAPLEParams params;
         std::vector<CamParams>& cam_p = params.cam_params;
 
         try {

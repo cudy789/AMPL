@@ -29,11 +29,11 @@ RUN pip install sphinx_rtd_theme sphinx-tabs pexpect
 
 RUN pip install numpy scipy pybullet
 
-# ============ Build and run AMPL ============
+# ============ Build and run MAPLE ============
 RUN mkdir /app
 WORKDIR /app
-RUN git clone https://github.com/cudy789/AMPL.git
-WORKDIR AMPL
+RUN git clone https://github.com/cudy789/MAPLE.git
+WORKDIR MAPLE
 RUN mkdir -p build
 WORKDIR build
 RUN cmake .. && make -j4

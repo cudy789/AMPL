@@ -1,6 +1,6 @@
 # MAPLE: Multicamera Apriltag Pose Localization and Estimation
 
-[![Documentation Status](https://readthedocs.org/projects/maple-frc/badge/?version=latest)](https://maple-maple.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/maple-maple/badge/?version=latest)](https://maple-maple.readthedocs.io/en/latest/?badge=latest)
 
 ## What is MAPLE?
 

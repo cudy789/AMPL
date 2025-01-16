@@ -139,7 +139,10 @@ cv::Mat TDCam::GetImage() {
         } while (errno == EAGAIN);
     }
 
-    return img;
+    cv::Mat brightened;
+    img.convertTo(brightened, -1, 1.0, 50);
+
+    return brightened;
 }
 
 void TDCam::SaveImage(const cv::Mat &img) {
@@ -156,6 +159,7 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
     // Convert img to grayscale
     cv::Mat gray;
     cvtColor(img, gray, cv::COLOR_BGR2GRAY);
+
 
     // Make an image_u8_t header for the Mat data
     image_u8_t im = {gray.cols, gray.rows, gray.cols, gray.data};
@@ -213,28 +217,17 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
             apriltag_pose_t* pose = calculated_poses[j]; // get the pose and corresponding error
             double err = calculated_errors[j];
 
-
-            // ==================== AT -> Camera ====================
-            Eigen::Vector3d T_tag_camera = Array2EM<double, 3, 1>(pose->t->data);
-            Eigen::Matrix3d R_tag_camera = Array2EM<double, 3, 3>(pose->R->data);
-
-
-            // ==================== Camera -> Robot ====================
-            // The geometric center of the robot
-
-//            Eigen::Matrix3d R_camera_robot = _c_params.R_camera_robot * R_tag_camera;
-            Eigen::Matrix3d R_camera_robot = R_tag_camera;
-
-            AppLogger::Logger::Log("_c_params.R_camera_robot: " + to_string(_c_params.R_camera_robot)
-                + ", R_tag_camera matrix: " + to_string(R_tag_camera) + ", as euler angles: "
-                + to_string(RotationMatrixToRPY(R_tag_camera)), AppLogger::SEVERITY::DEBUG);
-
-            // Translate AprilTag from the camera frame into the robot's coordinate frame
-//            Eigen::Vector3d T_camera_robot = _c_params.R_camera_robot * T_tag_camera + _c_params.T_camera_robot;
-            Eigen::Vector3d T_camera_robot = T_tag_camera;
+            Eigen::Matrix3d R_tag_local_fix = CreateRotationMatrix({0,0,0}) * CreateRotationMatrix({-90,0,0});
+//            Eigen::Matrix3d T_tag_global_fix = CreateRotationMatrix({-90, 90, 0}); // working without any tag rotation
+            Eigen::Matrix3d T_tag_global_fix = GetRotTranslationFix();
+            Eigen::Matrix3d R_tag_global_fix = GetRotRotationFix();
+//            Eigen::Matrix3d T_tag_global_fix_2 = GetRotTranslationFix();
 
 
-            // ==================== Robot -> World ====================
+            Eigen::Vector3d T_tag_camera_raw = Array2EM<double, 3, 1>(pose->t->data);
+            Eigen::Matrix3d R_tag_camera_raw = Array2EM<double, 3, 3>(pose->R->data);
+            Eigen::Matrix3d R_tag_camera = R_tag_local_fix * R_tag_camera_raw;
+
 
             // Get the location of the apriltag in the world frame
             Pose_single Pose_AG; // the field transformation from apriltag frame to global field frame as specified in the .fmap file
@@ -242,18 +235,41 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
                 Pose_AG = _tag_layout[det->id];
             } else {
                 AppLogger::Logger::Log("Cannot find tag ID " + to_string(det->id) + " in .fmap file", AppLogger::SEVERITY::WARNING);
+                if (pose->R) matd_destroy(pose->R);
+                if (pose->t) matd_destroy(pose->t);
+                continue;
             }
 
-            Eigen::Matrix3d R_robot_global_unordered_1 = Pose_AG.R * R_camera_robot.transpose();
-            Eigen::Vector3d T_robot_global_unordered_1 = Pose_AG.T - R_robot_global_unordered_1 * T_camera_robot;
+            Eigen::Matrix3d R_robot_global_unordered = Pose_AG.R * (R_tag_global_fix * R_tag_camera_raw.transpose());
+            Eigen::Vector3d T_robot_global_unordered = Pose_AG.T - (T_tag_global_fix * (Pose_AG.R * (R_tag_global_fix * R_tag_camera_raw.transpose())) * T_tag_camera_raw);
+//            Eigen::Vector3d T_robot_global_unordered = Pose_AG.T - (T_tag_global_fix * (Pose_AG.R * R_tag_camera_raw.transpose()) * T_tag_camera_raw); // working without any tag rotation
+            // Changes to translations/rotations
+            // X [good]
+            // Y [good]
+            // Z [good]
+            // Roll [good]
+            // Pitch [good]
+            // Yaw [good]
 
-            Eigen::Matrix3d R_robot_global_unordered = R_robot_global_unordered_1 * _c_params.R_camera_robot.transpose();
-            Eigen::Vector3d T_robot_global_unordered = T_robot_global_unordered_1 - R_robot_global_unordered * _c_params.T_camera_robot;
+            // Tag variations:
+            // X [good]
+            // Y [good]
+            // Z [good]
+            // Roll
+            // Pitch [BAD!] applying roll to x and z?
+            // Yaw
+            Eigen::Vector3d T_robot_global = {T_robot_global_unordered[0], T_robot_global_unordered[1], T_robot_global_unordered[2]};
 
-            Eigen::Vector3d rpy_unordered = RotationMatrixToRPY(R_robot_global_unordered);
+            Eigen::Vector3d R_robot_ordered_vec = RotationMatrixToRPY(R_robot_global_unordered);
+            R_robot_ordered_vec[0] += 90;
+            if (R_robot_ordered_vec[0] >=180) R_robot_ordered_vec[0] -= 180; //TODO this seems to be working! need to setup testing pipeline with more generated examples! and also test on field!
 
-            Eigen::Matrix3d R_robot_global = CreateRotationMatrix({rpy_unordered[2], rpy_unordered[0], rpy_unordered[1]});
-            Eigen::Vector3d T_robot_global = {T_robot_global_unordered[0], T_robot_global_unordered[2], -T_robot_global_unordered[1]};
+            Eigen::Matrix3d R_robot_global = CreateRotationMatrix({R_robot_ordered_vec[1], R_robot_ordered_vec[0], R_robot_ordered_vec[2]});
+//            Eigen::Matrix3d R_robot_global = R_robot_global_unordered;
+
+            // Calculate the camera (robot) pose in the global frame
+//            Eigen::Matrix3d R_global_to_camera = Pose_AG.R * R_tag_to_camera.transpose();
+//            Eigen::Vector3d T_global_to_camera = Pose_AG.T - (R_global_to_camera * T_tag_to_camera);
 
 
             // ==================== Now make the Pose_t object ====================
@@ -267,10 +283,10 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
             new_tag.tag.T = Eigen::Vector3d::Constant(0);
             // Camera frame
             new_tag.camera.R = R_tag_camera;
-            new_tag.camera.T = T_tag_camera;
-            // Robot frame
-            new_tag.robot.R = R_camera_robot;
-            new_tag.robot.T = T_camera_robot;
+            new_tag.camera.T = T_tag_camera_raw;
+//            // Robot frame
+//            new_tag.robot.R = R_camera_robot;
+//            new_tag.robot.T = T_camera_robot;
             // Global frame
             new_tag.global.R = R_robot_global;
             new_tag.global.T = T_robot_global;
@@ -337,4 +353,20 @@ cv::Mat TDCam::DrawTagBoxesOnImage(const TagArray &tags, const cv::Mat &img) {
 void TDCam::ImShow(const std::string& title, int timeout, const cv::Mat& img) {
     imshow(title, img);
     if (cv::waitKey(timeout) >= 0) return;
+}
+
+void TDCam::SetRotRotationFix(const Eigen::Matrix3d& R_fix) {
+    _R_rotation_fix = R_fix;
+}
+
+void TDCam::SetTransRotationFix(const Eigen::Matrix3d& T_fix) {
+    _R_translation_fix = T_fix;
+}
+
+const Eigen::Matrix3d &TDCam::GetRotRotationFix() const {
+    return _R_rotation_fix;
+}
+
+const Eigen::Matrix3d &TDCam::GetRotTranslationFix() const {
+    return _R_translation_fix;
 }

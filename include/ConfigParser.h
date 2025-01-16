@@ -80,7 +80,7 @@ struct CamParams{
         /**
          * @brief Decimate input image by this factor.
          */
-        float quad_decimate = 3.0;
+        float quad_decimate = 2.0;
         /**
          * @brief Apply low-pass blur with this sigma value.
          */

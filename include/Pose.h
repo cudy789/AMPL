@@ -154,6 +154,14 @@ struct TagArray{
     }
 
     /**
+     * @brief Get the number of tags in the data structure.
+     * @return The number of tags.
+     */
+    const int GetNumTags(){
+        return _num_tags;
+    }
+
+    /**
      * @brief Remove all tags that are older than 150ms.
      * @return The number of stale tags removed.
      */

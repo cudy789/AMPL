@@ -84,7 +84,7 @@ inline Eigen::MatrixBase<Derived>& Rad2Deg(Eigen::MatrixBase<Derived>& matrix) {
 }
 
 /**
- * @brief Templated function to convert a raw C++ array to an Eigen matrix.
+ * @brief Templated function to convert a raw C++ array to an Eigen matrix. Column major indexing.
  * @tparam Scalar Array data type.
  * @tparam Rows Number of rows.
  * @tparam Cols Number of columns.
@@ -208,4 +208,26 @@ inline Eigen::Vector3d RotationMatrixToRPY(const matd_t* R) {
         }
     }
     return RotationMatrixToRPY(E_R);
+}
+
+/**
+ * @brief Compare two Eigen objects elementwise for equality. Optionally specify a maximum tolerance per element. Both objects
+ *  must be the same shape.
+ * @param a The first Eigen object to compare.
+ * @param b The second Eigen object to compare.
+ * @param tolerance An optional tolerance to use when comparing elements. Defaults to 0.0.
+ * @return true if arrays are equal to each other, false otherwise.
+ */
+template <typename DerivedA, typename DerivedB>
+inline bool EigenEquals(const Eigen::MatrixBase<DerivedA>& a, const Eigen::MatrixBase<DerivedB>& b, double tolerance=0.0) {
+    if (a.rows() != b.rows() || a.cols() != b.cols()) {
+        return false;
+    }
+
+    for (int i = 0; i < a.rows(); ++i) {
+        for (int j = 0; j < a.cols(); ++j) {
+            if (std::fabs(a(i,j) - b(i,j)) > tolerance) return false;
+        }
+    }
+    return true;
 }

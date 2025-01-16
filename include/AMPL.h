@@ -95,4 +95,7 @@ private:
 
     LocalizationWorker* _l_w;
     std::vector<Worker*> _workers_t;
+
+    AMPLParams _params;
+
 };

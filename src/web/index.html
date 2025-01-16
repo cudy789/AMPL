@@ -136,12 +136,14 @@
     robot_group.add(cube);
 
     const gridHelper = new THREE.GridHelper(20, 20);
+    // gridHelper.rotation.x = Math.PI/2;
 
     scene.add(gridHelper);
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.minDistance = 0.1;
     controls.maxDistance = 10;
+    controls.screenSpacePanning = false;
 
     camera.position.x = 0;
     camera.position.y = 0;
@@ -176,10 +178,11 @@
                 'roll' in data && 'pitch' in data && 'yaw' in data) {
 
                 // // Update cube's position
-                robot_group.position.set(data.y, data.z, data.x);
+                robot_group.position.set(data.x, data.y, data.z);
                 // if (robot_model) robot_model.position.set(data.y, data.z -0.09, data.x);
                 // if (robot_model) robot_model.position.set(data.y, data.z, data.x);
-                //
+                robot_group.rotation.set(data.roll / 180 * Math.PI, data.yaw / 180 * Math.PI, data.pitch / 180 * Math.PI);
+
                 // // Update cube's rotation (roll, pitch, yaw in radians) x y z
                 // cube.rotation.set(data.roll / 180 * Math.PI, -data.yaw / 180 * Math.PI, data.pitch / 180 * Math.PI);
                 // if (robot_model) robot_model.rotation.set(data.roll / 180 * Math.PI + Math.PI/2, -data.yaw / 180 * Math.PI + Math.PI, data.pitch / 180 * Math.PI);
@@ -199,7 +202,7 @@
 
     socket.onclose = () => {
         console.log('WebSocket connection closed');
-        infoDiv.textContent = 'Lost connection, attempting to reconnect...'
+        infoDiv.textContent += '   ### Lost connection ##'
         // setTimeout(connectWebSocket, reconnectInterval); // Attempt reconnection
     };
     // }

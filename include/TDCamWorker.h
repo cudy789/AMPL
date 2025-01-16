@@ -60,8 +60,11 @@ protected:
     cv::Mat _annotated_im;
 
     cv::Mat _last_img;
-    int _period_frames_saved = 0;
+    // Use for both capture video saving and capture video playback
     double _ns_per_frame = 1.0e9/_c_params.fps;
+    int _period_frames = 0;
     ulong _start_time = 0;
 
+
+    std::vector<double> _possible_angles{0, -90, 180, 90};
 };

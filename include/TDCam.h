@@ -111,5 +111,20 @@ protected:
     apriltag_detector_t* _tag_detector;
     apriltag_family_t* _tf;
 
+//    Eigen::Matrix3d _R_translation_fix = CreateRotationMatrix({-90, 0, 0}); // pitch and yaw works, not roll
+////    Eigen::Matrix3d _R_rotation_fix = CreateRotationMatrix({-90, 0, 90}); // this worked with _R_translation_fix = Identity
+//    Eigen::Matrix3d _R_rotation_fix = CreateRotationMatrix({0, 0, 90}); // pitch and yaw works, not roll
 
+    Eigen::Matrix3d _R_translation_fix = CreateRotationMatrix({0, 0, 0});
+    Eigen::Matrix3d _R_rotation_fix = CreateRotationMatrix({-90, 0, 90}); // pitch and yaw works, not roll
+
+public:
+    const Eigen::Matrix3d &GetRotRotationFix() const;
+
+    const Eigen::Matrix3d &GetRotTranslationFix() const;
+
+protected:
+
+    void SetRotRotationFix(const Eigen::Matrix3d& R_fix);
+    void SetTransRotationFix(const Eigen::Matrix3d& T_fix);
 };

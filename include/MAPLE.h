@@ -16,7 +16,7 @@
 
 
 /**
- * @brief The Apriltag multicamera pose localization (MAPLE) class is a singleton object with with individual Worker
+ * @brief The Multicamera Apriltag Pose Localization and Estimation (MAPLE) class is a singleton object with with individual Worker
  * threads for each camera, the localization computation, the webserver, the NetworkTables client, and the logger.
  *
  * First, the config.yml configuration file is read to determine MAPLEParams and setup the TDCamWorker Workers.

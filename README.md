@@ -1,6 +1,6 @@
 # MAPLE: Multicamera Apriltag Pose Localization and Estimation
 
-[![Documentation Status](https://readthedocs.org/projects/maple-frc/badge/?version=latest)](https://ampl-frc.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/maple-frc/badge/?version=latest)](https://maple-maple.readthedocs.io/en/latest/?badge=latest)
 
 ## What is MAPLE?
 
@@ -38,7 +38,4 @@ Bring your own hardware, or use the recommended specs listed below (3 cameras, R
 
 ## Installation
 
-[View the latest documentation and instructions here.](https://maple-frc.readthedocs.io)
-
-
-
+[View the latest documentation and instructions here.](https://maple-maple.readthedocs.io)

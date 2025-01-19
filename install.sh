@@ -22,6 +22,9 @@ cd ./maple-config
 # Get config files
 wget https://raw.githubusercontent.com/cudy789/MAPLE/refs/heads/main/config.yml
 wget https://raw.githubusercontent.com/cudy789/MAPLE/refs/heads/main/docker-compose.yml
+# Get field.fmap file
+wget https://raw.githubusercontent.com/cudy789/MAPLE/refs/heads/main/fmap/field.fmap
+
 
 # Setup the static IP
 if [[ -z "$SKIP_STATIC_IP" ]]; then

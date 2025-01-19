@@ -15,8 +15,8 @@ cd maple-config
 COMPOSE_CMD="docker compose"
 # Append a user argument so logfiles aren't owned by root
 echo "    user: $USER" >> docker-compose.yml
-USER=$USER $COMPOSE_CMD pull
+$COMPOSE_CMD pull
 
 echo "Starting MAPLE"
-timeout 30 USER=$USER $COMPOSE_CMD up
-USER=$USER $COMPOSE_CMD down
+timeout 30 "USER=$USER $COMPOSE_CMD up"
+$COMPOSE_CMD down

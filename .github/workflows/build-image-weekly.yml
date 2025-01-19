@@ -1,10 +1,10 @@
 # See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
-name: Build Docker images nightly
+name: Build Docker images weekly
 
 # 7:05am UTC = 1:05am CDT
 on:
   schedule:
-    - cron: '5 7 * * *'
+    - cron: '5 7 * * SUN'
 
 jobs:
   build-nocache-ARM64:

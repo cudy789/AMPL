@@ -21,17 +21,16 @@ have the following ``config.yml`` template in the ``~/maple-config`` folder on y
      CAM_LEFT:
        # maps to /dev/video4
        camera_id: 4
-       rx: 544
-       ry: 288
+       rx: 640
+       ry: 480
 
        # focal length (in pixels)
-       fx: 590.588
-       fy: 543.682
+       fx: 428
+       fy: 428
 
        # center of the camera image (in pixels)
-       cx: 279.683
-       cy: 136.174
-       dist_coeffs: [ 0.0814261, -0.0272061, -0.00493096, 0.00292767, 0.799907 ]
+       cx: 320
+       cy: 240
 
        # Camera x, y, z location on the robot, in meters
        translation: [-0.10, 0, 0]
@@ -181,6 +180,10 @@ Restart MAPLE, then navigate to the webUI at `http://maple.local:8080 <http://ma
 On the left side, you should see a live video feed. Verify the camera image is coming from the desired camera. If the video
 feed is coming from the wrong camera, modify your ``config.yml`` to change either the camera name or ``camera_id`` so it
 maps to the correct camera.
+
+.. note::
+   If the camera image is black but displays a framerate in the top right corner, your exposure may be too low. Increase the
+   value of your exposure parameter in ``config.yml``.
 
 Repeat this process for each camera.
 

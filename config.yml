@@ -7,7 +7,6 @@ fmap_file: ../fmap/crescendo_2024.fmap
 #fmap_file: ../fmap/singletag_rolled.fmap
 #fmap_file: ../fmap/field.fmap
 
-
 cameras:
   # front left
   CAM_LEFT:

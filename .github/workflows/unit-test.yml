@@ -1,36 +1,35 @@
 # See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
-name: Run tests
+name: Unit tests
 
 on:
   push:
     branches: [ "main" ]
-    paths: [ "include/**", "src/**", "lib/**", "test/**", "CMakeLists.txt", ".github/workflows/build-and-test.yml" ]
+    paths: [ "include/**", "src/**", "lib/**", "test/**", "CMakeLists.txt", ".github/workflows/unit-test.yml" ]
 
   pull_request:
     branches: [ "main" ]
-    paths: [ "include/**", "src/**", "lib/**", "test/**", "CMakeLists.txt", ".github/workflows/build-and-test.yml" ]
+    paths: [ "include/**", "src/**", "lib/**", "test/**", "CMakeLists.txt", ".github/workflows/unit-test.yml" ]
 
 
 jobs:
-  ci-x86-tests:
+  ci-x64-tests:
     runs-on: X64
     timeout-minutes: 20
-
     steps:
     - name: Pull code
       uses: actions/checkout@v4
 
     - name: x86 tests
       shell: bash
-      run: bash scripts/ci-tests.sh
+      run: bash test/ci-unit-tests.sh
+
   ci-ARM64-tests:
     runs-on: ARM64
     timeout-minutes: 20
-  
     steps:
       - name: Pull code
         uses: actions/checkout@v4
   
       - name: ARM64 tests
         shell: bash
-        run: bash scripts/ci-tests.sh
+        run: bash test/ci-unit-tests.sh

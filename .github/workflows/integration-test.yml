@@ -1,0 +1,35 @@
+# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
+name: Integration tests
+
+on:
+  push:
+    branches: [ "main" ]
+    paths: [ "include/**", "src/**", "lib/**", "test/**", "CMakeLists.txt", ".github/workflows/integration-test.yml" ]
+
+  pull_request:
+    branches: [ "main" ]
+    paths: [ "include/**", "src/**", "lib/**", "test/**", "CMakeLists.txt", ".github/workflows/integration-test.yml" ]
+
+
+jobs:
+  ci-x64-tests:
+    runs-on: X64
+    timeout-minutes: 30
+    steps:
+    - name: Pull code
+      uses: actions/checkout@v4
+
+    - name: x86 tests
+      shell: bash
+      run: bash test/integration/ci-integration-tests.sh
+
+  ci-ARM64-tests:
+    runs-on: ARM64
+    timeout-minutes: 30
+    steps:
+      - name: Pull code
+        uses: actions/checkout@v4
+  
+      - name: ARM64 tests
+        shell: bash
+        run: bash test/integration/ci-integration-tests.sh

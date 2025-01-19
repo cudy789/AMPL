@@ -13,9 +13,6 @@ SKIP_STATIC_IP=1 bash install-maple.sh
 cd maple-config
 
 COMPOSE_CMD="docker compose"
-if [ "$( uname -m )" = "aarch64" ]; then
-  COMPOSE_CMD="docker-compose"
-fi
 
 $COMPOSE_CMD pull
 

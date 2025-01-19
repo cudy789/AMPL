@@ -10,6 +10,7 @@ echo "Running integration tests."
 NUM_FILES=$(ls test/integration/bash-groups -1 | wc -l)
 FILE_COUNT=1
 
+set -e  # exit on error
 for t in test/integration/bash-groups/*.sh; do
   echo "Test $FILE_COUNT / $NUM_FILES: $t"
   bash "$t"

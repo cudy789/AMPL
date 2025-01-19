@@ -13,11 +13,10 @@ SKIP_STATIC_IP=1 bash install-maple.sh
 cd maple-config
 
 COMPOSE_CMD="docker compose"
-
-$COMPOSE_CMD pull
+# Append a user argument so logfiles aren't owned by root
+echo "    user: $USER" >> docker-compose.yml
+USER=$USER $COMPOSE_CMD pull
 
 echo "Starting MAPLE"
-
-timeout 30 $COMPOSE_CMD up
-
-$COMPOSE_CMD down
+timeout 30 USER=$USER $COMPOSE_CMD up
+USER=$USER $COMPOSE_CMD down

@@ -1,7 +1,7 @@
-Team number: 2987
-Fmap file: ../test/test_tag_layout.fmap
+team_number: 2987
+fmap_file: ../test/test_tag_layout.fmap
 
-Cameras:
+cameras:
   CAM_LEFT:
     camera_id: 0
     rx: 544

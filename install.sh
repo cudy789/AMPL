@@ -22,6 +22,12 @@ cd ./maple-config
 # Get config files
 wget https://raw.githubusercontent.com/cudy789/MAPLE/refs/heads/main/config.yml
 wget https://raw.githubusercontent.com/cudy789/MAPLE/refs/heads/main/docker-compose.yml
+
+# If the host machine is X86_64, modify docker-compose.yml to use appropriate image
+if [ "$( uname -m )" != "aarch64" ]; then
+  sed -i 's/latest/X64/g' docker-compose.yml
+fi
+
 # Get field.fmap file
 wget https://raw.githubusercontent.com/cudy789/MAPLE/refs/heads/main/fmap/field.fmap
 

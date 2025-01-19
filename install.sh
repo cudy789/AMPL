@@ -16,8 +16,8 @@ sudo systemctl start docker
 sudo usermod -aG docker "$USER"
 
 # Make config directory
-mkdir -p /home/"$USER"/maple-config
-cd /home/"$USER"/maple-config
+mkdir -p ./maple-config
+cd ./maple-config
 
 # Get config files
 wget https://raw.githubusercontent.com/cudy789/MAPLE/refs/heads/main/config.yml
@@ -36,11 +36,11 @@ echo "############ Installation is almost complete! ############
 To finish the installation:
 
 1. Log out of your terminal and log back in
-2. Go to the ~/maple-config directory and run 'docker-compose pull'
+2. Go to the maple-config directory and run 'docker-compose pull'
 
 Then, to configure and start MAPLE:
 
-1. Modify your ~/maple-config/config.yml file for your specific camera setup
+1. Modify your maple-config/config.yml file for your specific camera setup
 2. Run 'docker-compose up -d' to start MAPLE
 
 ##########################################################

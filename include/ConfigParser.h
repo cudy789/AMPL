@@ -193,9 +193,10 @@ public:
                     int c_exposure = it->second["exposure"].as<int>();
                     if (it->second["camera_playback_file"]) camera_playback_file = it->second["camera_playback_file"].as<std::string>();
 
-                    Eigen::Vector3d T_total = Eigen::Vector3d(it->second["translation"].as<std::vector<double>>().data());
-                    Eigen::Vector3d c_rotation = Eigen::Vector3d(it->second["rotation"].as<std::vector<double>>().data());
+                    Eigen::Vector3d c_translation = Eigen::Vector3d(it->second["translation"].as<std::vector<double>>().data());
+                    Eigen::Vector3d T_total = {c_translation[1], -c_translation[0], c_translation[2]};
 
+                    Eigen::Vector3d c_rotation = Eigen::Vector3d(it->second["rotation"].as<std::vector<double>>().data());
                     Eigen::Matrix3d R_total = CreateRotationMatrix({-c_rotation[0], c_rotation[1], -c_rotation[2]});
 
                     cam_p.emplace_back(CamParams{.name=c_name, .camera_id=c_id, .camera_playback_file=camera_playback_file,

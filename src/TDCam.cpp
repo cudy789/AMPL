@@ -243,7 +243,7 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
             Eigen::Matrix3d R_robot_global_unordered = _c_params.R_camera_robot * Pose_AG.R * ((R_tag_global_fix * R_tag_camera_raw.transpose()));
             Eigen::Vector3d T_robot_global_unordered = Pose_AG.T - _c_params.R_camera_robot.transpose() * (T_tag_global_fix * (
                        _c_params.R_camera_robot * Pose_AG.R * ((R_tag_global_fix * R_tag_camera_raw.transpose()))
-                    ) * T_tag_camera_raw + _c_params.T_camera_robot);
+                    ) * T_tag_camera_raw + _c_params.R_camera_robot * _c_params.T_camera_robot);
             // Changes to translations/rotations
             // X [good]
             // Y [good]

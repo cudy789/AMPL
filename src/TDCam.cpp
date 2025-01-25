@@ -226,7 +226,7 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
 
             Eigen::Vector3d T_tag_camera_raw = Array2EM<double, 3, 1>(pose->t->data);
             Eigen::Matrix3d R_tag_camera_raw = Array2EM<double, 3, 3>(pose->R->data);
-            Eigen::Matrix3d R_tag_camera = R_tag_local_fix * R_tag_camera_raw;
+//            Eigen::Matrix3d R_tag_camera = R_tag_local_fix * R_tag_camera_raw;
 
 
             // Get the location of the apriltag in the world frame
@@ -240,9 +240,10 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
                 continue;
             }
 
-            Eigen::Matrix3d R_robot_global_unordered = Pose_AG.R * (R_tag_global_fix * R_tag_camera_raw.transpose());
-            Eigen::Vector3d T_robot_global_unordered = Pose_AG.T - (T_tag_global_fix * (Pose_AG.R * (R_tag_global_fix * R_tag_camera_raw.transpose())) * T_tag_camera_raw);
-//            Eigen::Vector3d T_robot_global_unordered = Pose_AG.T - (T_tag_global_fix * (Pose_AG.R * R_tag_camera_raw.transpose()) * T_tag_camera_raw); // working without any tag rotation
+            Eigen::Matrix3d R_robot_global_unordered = _c_params.R_camera_robot * Pose_AG.R * ((R_tag_global_fix * R_tag_camera_raw.transpose()));
+            Eigen::Vector3d T_robot_global_unordered = Pose_AG.T - _c_params.R_camera_robot.transpose() * (T_tag_global_fix * (
+                       _c_params.R_camera_robot * Pose_AG.R * ((R_tag_global_fix * R_tag_camera_raw.transpose()))
+                    ) * T_tag_camera_raw + _c_params.R_camera_robot * _c_params.T_camera_robot);
             // Changes to translations/rotations
             // X [good]
             // Y [good]
@@ -282,8 +283,8 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
             new_tag.tag.R = Eigen::Matrix3d::Constant(0);
             new_tag.tag.T = Eigen::Vector3d::Constant(0);
             // Camera frame
-            new_tag.camera.R = R_tag_camera;
-            new_tag.camera.T = T_tag_camera_raw;
+//            new_tag.camera.R = R_tag_camera;
+//            new_tag.camera.T = T_tag_camera_raw;
 //            // Robot frame
 //            new_tag.robot.R = R_camera_robot;
 //            new_tag.robot.T = T_camera_robot;

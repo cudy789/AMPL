@@ -5,9 +5,36 @@ pose_logging: true
 
 cameras:
   # front left
-  CAM_LEFT:
-    # maps to /dev/video4
-    camera_id: 4
+#  CAM_LEFT:
+#    # maps to /dev/video4
+#    camera_id: 4
+#    camera_playback_file: ../tools/sim_waypoint_input_left.mp4
+#    rx: 640
+#    ry: 480
+#
+#    # focal length (in pixels)
+#    fx: 428
+#    fy: 428
+#
+#    # center of the camera image (in pixels)
+#    cx: 320
+#    cy: 240
+#
+#    # Camera x, y, z location on the robot, in meters
+#    translation: [0, 0, 0]
+#
+#    # Camera roll, pitch, yaw orientation on the robot, in degrees
+#    rotation: [0, 0, 0]
+#
+#    fps: 60.0
+#    exposure: 1
+
+  # front right
+  CAM_RIGHT:
+    # maps to /dev/video6
+    camera_id: 6
+    camera_playback_file: ../tools/sim_waypoint_input_right.mp4
+
     rx: 640
     ry: 480
 
@@ -20,35 +47,10 @@ cameras:
     cy: 240
 
     # Camera x, y, z location on the robot, in meters
-    translation: [-0.10, 0, 0]
+    translation: [0, 0, 0]
 
     # Camera roll, pitch, yaw orientation on the robot, in degrees
-    rotation: [0, 0, 0]
+    rotation: [0, 30, 0]
 
-    fps: 30.0
-    exposure: 1
-
-  # front right
-  CAM_RIGHT:
-    # maps to /dev/video6
-    camera_id: 6
-    rx: 544
-    ry: 288
-
-    # focal length (in pixels)
-    fx: 590.588
-    fy: 543.682
-
-    # center of the camera image (in pixels)
-    cx: 279.683
-    cy: 136.174
-    dist_coeffs: [ 0.0814261, -0.0272061, -0.00493096, 0.00292767, 0.799907 ]
-
-    # Camera x, y, z location on the robot, in meters
-    translation: [0.10, 0, 0]
-
-    # Camera roll, pitch, yaw orientation on the robot, in degrees
-    rotation: [0, 0, 0]
-
-    fps: 30.0
+    fps: 60.0
     exposure: 1

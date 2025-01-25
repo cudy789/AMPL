@@ -105,14 +105,15 @@ void TDCamWorker::Execute() {
 //                                            SetRotRotationFix(rrot_fix);
 //                                            TagArray fixed_tags = GetTagsFromImage(img);
 //                                            Pose_single lerr_tag;
-//                                            Pose_single desired_pose{{-0.5, 0.5, 0.5}, CreateRotationMatrix({15, -15, -30})};
-//                                            if (fixed_tags.data.at(13).at(0).err > fixed_tags.data.at(13).at(1).err){
-//                                                lerr_tag = fixed_tags.data.at(13).at(1).global;
+//                                            Pose_single desired_pose{{1, 0.5, 0.5}, CreateRotationMatrix({0, 15, -90})};
+//
+//                                            if (fixed_tags.data.at(12).at(0).err > fixed_tags.data.at(12).at(1).err){
+//                                                lerr_tag = fixed_tags.data.at(12).at(1).global;
 //                                            } else{
-//                                                lerr_tag = fixed_tags.data.at(13).at(0).global;
+//                                                lerr_tag = fixed_tags.data.at(12).at(0).global;
 //                                            }
 //
-//                                            lerr_tag.R = CreateRotationMatrix({(RotationMatrixToRPY(lerr_tag.R)[0] + 90), RotationMatrixToRPY(lerr_tag.R)[1], RotationMatrixToRPY(lerr_tag.R)[2]});
+////                                            lerr_tag.R = CreateRotationMatrix({(RotationMatrixToRPY(lerr_tag.R)[0] + 90), RotationMatrixToRPY(lerr_tag.R)[1], RotationMatrixToRPY(lerr_tag.R)[2]});
 //
 //
 //// TODO try this one next, add 90 degrees to roll
@@ -123,8 +124,10 @@ void TDCamWorker::Execute() {
 //
 //
 ////                                            if (EigenEquals(RotationMatrixToRPY(lerr_tag.R), RotationMatrixToRPY(desired_pose.R), 8)){
-//                                            if (EigenEquals(lerr_tag.T, desired_pose.T, 0.15) && EigenEquals(RotationMatrixToRPY(lerr_tag.R), RotationMatrixToRPY(desired_pose.R), 8)){
-////                                            if (EigenEquals(lerr_tag.T, desired_pose.T, 0.15) ){
+////                                            AppLogger::Logger::Log("lerr_tag: " + to_string(lerr_tag));
+//                                            if (EigenEquals(lerr_tag.T, desired_pose.T, 0.5) && EigenEquals(RotationMatrixToRPY(lerr_tag.R), RotationMatrixToRPY(desired_pose.R), 8)){
+////                                            if (EigenEquals(lerr_tag.T, desired_pose.T, 0.3) ){
+////                                            if (EigenEquals(RotationMatrixToRPY(lerr_tag.R), RotationMatrixToRPY(desired_pose.R), 8)){
 ////                                                found_fix=true;
 //                                                AppLogger::Logger::Log("\t######### FOUND CORRECT TRANSLATION ROTATION FIX #########");
 //                                                AppLogger::Logger::Log("\ttroll: " + to_string(tr_angle) + " tpitch: " + to_string(tp_angle) + " tyaw: " + to_string(ty_angle));

@@ -81,7 +81,7 @@ def render_camera(position, cam_extrinsic):
     rotation_matrix = rotation.as_matrix()
 
     extrinsic_rotation = R.from_euler('yxz', [*cam_extrinsic[3:]], degrees=True)
-    rotation_matrix = rotation_matrix @ extrinsic_rotation.as_matrix()
+    rotation_matrix =  extrinsic_rotation.as_matrix() @ rotation_matrix #TODO these rotations are dependent, i.e. pitching and yawing induces a roll
 
 
     # Camera up vector and forward vector in local frame
@@ -160,7 +160,7 @@ def main():
             for i, pos in enumerate(positions):
 
                 rgb_image_left = render_camera(pos, [0, 0, 0, 0, 0, 0])
-                rgb_image_right = render_camera(pos, [0, 0, 0, 0, 30, 0])
+                rgb_image_right = render_camera(pos, [0, 0, 0, 15, 0, -30]) # x,y,z, pitch, roll, yaw
                 left_out.write(rgb_image_left)
                 right_out.write(rgb_image_right)
 

@@ -48,31 +48,22 @@
 
     const webSocketUrl = `ws://${window.location.hostname}:8082`;
     const streamUrl = `http://${window.location.hostname}:8081`;
-    let reconnectInterval = 200; // Reconnection attempt interval in milliseconds
 
-    // function connectMjpegStream() {
-        mjpegStream.src = streamUrl;
+    mjpegStream.src = streamUrl;
 
-        mjpegStream.onload = () => {
-            // console.log('MJPEG stream connected');
-            const naturalWidth = mjpegStream.naturalWidth;
-            const naturalHeight = mjpegStream.naturalHeight;
+    mjpegStream.onload = () => {
+        // console.log('MJPEG stream connected');
+        const naturalWidth = mjpegStream.naturalWidth;
+        const naturalHeight = mjpegStream.naturalHeight;
 
-            // Set the size of the image element dynamically
-            mjpegStream.style.width = `${naturalWidth}px`;
-            mjpegStream.style.height = `${naturalHeight}px`;
-            // console.log(`MJPEG Stream Resolution: ${naturalWidth}x${naturalHeight}`);
-        };
+        // Set the size of the image element dynamically
+        mjpegStream.style.width = `${naturalWidth}px`;
+        mjpegStream.style.height = `${naturalHeight}px`;
+    };
 
-        mjpegStream.onerror = () => {
-            console.warn('MJPEG stream disconnected. Attempting to reconnect...');
-            // setTimeout(connectMjpegStream, reconnectInterval); // Retry after interval
-        };
-    // }
-
-    // Initialize MJPEG stream connection
-    // connectMjpegStream();
-
+    mjpegStream.onerror = () => {
+        console.warn('MJPEG stream disconnected. Attempting to reconnect...');
+    };
 
     import * as THREE from './js/three.module.js';
     import { OrbitControls } from './js/OrbitControls.js';
@@ -109,9 +100,8 @@
     loader.load( './js/drone_low_poly.glb', function ( gltf ) {
 
             robot_model = gltf.scene;
-            robot_model.scale.set(0.005, 0.005, 0.005);
-            // robot_model.position.set(0, -0.09, 0);
-            robot_model.rotation.set(Math.PI/2, Math.PI, 0);
+            robot_model.scale.set(0.003, 0.003, 0.003);
+            robot_model.rotation.set(0, 0, Math.PI/2);
             robot_group.add(robot_model);
             scene.add( robot_group );
 
@@ -127,15 +117,11 @@
 
     } );
 
-    // const geometry = new THREE.BoxGeometry(0.25, 0.25, 0.25);
-    const cube = new THREE.AxesHelper( 1 );
-    // const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    // const cube = new THREE.Mesh(geometry.geometry, material);
-    // scene.add(cube);
-    robot_group.add(cube);
+    const axes = new THREE.AxesHelper( 1 );
+    axes.rotation.set(0, -Math.PI/2, Math.PI/2)
+    robot_group.add(axes);
 
     const gridHelper = new THREE.GridHelper(20, 20);
-    // gridHelper.rotation.x = Math.PI/2;
 
     scene.add(gridHelper);
 
@@ -147,21 +133,10 @@
     camera.position.x = 0;
     camera.position.y = 0;
     camera.position.z = 2;
-    // camera.rotation.x = Math.PI/2;
     controls.update();
 
     // Webpage coord display
     const infoDiv = document.getElementById('info');
-
-    // let socket; // Declare socket outside to reuse
-
-    // function connectWebSocket() {
-
-        // WebSocket connection
-        // const socket = new WebSocket('ws://10.0.0.99:8082');
-
-
-
     const socket = new WebSocket(webSocketUrl);
 
     socket.onopen = () => {
@@ -176,16 +151,9 @@
             if ('x' in data && 'y' in data && 'z' in data &&
                 'roll' in data && 'pitch' in data && 'yaw' in data) {
 
-                // // Update cube's position
-                robot_group.position.set(data.x, data.y, data.z);
-                // if (robot_model) robot_model.position.set(data.y, data.z -0.09, data.x);
-                // if (robot_model) robot_model.position.set(data.y, data.z, data.x);
-                robot_group.rotation.set(data.roll / 180 * Math.PI, data.yaw / 180 * Math.PI, data.pitch / 180 * Math.PI);
-
-                // // Update cube's rotation (roll, pitch, yaw in radians) x y z
-                // cube.rotation.set(data.roll / 180 * Math.PI, -data.yaw / 180 * Math.PI, data.pitch / 180 * Math.PI);
-                // if (robot_model) robot_model.rotation.set(data.roll / 180 * Math.PI + Math.PI/2, -data.yaw / 180 * Math.PI + Math.PI, data.pitch / 180 * Math.PI);
-                // if (robot_model) robot_model.rotation.set(data.roll / 180 * Math.PI + Math.PI/2, -data.yaw / 180 * Math.PI + Math.PI, data.pitch / 180 * Math.PI);
+                // // Update robot's position & rotation
+                robot_group.position.set(-data.y, data.z, -data.x);
+                robot_group.rotation.set(data.pitch / 180 * Math.PI, data.roll / 180 * Math.PI, data.yaw / 180 * Math.PI);
 
                 infoDiv.textContent = `x: ${data.x.toFixed(2)}, y: ${data.y.toFixed(2)}, z: ${data.z.toFixed(2)} \n` +
                     `roll: ${(data.roll).toFixed(2)}, pitch: ${(data.pitch).toFixed(2)}, yaw: ${(data.yaw).toFixed(2)}`;
@@ -202,11 +170,7 @@
     socket.onclose = () => {
         console.log('WebSocket connection closed');
         infoDiv.textContent += '   ### Lost connection ##'
-        // setTimeout(connectWebSocket, reconnectInterval); // Attempt reconnection
     };
-    // }
-    // Initial WebSocket connection
-    // connectWebSocket();
 
     window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;

@@ -29,8 +29,19 @@ FILE_COUNT=1
 set -e  # exit on error
 for t in ../test/integration/sim_tests/sim_configs/*.yml; do
   # Generate videos
+  echo "Kill any existing maple-integration containers..."
+  docker kill maple-integration || true
+  sleep 5
   echo "Generating videos for test $FILE_COUNT / $NUM_FILES: $t"
-  bash ../scripts/run-common.sh "python3 pybullet_video_gen.py --config \"$t\" --output ../test/integration/sim_tests/sim_output"
+  docker run --rm -h $IMAGE_NAME-$HOSTNAME --name maple-integration --group-add sudo --group-add video --add-host $IMAGE_NAME-$HOSTNAME:127.0.0.1 --network host -it \
+    --user=$(id -u $USER):$(id -g $USER) \
+    --volume="/etc/passwd:/etc/passwd:ro" \
+    --volume="/etc/shadow:/etc/shadow:ro" \
+    --volume="$HOME:$HOME" \
+    --workdir="$(pwd)" \
+    --privileged \
+    $ARCH \
+    rogueraptor7/$IMAGE_NAME:$IMAGE_TAG /bin/bash -c "python3 pybullet_video_gen.py --config \"$t\" --output ../test/integration/sim_tests/sim_output"
 
   # Run MAPLE
   IFS="/" read -ra path_array <<< "$t"

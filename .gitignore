@@ -6,6 +6,4 @@ docs/html
 docs/_build
 docs/latex
 docs/xml
-*.csv
-*.avi
-*.mp4
+tools/sim_output/*.*

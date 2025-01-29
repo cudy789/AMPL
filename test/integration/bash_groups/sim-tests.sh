@@ -15,6 +15,9 @@ else
   IMAGE_TAG="X64"
 fi
 
+echo "Pulling latest image for simulation testing: rogueraptor7/$IMAGE_NAME:$IMAGE_TAG"
+docker pull rogueraptor7/$IMAGE_NAME:$IMAGE_TAG
+
 BASE_DIR="$(pwd)"
 
 echo "Generate simulation videos and run tests"
@@ -27,7 +30,7 @@ set -e  # exit on error
 for t in ../test/integration/sim_tests/sim_configs/*.yml; do
   # Generate videos
   echo "Generating videos for test $FILE_COUNT / $NUM_FILES: $t"
-  python3 pybullet_video_gen.py --config "$t" --output ../test/integration/sim_tests/sim_output
+  bash ../scripts/run-common.sh "python3 pybullet_video_gen.py --config \"$t\" --output ../test/integration/sim_tests/sim_output"
 
   # Run MAPLE
   IFS="/" read -ra path_array <<< "$t"

@@ -1,0 +1,10 @@
+tests:
+  2024-no-movement-single-cam:
+    fmap: ../fmap/crescendo_2024.fmap
+    camera_names:
+      - center
+    camera_extrinsics:
+      - [0,0,0,0,0,0]
+    waypoints:
+      - [0,1.0,0.5,0.5,0,15,-90]
+      - [10,1.0,0.5,0.5,0,15,-90]

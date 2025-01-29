@@ -37,12 +37,12 @@ void MAPLE::Setup(const std::string& config_file) {
         if (p.calibrate){
             CalibrationCamWorker* this_cam_worker = new CalibrationCamWorker(p);
             w_w->RegisterMatFunc([this_cam_worker]() -> cv::Mat {return this_cam_worker->GetAnnotatedIm();});
-            _workers_t.emplace_back(this_cam_worker);
+            _cam_workers_t.emplace_back(this_cam_worker);
         } else{
             TDCamWorker* this_cam_worker = new TDCamWorker(p, tag_layout, [this](TagArray& raw_tags) -> bool {return _l_w->QueueTags(raw_tags);},
                                                            _params.video_recording);
             w_w->RegisterMatFunc([this_cam_worker]() -> cv::Mat {return this_cam_worker->GetAnnotatedIm();});
-            _workers_t.emplace_back(this_cam_worker);
+            _cam_workers_t.emplace_back(this_cam_worker);
         }
     }
 }
@@ -57,6 +57,10 @@ void MAPLE::Start(){
     for (Worker* w: _workers_t){
         w->Start();
     }
+    for (Worker* w: _cam_workers_t){
+        w->Start();
+    }
+
     AppLogger::Logger::Log("All workers have been started");
 }
 
@@ -70,7 +74,7 @@ RobotPose MAPLE::GetRobotPose() {
 
 void MAPLE::Join(){
     // Wait until the tag detection threads are finished
-    for (Worker* w: _workers_t){
+    for (Worker* w: _cam_workers_t){
         w->Join();
         delete w;
     }
@@ -80,6 +84,9 @@ void MAPLE::Join(){
 bool MAPLE::Stop(){
     bool all_stopped = true;
     for (Worker* w: _workers_t){
+        all_stopped = w->Stop();
+    }
+    for (Worker* w: _cam_workers_t){
         all_stopped = w->Stop();
     }
     return all_stopped;
@@ -92,6 +99,10 @@ void MAPLE::StaticSignalCallback(int signum) {
 void MAPLE::SignalCallback(int signum) {
     AppLogger::Logger::Log("Caught CTRL-C, exiting...");
     for (Worker* t: _workers_t){
+        t->Stop();
+        delete t;
+    }
+    for (Worker* t: _cam_workers_t){
         t->Stop();
         delete t;
     }

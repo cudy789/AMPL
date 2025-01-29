@@ -1,4 +1,5 @@
 build
+build-ci
 cmake-build-debug
 .idea
 docs/html
@@ -7,3 +8,4 @@ docs/latex
 docs/xml
 *.csv
 *.avi
+*.mp4

@@ -2,21 +2,11 @@
 
 # Corey Knutson, 1/29/2025
 
+# Create simulation videos with specific trajectories and camera parameters specified in the sim_configs folder.
 # Run this script from the root directory of MAPLE
-
 
 IMAGE_NAME="maple"
 IMAGE_TAG="latest"
-
-if [ "$ARM" = "1" ] || [ "$( uname -m )" = "aarch64" ]; then
-  ARCH="--platform=linux/arm64"
-  if [ "$( uname -m )" != "aarch64" ]; then
-    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes # enable qemu support for docker
-  fi
-else
-  ARCH="--platform=linux/amd64"
-  IMAGE_TAG="X64"
-fi
 
 echo "Generate simulation videos for integration tests"
 

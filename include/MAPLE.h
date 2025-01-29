@@ -95,6 +95,7 @@ private:
 
     LocalizationWorker* _l_w;
     std::vector<Worker*> _workers_t;
+    std::vector<Worker*> _cam_workers_t;
 
     MAPLEParams _params;
 

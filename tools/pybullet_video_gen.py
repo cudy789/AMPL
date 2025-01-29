@@ -6,6 +6,7 @@ from scipy.spatial.transform import Rotation as R
 import json, csv
 import cv2
 import argparse
+import yaml
 
 # Camera parameters
 fov = 60  # Field of view
@@ -16,9 +17,10 @@ far_plane = 30
 
 framerate = 60
 
-def gen_positions_from_waypoints(waypoints_file):
-    with open(waypoints_file, "r") as f:
-        lines = [l for l in csv.reader(f)]
+# video_filenames = ["left", "right", "rear"]
+# camera_extrinsics = [[0,0,0,0,0,0], [0.5, 0.5, 0, 0, 0, -30], [0,0,0,0,0,180]]
+
+def gen_positions_from_waypoints(lines):
 
     p_x = np.array([])
     p_y = np.array([])
@@ -30,7 +32,6 @@ def gen_positions_from_waypoints(waypoints_file):
     if float(lines[0][0]) != 0.0:
         print("error, first waypoint must start at 0.0 seconds")
         exit(-1)
-
 
     for i in range(len(lines)):
         if i == 0:
@@ -115,72 +116,83 @@ def render_camera(position, cam_extrinsic):
 def main():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--headless", help="run in headless mode", action="store_true")
-    parser.add_argument("--user-control", help="user moves the camera around scene instead of following predetermined trajectory", action="store_true")
-    parser.add_argument("--waypoints", help="specify the .csv file with waypoints to generate the trajectory for the camera to follow", default="sim_waypoint_input.csv")
-    parser.add_argument("--fmap", help="specify the .fmap file with apriltag locations and orientations", default="../fmap/field.fmap")
+    parser.add_argument("--gui", help="display pybullet gui during render", action="store_true")
+    # parser.add_argument("--user-control", help="user moves the camera around scene instead of following predetermined trajectory", action="store_true")
+    # parser.add_argument("--waypoints", help="specify the .csv file with waypoints to generate the trajectory for the camera to follow", default="sim_waypoint_input.csv")
+    # parser.add_argument("--fmap", help="specify the .fmap file with apriltag locations and orientations", default="../fmap/field.fmap")
+    parser.add_argument("--config", help="specify the configuration file path", default="./sim-config.yml")
+    parser.add_argument("--output", help="specify the output directory", default="./sim_output")
 
     args = parser.parse_args()
 
     # Connect to PyBullet physics server
-    if (args.headless):
-        p.connect(p.DIRECT)
-    else:
+    if (args.gui):
         p.connect(p.GUI)
+    else:
+        p.connect(p.DIRECT)
 
-    # Set up the physics simulation
-    p.setAdditionalSearchPath(pybullet_data.getDataPath())  # Path to PyBullet data files
-    # p.setPhysicsEngineParameter(enableFileCaching=0)
-
-    p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
-    p.setGravity(0, 0, -9.8)
-
-    # Load a flat plane and apriltags into the scene
-    plane_id = p.loadURDF("plane.urdf")
-    populate_apriltags(args.fmap)
-
-    # Setup recording
-    left_filename = "." + str(args.waypoints[:-4]) + "_left.mp4"
-    left_out = cv2.VideoWriter(left_filename, cv2.VideoWriter_fourcc(*'mp4v'), framerate, (640,480))
-
-    right_filename = "." + str(args.waypoints[:-4]) + "_right.mp4"
-    right_out = cv2.VideoWriter(right_filename, cv2.VideoWriter_fourcc(*'mp4v'), framerate, (640,480))
+    # Parse the configuration file
+    with open(args.config) as stream:
+        try:
+            config_yaml = yaml.safe_load(stream)
+        except yaml.YAMLError as err:
+            print(err)
+            exit(-1)
 
 
-    with open(str(args.waypoints[:-4])+"_gt.csv", "w") as f:
+    # Create the output directory
+    if not os.path.exists(args.output):
+        os.makedirs(args.output)
 
-        progress_tracker=0
-        time = 0
-        if (args.user_control):
-            pos = [0,0,0,0,0,0]
-            rgb_image_left = render_camera(pos, [-0.25, 0, 0.5, 0, 15, 0])
-            rgb_image_right = render_camera(pos, [0.25, 0, 0.5, 0, 15, 0])
-        else:
-            positions = gen_positions_from_waypoints(args.waypoints)
+    for test in config_yaml["tests"]:
+        test_name = test
+        print("#################################################\nGenerating artifacts for {}\n#################################################".format(test_name))
+        test = config_yaml["tests"][test]
+
+        # Set up the physics simulation
+        p.setAdditionalSearchPath(pybullet_data.getDataPath())  # Path to PyBullet data files
+        # p.setPhysicsEngineParameter(enableFileCaching=0)
+
+        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
+        p.setGravity(0, 0, -9.8)
+
+        # Load a flat plane and apriltags into the scene
+        plane_id = p.loadURDF("plane.urdf")
+        populate_apriltags(test["fmap"])
+
+        # Setup recording
+        camera_names = test["camera_names"]
+        camera_extrinsics = test["camera_extrinsics"]
+        video_filenames = [args.output + "/" + test_name + "_" + f + ".mp4" for f in camera_names]
+
+        video_writers = [cv2.VideoWriter(f, cv2.VideoWriter_fourcc(*'mp4v'), framerate, (640,480)) for f in video_filenames]
+
+        with open(args.output + "/" + test_name + "_gt.csv", "w") as f:
+
+            progress_tracker=0
+            time = 0
+            positions = gen_positions_from_waypoints(test["waypoints"])
             for i, pos in enumerate(positions):
 
-                rgb_image_left = render_camera(pos, [0, 0, 0, 0, 0, 0])
-                rgb_image_right = render_camera(pos, [0, 0, 0, 15, 0, -30]) # x,y,z, pitch, roll, yaw
-                left_out.write(rgb_image_left)
-                right_out.write(rgb_image_right)
+                for cam_index in range(len(video_filenames)):
+                    cam_img = render_camera(pos, camera_extrinsics[cam_index])
+                    video_writers[cam_index].write(cam_img)
 
                 percent_complete = round(i/len(positions) * 100, 2)
                 if (percent_complete >= progress_tracker):
                     progress_tracker += 10
-                    print("{}% complete".format(percent_complete))
+                    print("{}: {}% complete".format(test_name, percent_complete))
 
                 f.write(str(round(time, 9)*1.0e9) + "," + ",".join((str(x) for x in pos.tolist())) + "\n")
 
                 time += 1.0/framerate
 
-            left_out.release()
-            right_out.release()
-            os.rename(left_filename, left_filename[1:])
-            os.rename(right_filename, right_filename[1:])
+            for writer in video_writers:
+                writer.release()
 
 
-
-    print("100.0% complete\nfinished")
+        print("{}: 100.0% complete".format(test_name))
+    print("finished")
 
 
 if __name__ == "__main__":

@@ -20,5 +20,5 @@ if [ "$NOCACHE" = "1" ]; then
 fi
 
 # No cross compilation
-docker build --platform $PLATFORM $BUILDCACHE --tag rogueraptor7/$IMAGE_NAME:$IMAGE_TAG .
+docker build --platform $PLATFORM --build-arg CACHE_BUST="$(date +%s)" $BUILDCACHE --tag rogueraptor7/$IMAGE_NAME:$IMAGE_TAG .
 docker push rogueraptor7/$IMAGE_NAME:$IMAGE_TAG

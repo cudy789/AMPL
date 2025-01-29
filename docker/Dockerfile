@@ -30,6 +30,8 @@ RUN pip install sphinx_rtd_theme sphinx-tabs pexpect
 RUN pip install numpy scipy pybullet
 
 # ============ Build and run MAPLE ============
+ARG CACHE_BUST
+
 RUN mkdir /app
 WORKDIR /app
 RUN git clone https://github.com/cudy789/MAPLE.git

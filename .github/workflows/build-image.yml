@@ -22,7 +22,7 @@ jobs:
 
     - name: Build image
       shell: bash
-      run: cd docker; NOCACHE=1 bash ci-build-image.sh
+      run: cd docker; bash ci-build-image.sh
 
   build-docker-image-X64:
     runs-on: X64
@@ -38,4 +38,4 @@ jobs:
 
       - name: Build image
         shell: bash
-        run: cd docker; NOCACHE=1 BUILDX64=1 bash ci-build-image.sh
+        run: cd docker; BUILDX64=1 bash ci-build-image.sh

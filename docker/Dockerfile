@@ -27,7 +27,7 @@ RUN pip install sphinx_rtd_theme sphinx-tabs pexpect
 
 # ============ Install Open3D for test video generation ============
 
-RUN pip install numpy scipy pybullet
+RUN pip install numpy==1.23.1 scipy pybullet
 
 # ============ Build and run MAPLE ============
 ARG CACHE_BUST

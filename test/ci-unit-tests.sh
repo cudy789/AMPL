@@ -41,7 +41,7 @@ docker run --rm -h $IMAGE_NAME-$HOSTNAME --name maple-tests --group-add sudo --g
   --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
   --volume="/var/run/docker.sock:/var/run/docker.sock" \
   --env="DISPLAY" \
-  --volume="$HOME:$HOME" \
+  --volume="$(pwd):$(pwd)" \
   --workdir="$(pwd)" \
   --privileged \
   $ARCH \

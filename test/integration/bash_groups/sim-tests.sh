@@ -15,24 +15,23 @@ else
   IMAGE_TAG="X64"
 fi
 
+echo "Pulling latest image for simulation testing: rogueraptor7/$IMAGE_NAME:$IMAGE_TAG"
+docker pull rogueraptor7/$IMAGE_NAME:$IMAGE_TAG
+
 BASE_DIR="$(pwd)"
 
-echo "Generate simulation videos and run tests"
+echo "Run simulation integration tests"
 
-cd tools;
 
-NUM_FILES=$(ls ../test/integration/sim_tests/sim_configs/*.yml -1 | wc -l)
+NUM_FILES=$(ls test/integration/sim_tests/maple_configs/*.yml -1 | wc -l)
 FILE_COUNT=1
 set -e  # exit on error
-for t in ../test/integration/sim_tests/sim_configs/*.yml; do
-  # Generate videos
-  echo "Generating videos for test $FILE_COUNT / $NUM_FILES: $t"
-  python3 pybullet_video_gen.py --config "$t" --output ../test/integration/sim_tests/sim_output
+for t in test/integration/sim_tests/maple_configs/*.yml; do
 
   # Run MAPLE
   IFS="/" read -ra path_array <<< "$t"
   echo "Running MAPLE integration test $FILE_COUNT / $NUM_FILES: $t"
-  echo "Using config file ${path_array[-1]}"
+  echo "Using config file $t"
   echo "Kill any existing maple-integration containers..."
   docker kill maple-integration || true
   sleep 5
@@ -50,7 +49,6 @@ for t in ../test/integration/sim_tests/sim_configs/*.yml; do
     --privileged \
     $ARCH \
     rogueraptor7/$IMAGE_NAME:$IMAGE_TAG /bin/bash -c "cat config.yml; mkdir -p build-ci && cd build-ci && cmake .. && make -j4 && ./maple;" 2>&1 | grep -v "Corrupt JPEG data"
-
 
   FILE_COUNT=$((FILE_COUNT + 1))
 done

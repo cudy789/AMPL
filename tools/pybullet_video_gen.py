@@ -110,7 +110,7 @@ def render_camera(position, cam_extrinsic):
         viewMatrix=view_matrix,
         projectionMatrix=projection_matrix,
     )
-    return np.reshape(rgb_img, (height, width, 4))[:, :, :3]  # Return the RGB part of the image
+    return np.uint8(np.reshape(rgb_img, (height, width, 4))[:, :, :3])  # Return the RGB part of the image
 
 
 def main():

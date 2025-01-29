@@ -1,6 +1,11 @@
 # MAPLE: Multicamera Apriltag Pose Localization and Estimation
 
 [![Documentation Status](https://readthedocs.org/projects/maple-maple/badge/?version=latest)](https://maple-maple.readthedocs.io/en/latest/?badge=latest)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/cudy789/maple/build-image.yml?branch=main&label=docker%20image)
+
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/cudy789/maple/integration-test.yml?branch=main&label=integration%20tests)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/cudy789/maple/unit-test.yml?branch=main&label=unit%20tests)
+
 
 ## What is MAPLE?
 

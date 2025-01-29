@@ -6,6 +6,8 @@
 # attempting to install them.
 echo "Testing installation script for a fresh install. Skips network configuration."
 
+mkdir -p fresh-install-test; cd fresh-install-test;
+
 wget -O install-maple.sh https://raw.githubusercontent.com/cudy789/MAPLE/refs/heads/main/install.sh
 
 SKIP_STATIC_IP=1 bash install-maple.sh

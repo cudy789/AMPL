@@ -25,9 +25,9 @@ RUN apt-get update && apt-get install -y default-jre default-jdk
 RUN apt-get update && apt-get install -y doxygen python3-sphinx python3-breathe
 RUN pip install sphinx_rtd_theme sphinx-tabs pexpect
 
-# ============ Install Open3D for test video generation ============
+# ============ Install Pybullet for simulation video generation ============
 
-RUN pip install numpy==1.23.1 scipy pybullet
+RUN pip install numpy==1.23.1 scipy pybullet pyyaml
 
 # ============ Build and run MAPLE ============
 ARG CACHE_BUST

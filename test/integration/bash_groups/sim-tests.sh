@@ -33,7 +33,7 @@ for t in ../test/integration/sim_tests/sim_configs/*.yml; do
   docker kill maple-integration || true
   sleep 5
   echo "Generating videos for test $FILE_COUNT / $NUM_FILES: $t"
-  docker run --rm -h $IMAGE_NAME-$HOSTNAME --name maple-integration --group-add sudo --group-add video --add-host $IMAGE_NAME-$HOSTNAME:127.0.0.1 --network host -it \
+  docker run --rm -h $IMAGE_NAME-$HOSTNAME --name maple-integration --group-add sudo --group-add video --add-host $IMAGE_NAME-$HOSTNAME:127.0.0.1 --network host \
     --user=$(id -u $USER):$(id -g $USER) \
     --volume="/etc/passwd:/etc/passwd:ro" \
     --volume="/etc/shadow:/etc/shadow:ro" \

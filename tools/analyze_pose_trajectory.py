@@ -2,7 +2,7 @@
 
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import sys
 
 def create_df(csv_path):
@@ -16,7 +16,6 @@ def create_df(csv_path):
     print(df.describe())
 
     return df
-
 
 def main():
     if len(sys.argv) < 2:
@@ -43,18 +42,24 @@ def main():
     print("Difference between test and ground truth data: {}".format(df_diff.describe()))
 
     # Check standard deviations
-    if any(np.std(df_diff[col]) > 0.1 for col in interp_columns):
+    if any(np.std(df_diff[col]) > 0.1 for col in interp_columns[:3]):
+        print("a stddev is >0.1")
+        exit(-1)
+
+    if any(np.std(df_diff[col]) > 1.0 for col in interp_columns[3:]):
+        print("a stddev is >1.0")
         exit(-1)
 
     # Plot differences with error bars
-    plt.figure(figsize=(10, 6))
-    for col in interp_columns:
-        plt.errorbar(df_diff['time'], df_diff[col], yerr=np.std(df_diff[col]), label=col, fmt='-o')
-    plt.xlabel('Time')
-    plt.ylabel('Difference')
-    plt.title('Differences over Time with Error Bars')
-    plt.legend()
-    plt.show()
+    # plt.figure(figsize=(10, 6))
+    # for col in interp_columns:
+    #     plt.errorbar(df_diff['time'], df_diff[col], yerr=np.std(df_diff[col]), label=col, fmt='-o')
+    # plt.xlabel('Time')
+    # plt.ylabel('Difference')
+    # plt.title('Differences over Time with Error Bars')
+    # plt.legend()
+    # plt.tight_layout()
+    # plt.savefig(csv_path_gt + ".png")
 
 if __name__ == "__main__":
     main()

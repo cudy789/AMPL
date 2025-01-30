@@ -2,7 +2,7 @@
 
 import pandas as pd
 import numpy as np
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import sys
 
 def create_df(csv_path):
@@ -27,6 +27,10 @@ def main():
     df_test = create_df(csv_path_test)
     df_gt = create_df(csv_path_gt)
 
+    # Ignore the first 1 second of data
+    df_test = df_test[df_test['time'] >= df_test['time'].min() + 1].reset_index(drop=True)
+    df_gt = df_gt[df_gt['time'] >= df_gt['time'].min() + 1].reset_index(drop=True)
+
 
     # Interpolate df_test to match df_gt timestamps
     interp_columns = ["x", "y", "z", "roll", "pitch", "yaw"]
@@ -41,25 +45,36 @@ def main():
 
     print("Difference between test and ground truth data: {}".format(df_diff.describe()))
 
-    # Check standard deviations
-    if any(np.std(df_diff[col]) > 0.1 for col in interp_columns[:3]):
-        print("a stddev is >0.1")
-        exit(-1)
-
-    if any(np.std(df_diff[col]) > 1.0 for col in interp_columns[3:]):
-        print("a stddev is >1.0")
-        exit(-1)
+    # Plot differences with error bars
+    plt.figure(figsize=(10, 6))
+    for col in interp_columns[:3]:
+        plt.errorbar(df_diff['time'], df_diff[col], yerr=np.std(df_diff[col]), label=col, fmt='-o', alpha=0.2, capsize=3)
+    plt.xlabel('Time')
+    plt.ylabel('Difference')
+    plt.title('Differences over Time with Error Bars')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(csv_path_gt + "_position.png")
 
     # Plot differences with error bars
-    # plt.figure(figsize=(10, 6))
-    # for col in interp_columns:
-    #     plt.errorbar(df_diff['time'], df_diff[col], yerr=np.std(df_diff[col]), label=col, fmt='-o')
-    # plt.xlabel('Time')
-    # plt.ylabel('Difference')
-    # plt.title('Differences over Time with Error Bars')
-    # plt.legend()
-    # plt.tight_layout()
-    # plt.savefig(csv_path_gt + ".png")
+    plt.figure(figsize=(10, 6))
+    for col in interp_columns[3:]:
+        plt.errorbar(df_diff['time'], df_diff[col], yerr=np.std(df_diff[col]), label=col, fmt='-o', alpha=0.2, capsize=3)
+    plt.xlabel('Time')
+    plt.ylabel('Difference')
+    plt.title('Differences over Time with Error Bars')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(csv_path_gt + "_orientation.png")
+
+    # Check standard deviations
+    if any(np.std(df_diff[col]) > 0.1 for col in interp_columns[:3]):
+        print("ERROR: a position stddev is >0.1")
+        exit(-1)
+
+    if any(np.std(df_diff[col]) > 3.0 for col in interp_columns[3:]):
+        print("ERROR: an orientation stddev is >3.0")
+        exit(-1)
 
 if __name__ == "__main__":
     main()

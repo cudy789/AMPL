@@ -240,7 +240,8 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
                 continue;
             }
 
-            Eigen::Matrix3d R_robot_global_unordered = _c_params.R_camera_robot * Pose_AG.R * ((R_tag_global_fix * R_tag_camera_raw.transpose()));
+            // TODO rotation is not properly applied with camera extrinsic matrix positive pitch, going to offset below.
+            Eigen::Matrix3d R_robot_global_unordered = Pose_AG.R * ((R_tag_global_fix * R_tag_camera_raw.transpose()));
             Eigen::Vector3d T_robot_global_unordered = Pose_AG.T - _c_params.R_camera_robot.transpose() * (T_tag_global_fix * (
                        _c_params.R_camera_robot * Pose_AG.R * ((R_tag_global_fix * R_tag_camera_raw.transpose()))
                     ) * T_tag_camera_raw + _c_params.R_camera_robot * _c_params.T_camera_robot);
@@ -265,7 +266,8 @@ TagArray TDCam::GetTagsFromImage(const cv::Mat &img) {
             R_robot_ordered_vec[0] += 90;
             if (R_robot_ordered_vec[0] >=180) R_robot_ordered_vec[0] -= 180; //TODO this seems to be working! need to setup testing pipeline with more generated examples! and also test on field!
 
-            Eigen::Matrix3d R_robot_global = CreateRotationMatrix({R_robot_ordered_vec[1], R_robot_ordered_vec[0], R_robot_ordered_vec[2]});
+            Eigen::Vector3d c_extrinsic_rotation = RotationMatrixToRPY(_c_params.R_camera_robot);
+            Eigen::Matrix3d R_robot_global = CreateRotationMatrix({R_robot_ordered_vec[1]-c_extrinsic_rotation[0], R_robot_ordered_vec[0]-c_extrinsic_rotation[1], R_robot_ordered_vec[2]-c_extrinsic_rotation[2]});
 //            Eigen::Matrix3d R_robot_global = R_robot_global_unordered;
 
             // Calculate the camera (robot) pose in the global frame

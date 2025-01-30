@@ -27,7 +27,7 @@ RUN pip install sphinx_rtd_theme sphinx-tabs pexpect
 
 # ============ Install Pybullet for simulation video generation ============
 
-RUN pip install numpy==1.23.1 scipy pybullet pyyaml opencv-python
+RUN pip install numpy==1.23.1 scipy pandas pybullet pyyaml opencv-python
 
 # ============ Build and run MAPLE ============
 ARG CACHE_BUST

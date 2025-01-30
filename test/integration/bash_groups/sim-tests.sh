@@ -36,7 +36,7 @@ for t in test/integration/sim_tests/maple_configs/*.yml; do
   echo "Using config file $t"
   echo "Kill any existing maple-integration containers..."
   docker kill maple-integration || true
-  sleep 5
+  sleep 2
 
   timeout 10m docker run --rm -h $IMAGE_NAME-$HOSTNAME --name maple-integration --group-add sudo --group-add video --add-host $IMAGE_NAME-$HOSTNAME:127.0.0.1 --network host \
     --volume="$BASE_DIR/fmap:/tests/fmap:ro" \
@@ -51,7 +51,7 @@ for t in test/integration/sim_tests/maple_configs/*.yml; do
     --workdir="/tests" \
     --privileged \
     $ARCH \
-    rogueraptor7/$IMAGE_NAME:$IMAGE_TAG /bin/bash -c "cat config.yml; mkdir -p build-ci && cd build-ci && rm -rf logs && cmake .. && make -j4 && ./maple 2>&1 | grep -v \"Corrupt JPEG data\"; ls -la .; python3 ../tools/analyze_pose_trajectory.py logs/maple_trajectory_log_* ../test/integration/sim_tests/sim_output/${test_name[0]}_gt.csv"
+    rogueraptor7/$IMAGE_NAME:$IMAGE_TAG /bin/bash -c "cat config.yml; mkdir -p build-ci && cd build-ci && rm -rf logs && cmake .. && make -j4 && ./maple 2>&1 | grep -v \"Corrupt JPEG data\"; python3 ../tools/analyze_pose_trajectory.py logs/maple_trajectory_log_* ../test/integration/sim_tests/sim_output/${test_name[0]}_gt.csv"
 
   FILE_COUNT=$((FILE_COUNT + 1))
 done

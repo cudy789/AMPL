@@ -81,8 +81,10 @@ def render_camera(position, cam_extrinsic):
     rotation = R.from_euler('yxz', [roll, pitch, yaw], degrees=True)
     rotation_matrix = rotation.as_matrix()
 
-    extrinsic_rotation = R.from_euler('yxz', [*cam_extrinsic[3:]], degrees=True)
-    rotation_matrix =  extrinsic_rotation.as_matrix() @ rotation_matrix #TODO these rotations are dependent, i.e. pitching and yawing induces a roll
+
+    e_roll, e_pitch, e_yaw = cam_extrinsic[3:]
+    extrinsic_rotation = R.from_euler('yxz', [e_roll, e_pitch, e_yaw], degrees=True)
+    rotation_matrix = rotation_matrix @ extrinsic_rotation.as_matrix()  #TODO these rotations are dependent, i.e. pitching and yawing induces a roll
 
 
     # Camera up vector and forward vector in local frame
@@ -94,7 +96,8 @@ def render_camera(position, cam_extrinsic):
     camera_up_global = rotation_matrix @ camera_up_local
 
     camera_position = np.array([x, y, z])
-    camera_position += cam_extrinsic[:3]
+    e_x, e_y, e_z = cam_extrinsic[:3]
+    camera_position += [e_y, -e_x, e_z]
 
     # Calculate camera target and up vector
 
@@ -110,7 +113,7 @@ def render_camera(position, cam_extrinsic):
         viewMatrix=view_matrix,
         projectionMatrix=projection_matrix,
     )
-    return np.uint8(np.reshape(rgb_img, (height, width, 4))[:, :, :3])  # Return the RGB part of the image
+    return np.reshape(rgb_img, (height, width, 4))[:, :, :3]  # Return the RGB part of the image
 
 
 def main():

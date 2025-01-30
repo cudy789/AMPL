@@ -2,7 +2,7 @@
 
 import pandas as pd
 import numpy as np
-
+import matplotlib.pyplot as plt
 import sys
 
 def create_df(csv_path):
@@ -28,8 +28,33 @@ def main():
     df_test = create_df(csv_path_test)
     df_gt = create_df(csv_path_gt)
 
-    print("Test x stddev: {:.4e}".format(df_test["x"].std()))
-    print("GT x stddev: {:.4e}".format(df_gt["x"].std()))
+
+    # Interpolate df_test to match df_gt timestamps
+    interp_columns = ["x", "y", "z", "roll", "pitch", "yaw"]
+    df_test_interpolated = pd.DataFrame({"time": df_gt["time"]})
+    for col in interp_columns:
+        df_test_interpolated[col] = np.interp(df_gt["time"], df_test["time"], df_test[col])
+
+    # Compute the difference
+    df_diff = df_gt.copy()
+    for col in interp_columns:
+        df_diff[col] = df_gt[col] - df_test_interpolated[col]
+
+    print("Difference between test and ground truth data: {}".format(df_diff.describe()))
+
+    # Check standard deviations
+    if any(np.std(df_diff[col]) > 0.1 for col in interp_columns):
+        exit(-1)
+
+    # Plot differences with error bars
+    plt.figure(figsize=(10, 6))
+    for col in interp_columns:
+        plt.errorbar(df_diff['time'], df_diff[col], yerr=np.std(df_diff[col]), label=col, fmt='-o')
+    plt.xlabel('Time')
+    plt.ylabel('Difference')
+    plt.title('Differences over Time with Error Bars')
+    plt.legend()
+    plt.show()
 
 if __name__ == "__main__":
     main()

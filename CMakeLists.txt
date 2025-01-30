@@ -89,7 +89,7 @@ set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(BUILD_PYTHON_WRAPPER OFF CACHE BOOL "" FORCE)
 add_subdirectory(lib/apriltag)
 
-file(MAKE_DIRECTORY "logs")
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/logs")
 
 # Yaml parser
 add_subdirectory(lib/yaml-cpp)

@@ -41,3 +41,4 @@ jobs:
           path: |
             test/integration/sim_tests/sim_output
             build-ci/logs
+          retention-days: 14

@@ -40,5 +40,5 @@ jobs:
           name: logs-videos-graphs
           path: |
             test/integration/sim_tests/sim_output
-            build-ci/logs
+            build-ci/logs/maple_log.txt
           retention-days: 14

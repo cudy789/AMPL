@@ -37,6 +37,8 @@ jobs:
       - name: Upload integration test artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: dist-without-markdown
+          name: logs-videos-graphs
           path: |
             test/integration/sim_tests/sim_output
+            build-ci/logs
+          retention-days: 14

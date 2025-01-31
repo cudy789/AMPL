@@ -33,3 +33,10 @@ jobs:
       - name: ARM64 tests
         shell: bash
         run: bash test/integration/ci-integration-tests.sh
+
+      - name: Upload integration test artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-without-markdown
+          path: |
+            test/integration/sim_tests/sim_output

@@ -75,6 +75,9 @@ Access the position and orientation arrays from NetworkTables like any other arr
 
    .. code-tab:: c++
 
+        #include <networktables/DoubleArrayTopic.h>
+        #include <networktables/NetworkTablesInstance.h>
+
         nt::DoubleArraySubscriber positionSub;
         nt::DoubleArraySubscriber orientationSub;
 

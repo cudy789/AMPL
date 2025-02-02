@@ -3,7 +3,7 @@ name: Unit tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "dev" ]
     paths: [ "include/**", "src/**", "lib/**", "test/**", "CMakeLists.txt", ".github/workflows/unit-test.yml" ]
 
   pull_request:

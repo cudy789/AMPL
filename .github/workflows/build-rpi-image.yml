@@ -1,0 +1,26 @@
+# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
+name: Build Raspberry Pi Image
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-rpi-image:
+    runs-on: ARM64
+    timeout-minutes: 120
+    steps:
+      - name: Pull code
+        uses: actions/checkout@v4
+
+      - name: Build RPi image with script
+        shell: bash
+        run: cd tools/create_rpi_image; bash create_rpi_image.sh
+
+      - name: Upload image
+        uses: actions/upload-artifact@v4
+        with:
+          name: maple-img
+          path: |
+            tools/create_rpi_image/maple.img
+          retention-days: 14

@@ -6,8 +6,8 @@ pose_logging: true
 cameras:
   # front left
   CAM_LEFT:
-    # maps to /dev/video4
-    camera_id: 4
+    # maps to /dev/video0
+    camera_id: 0
     rx: 640
     ry: 480
 
@@ -30,8 +30,8 @@ cameras:
 
   # front right
   CAM_RIGHT:
-    # maps to /dev/video6
-    camera_id: 6
+    # maps to /dev/video2
+    camera_id: 2
     rx: 544
     ry: 288
 

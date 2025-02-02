@@ -7,3 +7,4 @@ docs/_build
 docs/latex
 docs/xml
 tools/sim_output/*.*
+*.img

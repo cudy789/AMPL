@@ -1,0 +1,14 @@
+tests:
+  2025-triple-cam-red1.yml:
+    fmap: ../fmap/frc2025r2.fmap
+    camera_names:
+      - front-left
+      - front-right
+      - rear-center
+    camera_extrinsics:
+      - [-0.25,0,1,0,-60,-35]
+      - [0.25,0,1,0,-60,35]
+      - [0,0,1.25,0,15,180]
+    waypoints:
+#      - [0,12,6,0,0,0,-90]
+#      - [3,14,6,0,0,0,-90]

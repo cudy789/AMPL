@@ -1,7 +1,7 @@
 #include "WebServerWorker.h"
 
 WebServerWorker::WebServerWorker(unsigned short port) :
-        Worker{"Webserver worker", true, 50.0},  // Call Worker constructor
+        Worker{"Webserver worker", true, 30.0},  // Call Worker constructor
         _port(port),
         _mgr(mg_mgr())
 {}
@@ -94,7 +94,7 @@ void WebServerWorker::Execute() {
         }
         if (!merged_frame.empty()) {
             std::vector<uchar> buf;
-            cv::imencode(".jpg", merged_frame, buf, std::vector<int>{cv::IMWRITE_JPEG_QUALITY, 85});
+            cv::imencode(".jpg", merged_frame, buf, std::vector<int>{cv::IMWRITE_JPEG_QUALITY, 25});
 
             mg_connection *conn;
             for (conn=_mgr.conns; conn !=nullptr; conn=conn->next){

@@ -17,10 +17,11 @@ far_plane = 30
 
 framerate = 60
 
-# video_filenames = ["left", "right", "rear"]
-# camera_extrinsics = [[0,0,0,0,0,0], [0.5, 0.5, 0, 0, 0, -30], [0,0,0,0,0,180]]
-
 def gen_positions_from_waypoints(lines):
+    if (len(lines)) == 1:
+        with open(lines[0], 'r') as file:
+            print(file.read())
+    #TODO generate video files from .json files of pathplanner
 
     p_x = np.array([])
     p_y = np.array([])
@@ -81,11 +82,9 @@ def render_camera(position, cam_extrinsic):
     rotation = R.from_euler('yxz', [roll, pitch, yaw], degrees=True)
     rotation_matrix = rotation.as_matrix()
 
-
     e_roll, e_pitch, e_yaw = cam_extrinsic[3:]
     extrinsic_rotation = R.from_euler('yxz', [e_roll, e_pitch, e_yaw], degrees=True)
     rotation_matrix = rotation_matrix @ extrinsic_rotation.as_matrix()  #TODO these rotations are dependent, i.e. pitching and yawing induces a roll
-
 
     # Camera up vector and forward vector in local frame
     camera_forward_local = np.array([0, 1, 0])  # Y-axis is forward
@@ -97,7 +96,7 @@ def render_camera(position, cam_extrinsic):
 
     camera_position = np.array([x, y, z])
     e_x, e_y, e_z = cam_extrinsic[:3]
-    camera_position += [e_y, -e_x, e_z]
+    camera_position += [e_y, e_x, e_z]
 
     # Calculate camera target and up vector
 
@@ -117,7 +116,6 @@ def render_camera(position, cam_extrinsic):
 
 
 def main():
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--gui", help="display pybullet gui during render", action="store_true")
     # parser.add_argument("--user-control", help="user moves the camera around scene instead of following predetermined trajectory", action="store_true")
@@ -142,7 +140,6 @@ def main():
             print(err)
             exit(-1)
 
-
     # Create the output directory
     if not os.path.exists(args.output):
         os.makedirs(args.output)
@@ -154,7 +151,6 @@ def main():
 
         # Set up the physics simulation
         p.setAdditionalSearchPath(pybullet_data.getDataPath())  # Path to PyBullet data files
-        # p.setPhysicsEngineParameter(enableFileCaching=0)
 
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
         p.setGravity(0, 0, -9.8)
@@ -166,11 +162,11 @@ def main():
         # Setup recording
         camera_names = test["camera_names"]
         camera_extrinsics = test["camera_extrinsics"]
-        video_filenames = [args.output + "/" + test_name + "_" + f + ".mp4" for f in camera_names]
+        video_filenames = [args.output + "/" + test_name[:-4] + "_" + f + ".mp4" for f in camera_names]
 
         video_writers = [cv2.VideoWriter(f, cv2.VideoWriter_fourcc(*'mp4v'), framerate, (640,480)) for f in video_filenames]
 
-        with open(args.output + "/" + test_name + "_gt.csv", "w") as f:
+        with open(args.output + "/" + test_name[:-4] + "_gt.csv", "w") as f:
 
             progress_tracker=0
             time = 0
@@ -193,10 +189,8 @@ def main():
             for writer in video_writers:
                 writer.release()
 
-
         print("{}: 100.0% complete".format(test_name))
     print("finished")
-
 
 if __name__ == "__main__":
     main()

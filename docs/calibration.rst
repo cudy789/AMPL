@@ -1,5 +1,5 @@
 Camera lens distortion and calibration
-#######################################
+#########################################
 
 Most camera lenses introduce visual distortions into the image as they're recording and should be corrected when you are
 trying to make accurate measurements using cameras. `OpenCV's page on Camera Calibration <https://docs.opencv.org/4.x/dc/dbb/tutorial_py_calibration.html>`_
@@ -12,7 +12,7 @@ for radial and tangential distortions using these methods when the user provides
    which is very helpful for high FPS cameras.
 
 How to calibrate your cameras in MAPLE
-======================================
+==========================================
 
 .. note::
 

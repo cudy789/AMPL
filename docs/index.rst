@@ -70,3 +70,4 @@ Q: Why should I use this instead of Limelight or PhotonVision?
    installation/index
    calibration
    api/index
+   contributing/index

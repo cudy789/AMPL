@@ -2,10 +2,11 @@
 
 team_number: -1
 pose_logging: true
+
 cameras:
   FRONT_LEFT:
     camera_id: 0
-    camera_playback_file: ../../test/integration/sim_tests/sim_output/2025-triple-cam-red1_front-left.mp4
+    camera_playback_file: ../test/integration/sim_tests/sim_output/2025-triple-cam-red1_front-left.mp4
     rx: 640
     ry: 480
 
@@ -27,7 +28,7 @@ cameras:
     exposure: 1
   FRONT_RIGHT:
     camera_id: 2
-    camera_playback_file: test/integration/sim_tests/sim_output/2025-triple-cam-red1_front-right.mp4
+    camera_playback_file: ../test/integration/sim_tests/sim_output/2025-triple-cam-red1_front-right.mp4
     rx: 640
     ry: 480
 
@@ -50,7 +51,7 @@ cameras:
 
   REAR_CENTER:
     camera_id: 4
-    camera_playback_file: test/integration/sim_tests/sim_output/2025-triple-cam-red1_rear-center.mp4
+    camera_playback_file: ../test/integration/sim_tests/sim_output/2025-triple-cam-red1_rear-center.mp4
     rx: 640
     ry: 480
 

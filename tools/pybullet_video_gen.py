@@ -8,6 +8,11 @@ import cv2
 import argparse
 import yaml
 
+# fmap field parameters
+
+FIELD_WIDTH = 17.5483
+FIELD_HEIGHT = 8.0519
+
 # Camera parameters
 fov = 60  # Field of view
 aspect_ratio = 4.0/3.0
@@ -52,6 +57,7 @@ def gen_positions_from_waypoints(lines):
 
 # Populate AprilTags from a .fmap file
 def populate_apriltags(fmap_file):
+    global FIELD_HEIGHT, FIELD_WIDTH
     tags = []
     with open(fmap_file, "r") as f:
         fmap_data = json.load(f)
@@ -60,6 +66,9 @@ def populate_apriltags(fmap_file):
         id = tag["id"]
         transform = np.array(tag["transform"]).reshape((4,4))
         translation = transform[:3,-1].reshape(-1)
+        # translation[0] -= FIELD_WIDTH
+        # translation[1] -= FIELD_HEIGHT
+        print("{} xyz: {}".format(id, translation))
         rotation = R.from_matrix(transform[:3, :3]).as_matrix()
 
         b_tag = p.loadURDF("./at_objs/at.urdf", translation, R.from_matrix(rotation).as_quat())

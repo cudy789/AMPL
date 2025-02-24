@@ -39,7 +39,7 @@ for t in test/integration/sim_tests/maple_configs/2025-triple-cam-pathplanner.ym
   docker kill maple-integration || true
   sleep 2
 
-  timeout 10m docker run --rm -h $IMAGE_NAME-$HOSTNAME --name maple-integration --group-add sudo --group-add video --add-host $IMAGE_NAME-$HOSTNAME:127.0.0.1 --network host \
+  timeout 10m docker run --rm -h $IMAGE_NAME-$HOSTNAME --name maple-integration --group-add sudo --group-add video --add-host $IMAGE_NAME-$HOSTNAME:127.0.0.1 \
     --volume="$BASE_DIR/fmap:/tests/fmap:ro" \
     --volume="$BASE_DIR/build-ci:/tests/build-ci" \
     --volume="$BASE_DIR/include:/tests/include:ro" \
@@ -50,6 +50,9 @@ for t in test/integration/sim_tests/maple_configs/2025-triple-cam-pathplanner.ym
     --volume="$BASE_DIR/test/integration/sim_tests/maple_configs/${path_array[-1]}:/tests/config.yml:ro" \
     --volume="$BASE_DIR/CMakeLists.txt:/tests/CMakeLists.txt:ro" \
     --workdir="/tests" \
+    -p 8080:8080 \
+    -p 8081:8081 \
+    -p 8082:8082 \
     --privileged \
     $ARCH \
     rogueraptor7/$IMAGE_NAME:$IMAGE_TAG /bin/bash -c "cat config.yml; mkdir -p build-ci && cd build-ci && rm -rf logs && cmake .. && make -j4 && ./maple 2>&1 | grep -v \"Corrupt JPEG data\"; python3 ../tools/analyze_pose_trajectory.py logs/maple_trajectory_log_* ../test/integration/sim_tests/sim_output/${test_name[0]}_gt.csv"

@@ -10,7 +10,7 @@ to estimate the orientation (or pose) of a robot in 3D space. Multiple cameras a
 and reduce blindspots as the cameras move around in the world. This software stack is geared towards FRC FIRST robotics
 competitions, but can be configured for general Apriltag localization applications.
 
-.. image:: res/crappy_recording_athome.gif
+.. image:: res/better_recording.gif
 
 
 Compared to existing FRC camera solutions (such as `Limelight <https://docs.limelightvision.io/>`_ or `PhotonVision <https://docs.photonvision.org>`_), MAPLE is designed specifically for multicamera

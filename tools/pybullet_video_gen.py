@@ -61,7 +61,8 @@ def populate_apriltags(fmap_file):
         transform = np.array(tag["transform"]).reshape((4,4))
         translation = transform[:3,-1].reshape(-1)
         rotation = R.from_matrix(transform[:3, :3]).as_matrix()
-
+        translation[0] = translation[0] + (17.5482504 / 2)
+        translation[1] = translation[1] + (8.0519016 / 2)
         b_tag = p.loadURDF("./at_objs/at.urdf", translation, R.from_matrix(rotation).as_quat())
 
         if (id < 10):

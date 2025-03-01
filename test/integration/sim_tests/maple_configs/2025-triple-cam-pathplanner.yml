@@ -72,25 +72,25 @@ cameras:
   #   fps: 60.0
   #   exposure: 1
 
-  # REAR_CENTER:
-  #   camera_id: 4
-  #   camera_playback_file: ../test/integration/sim_tests/sim_output/2025-triple-cam-pathplanner_rear-center.mp4
-  #   rx: 640
-  #   ry: 480
+  #REAR_CENTER:
+  #  camera_id: 4
+  #  camera_playback_file: ../test/integration/sim_tests/sim_output/2025-triple-cam-pathplanner_rear-center.mp4
+  #  rx: 640
+  # ry: 480
 
-  #   # focal length (in pixels)
-  #   fx: 428
-  #   fy: 428
+  #  # focal length (in pixels)
+  #  fx: 428
+  #  fy: 428
 
-  #   # center of the camera image (in pixels)
-  #   cx: 320
-  #   cy: 240
+  #  # center of the camera image (in pixels)
+  #  cx: 320
+  #  cy: 240
 
-  #   # Camera x, y, z location on the robot, in meters
-  #   translation: [ 0, 0, 1.25 ]
+  #  # Camera x, y, z location on the robot, in meters
+  #  translation: [ 0, 0, 1.25 ]
 
-  #   # Camera roll, pitch, yaw orientation on the robot, in degrees
-  #   rotation: [ 0, 15, 180 ]
+  #  # Camera roll, pitch, yaw orientation on the robot, in degrees
+  #  rotation: [ 0, 15, 180 ]
 
-  #   fps: 60.0
-  #   exposure: 1
+  #  fps: 60.0
+  #  exposure: 1
